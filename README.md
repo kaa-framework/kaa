@@ -7,6 +7,8 @@
 ### Структура фреймворка
 Фреймворк состоит из следующих модулей:
 
++ [GeneratorInterface](docs/GeneratorInterface.md) - общий интерфейс генератора
+
 + [HttpMessage](docs/HttpMessage.md) - предоставляет классы для удобной работы с запросами и ответами HTTP
 
 + [EventDispatcher](docs/EventDispatcher.md) - отправка и подписка на сообщения
@@ -21,11 +23,6 @@
 
 + [Security](docs/Security.md) - принимает объект запроса и решает имеет ли пользователь, отправивший его, доступ к этому запросу...
 
-generate(array $params)
-[
-    'directories' => [
-        'App\Model'
-    ],
-    'resultSrc' = 'generated/Validator',
-    'resultClassName' = 'Generated\Validator'
-]
+### [Диаграмма обработки запроса](https://miro.com/welcomeonboard/dkV1ZXNGekY3R2dTM1pzRmN1SWpQMTllUGdBbWhMaEJyR0JxR0E4RE5zem9iTlJ5YTRQWjRNbktRTk9laU95TnwzNDU4NzY0NTM2NTEwODMzNzI1fDI=?share_link_id=856045042759)
+
+![Диаграмма обработки запроса](docs/request_handling.jpg)
