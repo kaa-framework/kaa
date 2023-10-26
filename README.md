@@ -7,7 +7,7 @@
 ### Структура фреймворка
 Фреймворк состоит из следующих модулей:
 
-+ [GeneratorInterface](docs/GeneratorInterface.md) - общий интерфейс генератора
++ [PhpGenerator](docs/PhpGenerator.md) - библиотека для удобной генерации кода
 
 + [HttpMessage](docs/HttpMessage.md) - предоставляет классы для удобной работы с запросами и ответами HTTP
 
