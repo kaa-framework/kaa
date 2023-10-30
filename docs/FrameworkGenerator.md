@@ -1,7 +1,14 @@
 # FrameworkGenerator
 
+### Содержание
+
+* [Введение](#введение)
+* [ModuleGeneratorInterface](#modulegeneratorinterface)
+* [FrameworkGenerator](#frameworkgenerator)
+* [Пример приложения](#пример-приложения-на-kaa)
 
 ### Введение
+
 `FrameworkGenerator` - сердце фреймворка.
 Он сгенерирует весь код, который необходим для полноценной работы приложения.
 
@@ -13,6 +20,7 @@ interface ModuleGeneratorInterface extends GeneratorInterface
     public function getRootConfigurationKey(): string;
     public function getConfiguration(): Symfony\Component\Config\Definition\NodeInterface;
     public function getPriority(): int;
+    public function getConfigArray();
 }
 ```
 
@@ -20,12 +28,14 @@ interface ModuleGeneratorInterface extends GeneratorInterface
 
 В приложениях, использующих фреймворк конфигурация задаётся в `yaml`-файлах.
 При запуске генерации кода, все `yaml`-файлы парсятся и сливаются в один `php`-массив.
+После этого весь массив проверяется, и если в нём есть ключ или значение, обёрнутое в `%env(name)%`, то оно заменяется на значение из файла `env.json`.
 Затем создаётся экземпляр каждого генератора и ему передаётся обработанный конфиг по ключу из `getRootConfigurationKey`.
 
 ### FrameworkGenerator
 
 `FrameworkGenerator` - класс, который соединяет все генераторы вместе.
-Если `FrameworkGenerator` видит в модулях класс, который реализует `NewInstanceGeneratorInterface`, то он добавляет его в `SharedConfig` до запуска генераторов.
+Если `FrameworkGenerator` видит в модулях класс, который реализует `NewInstanceGeneratorInterface`, то он добавляет его
+в `SharedConfig` до запуска генераторов.
 
 ```php
 // Это упрощённая реализация
@@ -34,7 +44,7 @@ use Symfony\Component\Config\Definition\Processor;
 
 class FrameworkGenerator
 {
-    public function generate(string $pathToConfig, string $pathToGenerated): void
+    public function generate(string $pathToConfig, string $pathToGenerated, string $pathToEnvJson): void
     {
         $newInstanceGenerator = new DefaultNewInstanceGenerator();
         $generators = require_once $pathToConfig . '/modules.php';
@@ -59,12 +69,20 @@ class FrameworkGenerator
             );
            
             $generator->generate($sharedConfig, $config);
+            
+            $configArray = $generator->getConfigArray();
+            foreach ($configArray as $key => $values) {
+                $config[$key] = array_merge($values, $config[$key] ?? []);
+            }
         }
     }
 }
 ```
+
 ### Пример приложения на `Kaa`
+
 Структура проекта:
+
 ```
 config/
 ------router.yaml
@@ -82,7 +100,7 @@ composer.lock
 <?php
 // generate.php
 
-(new FrameworkGenerator)->generate(__DIR__.'/config', __DIR__.'/generated');
+(new FrameworkGenerator)->generate(__DIR__.'/config', __DIR__.'/generated', __DIR__.'/env.json');
 ```
 
 ```php
@@ -102,13 +120,13 @@ return [
 // composer.json
 
 ...
-    
-    "autoload": {
-        "psr-4": {
-          "App\\": "src/",
-          "Kaa\\Generated\\": "generated/"
-        }
-    },
+
+"autoload": {
+"psr-4": {
+"App\\": "src/",
+"Kaa\\Generated\\": "generated/"
+}
+},
 
 ...
 ```

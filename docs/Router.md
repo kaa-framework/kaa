@@ -1,91 +1,86 @@
-# Router компонент
+# Router
 
+### Содержание
 
-Когда ваше приложение получает запрос, оно вызывает действие контроллера для генерации ответа.
+* [Введение](#введение)
+* [Конфигурация роутера](#конфигурация-роутера)
+* [Настройка маршрутизации для класса](#настройка-маршрутизации-для-класса)
+* [Поддерживаемые методы](#поддерживаемые-методы)
+* [Переменные пути](#переменные-пути)
 
-Конфигурация маршрутизации определяет, какое действие выполнять для каждого входящего URL-адреса.
+### Введение
 
+`Router` по объекту `Request` определяет, какой метод надо вызвать, чтобы его обработать.
 
-## Содержание
+### Использование генератора роутера
 
-- [Router компонент](#router-компонент)
-  - [Содержание](#содержание)
-  - [RouterGenerator](#routergenerator)
-    - [Конфигурация](#конфигурация)
-  - [Создание путей](#создание-путей)
-    - [Attribute creating](#attribute-creating)
-    - [Маршрутизация для класса](#маршрутизация-для-класса)
-    - [Поддерживаемые методы](#поддерживаемые-методы)
-  - [Переменные](#переменные)
-    - [Пример](#пример)
-  - [Middleware](#middleware)
+Роутер использует генерацию кода для поиска путей и генерирует класс
+`Kaa\Generated\Router\Router`, реализующий `RouterInterface`.
 
-
-
-
-## RouterGenerator
-Для создания маршрутизации необходимо создать экземпляр класса ```RoutingGenerator``` который реализует ```GeneratorInterface```.
-У этого гласса есть метод ```generate(array $config)``` который генерирует класс, реализующий ```RouterInterface``` с методом ```findAction(Request $request): callable```.
-
-Пример:
-```php
-class RoutingGenerator implements GeneratorInterface{
-    public function generate(array $config): void
-    {
-        ...
-    }
-}
-```
-Это ```RouterInterface```:
 ```php
 interface RouterInterface{
+    /**
+     * @param Request $request
+     * @return callable(Request): Response $request
+     */
     public function findAction(Request $request): callable;
 }
 ```
-```callable``` – функция вида ```(Request) => Responce```
 
+Пример генерации роутера:
 
-### Конфигурация
-**$config** ассоциативный массив вида:
 ```php
+$replacedClasses = new ReplacedClasses();
+$sharedConfig = new SharedConfig('./generated');
 $config = [
-    "scanNamespaces" => [
-        "App\Controller"
+    'scan' => [
+      'App\Model',
+      'App\Entity',
     ],
-    "ignore" => [
-        "App\Controller\AdminController"
+    'ignore' => [
+      'App\Model\Builtin',
+      App\Model\User::class,
     ],
-    "export" => [
-        "directory" => "src/generated",
-        "namespace" => "App\Generated",
-        "className" => "Router"
+    'prefixes' => [
+      'Kaa\SampleProject\Controller\BlogApiController' => '/api/'
     ],
-    "prefixes" => [
-        "Kaa\SampleProject\Controller\BlogApiController" => "/api/"
+    'routes' => [
+        [
+            'route' => '/external-api',
+            'method' => 'GET',
+            'service' => ExternalController::class,
+            'method' => 'callExternalApi'
+        ],
     ],
-    "instanceCreator" => App\IC\InstanceCreator::create(...)
 ];
+
+$validatorGenerator = new RouterGenerator();
+$routerGenerator->generate($replacedClasses, $sharedConfig, $config);
+
+// теперь можно использовать сам роутер
+$request = Request::initFromGlobals();
+
+/** @var RouterInterface */
+$router = new \Kaa\Generated\Router\Router();
+$response = $router->findAction($request)($request);
 ```
 
-**scanNamespaces** – список пространства имён, которые должны быть сканированы для генерации маршрутов.
+### Конфигурация роутера
 
-**ignore** – список пространства имён или классов, которые должны быть проигнорированы при сканировании для генерации маршрутов.
+* `scan` - в данном поле необходимо указать пространства имен, для классов в которых нужно создать правила
+  валидации.
+* `ignore` - здесь указываются пространства имен или классы, которые нужно игнорировать при генерации валидатора.
+* `prefixes` - префиксы, которые будут добавлены к путям в контроллерах или неймспейсах
+* `routes` - ручная конфигурация путей. Она переопределит пути, если такие были созданы через атрибуты.
 
-**export** – список параметров для выходного класса
-- **directory** – директория для сохранения сгенерированного кода.
-- **namespce** – пространства имён выходного класса. 
-- **className** – имя выходного класса.   
+### Определение путей
 
-**prefixes** – список с указанием префиксов у контроллеров, вида ***контроллер*** => ***префикс***
-
-**instanceCreator** – метод, создающий новый экземпляры классов. Это может быть DI или что-либо ещё.
-
-
-## Создание путей
 ### Attribute creating
-Атрибуты PHP позволяют определять маршруты рядом с кодом контроллеров, связанных с этими маршрутами. Атрибуты являются встроенными в PHP 8 и более поздних версиях, поэтому вы можете использовать их сразу.
+
+Атрибуты PHP позволяют определять маршруты рядом с кодом контроллеров, связанных с этими маршрутами.
 
 Предположим, вы хотите определить маршрут для `/healthcheck` URL. Вот небольшой пример:
+
 ```php
 <?php
 
@@ -98,15 +93,15 @@ use Kaa\Router\Attribute\Get;
 class HealthCheckController
 {
     #[Get('/healthcheck', 'healthcheck')]
-    public function healthcheck(): ResponseInterface
+    public function healthcheck(Request $request): Response
     {
         // ...
     }
 }
 ```
-Эта конфигурация определяет маршрут под названием `healthcheck` который соответствует запросу `GET` для `/blog` URL.
-```Router``` создаёт объект класса ```HealthCheckController``` и возвращает ссылку на его метод ```healthcheck```.
 
+Эта конфигурация определяет маршрут под названием `healthcheck` который соответствует запросу `GET` для `/blog` URL.
+`Router` создаёт объект класса `HealthCheckController` и возвращает ссылку на его метод ```healthcheck```.
 
 Вы можете добавить несколько маршрутов для метода класса контроллера:
 
@@ -124,15 +119,17 @@ class HealthCheckController
 {
     #[Get('/healthcheck', 'healthcheck')]
     #[Post('/posthealthcheck', 'post_healthcheck')]
-    public function healthcheck(): ResponseInterface
+    public function healthcheck(Request $request): Response
     {
         // ...
     }
 }
 ```
 
-###  Маршрутизация для класса
+### Настройка маршрутизации для класса
+
 Вы также можете добавить `Route` для класса, если вы хотите добавить префикс для url:
+
 ```php
 <?php
 
@@ -153,35 +150,27 @@ class HealthCheckController
 }
 ```
 
-Так мы определили поведение для `GET/class/healthcheck` URL.
-> **⚠ WARNING**  
-> Если вы используете `Route` для добавления префикса, вы **не должны** указывать ему никакие HTTP-методы 
-
-> **⚠ WARNING**  
-> Если вы не укажете имя роута, оно будет сгенерировано автоматически
-
-
 ### Поддерживаемые методы
+
 Список поддерживаемых аттрибутов:
 
 | Аттрибут | Метод  |
-|-----------|---------|
-| `Route`   | Нет     |
-| `Get`     | GET     |
-| `Post`    | POST    |
-| `Head`    | HEAD    | 
-| `Put`     | PUT     |
-| `Patch`   | PATCH   |
-| `Delete`  | DELETE  |
+|----------|--------|
+| `Route`  | Нет    |
+| `Get`    | GET    |
+| `Post`   | POST   |
+| `Head`   | HEAD   | 
+| `Put`    | PUT    |
+| `Patch`  | PATCH  |
+| `Delete` | DELETE |
 
-
-
-## Переменные
+### Переменные пути
 
 В большинстве случаев некоторые части вашего пути являются переменными, вы можете определить эти пути, обернув
 изменяемые части `{}` Например:
 
 ### Пример
+
 ```php
 namespace Kaa\SampleProject\Controller;
 
@@ -197,71 +186,7 @@ class HealthCheckController
     }
 }
 ```
-Теперь, если наше приложение получит запрос методом GET с путём ```healthcheck/12```, ```findAction()``` вызовет ```healthcheck(12)``` (параметр **$id** = 12).
 
-
-## Middleware
-Middleware предоставить удобный механизм проверки и фильтрации HTTP-запросов, поступающих в ваше приложение.
-Вы также можете использовать промежуточное программное обеспечение, добавляя атрибуты для методов класса контроллера.
-
-Для начала, вы должны создать класс middleware, реализующий ```BeforeMiddlewareInterface``` или ```AfterMiddlewareInterface```, для начала:
-```php
-namespace App\Middlewares;
-
-class AuthMiddleware implements BeforeMiddlewareInterface {
-    public function handle(ReflectionClass $class, ReflectionMethod $method, VariableBag $bag) : ResponceInterface
-    {
-        // ...
-    }
-}
-```
-А теперь напишем это:
-```php
-namespace Kaa\SampleProject\Controller;
-
-use Kaa\HttpKernel\Response\ResponseInterface;
-use Kaa\Router\Attribute\Get;
-use App\Middlewares\AuthMiddleware;
-
-class HealthCheckController
-{
-    #[Get('/healthcheck/{id}', 'healthcheck')]
-    #[AuthMiddleware]
-    public function healthcheck(int $id): ResponseInterface
-    {
-        // ...
-    }
-}
-
-```
-Как вы могли предсказатьь, ```findAction()``` вызовет ```AuthMiddleware``` до вызова ```healthcheck()```, если бы мы использовали ```AfterMiddlewareInterface```
-для ```AuthMiddleware``` то он бы вызвался после ```healthcheck()```.
-
-Кроме того, роутер также может определять атрибуты, расположенные рядом с параметрами метода. **Важно**: атрибуты должны быть унаследованы от ```BeforeMiddlewareInterface```
-или ```AfterMiddlewareInterface```.
-
-Предположим, у вас есть ```CheckDiniedMiddleware```, проверяющий, что параметр не находится среди запрещённых. Предположим, есть такой код:
-
-```php
-namespace Kaa\SampleProject\Controller;
-
-use Kaa\HttpKernel\Response\ResponseInterface;
-use Kaa\Router\Attribute\Get;
-use App\Middlewares\CheckDiniedMiddleware;
-
-class HealthCheckController
-{
-    #[Get('/healthcheck/{id}', 'healthcheck')]
-    public function healthcheck(
-        #[CheckDiniedMiddleware] int $id
-    ): ResponseInterface
-    {
-        // ...
-    }
-}
-
-```
-Таким образом, роутер определит следующее поведение: после получения `Get` запроса по пути `/healthcheck/{id}`, до запуска `healthcheck()`, будет запущен `CheckDiniedMiddleware`, 
-уже после которого будет запущен необходимый метод.
-
-Это позволяет удобно и красиво настроить различные валидации.
+Теперь, если наше приложение получит запрос методом GET с путём `healthcheck/12`,
+то во время поиска нужной функции, роутер установит кастомный атрибут в `request`,
+у которого имя будет совпадать с тем, что написано в фигурных скобках, а значение со значением.

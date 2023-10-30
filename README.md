@@ -7,23 +7,21 @@
 ### Структура фреймворка
 Фреймворк состоит из следующих модулей:
 
-+ [GeneratorContract](docs/GeneratorContract.md) - общий интерфейс всех генераторов
++ [Generator Contract](docs/GeneratorContract.md) - общий интерфейс всех генераторов
 
-+ [FrameworkGenerator](docs/FrameworkGenerator.md) - общий интерфейс всех модулей, генерирующих код
++ [Framework Generator](docs/FrameworkGenerator.md) - общий интерфейс всех модулей, генерирующих код
 
-+ [PhpGenerator](docs/PhpGenerator.md) - библиотека для удобной генерации кода
++ [Http Message](docs/HttpMessage.md) - предоставляет классы для удобной работы с запросами и ответами HTTP
 
-+ [HttpMessage](docs/HttpMessage.md) - предоставляет классы для удобной работы с запросами и ответами HTTP
++ [Event Dispatcher](docs/EventDispatcher.md) - отправка и подписка на сообщения
 
-+ [EventDispatcher](docs/EventDispatcher.md) - отправка и подписка на сообщения
-
-+ [HttpKernel](docs/HttpKernel.md) - обработка HTTP-запроса от самого начала до ответа
++ [Http Kernel](docs/HttpKernel.md) - обработка HTTP-запроса от самого начала до ответа
 
 + [Validator](docs/Validator.md) - валидация полей объектов
 
 + [Router](docs/Router.md) - принимает объект Request и возвращает callback, который нужно вызвать для его обработки
 
-+ [DependencyInjection](docs/DependencyInjection.md) - генерирует код для создания объектов
++ [Dependency Injection](docs/DependencyInjection.md) - генерирует код для создания объектов
 
 + [Security](docs/Security.md) - принимает объект запроса и решает имеет ли пользователь, отправивший его, доступ к этому запросу...
 
