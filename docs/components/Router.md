@@ -37,10 +37,6 @@ $config = [
       'App\Model',
       'App\Entity',
     ],
-    'ignore' => [
-      'App\Model\Builtin',
-      App\Model\User::class,
-    ],
     'prefixes' => [
       'Kaa\SampleProject\Controller\BlogApiController' => '/api/'
     ],
@@ -69,7 +65,6 @@ $response = $router->findAction($request)($request);
 
 * `scan` - в данном поле необходимо указать пространства имен, для классов в которых нужно создать правила
   валидации.
-* `ignore` - здесь указываются пространства имен или классы, которые нужно игнорировать при генерации валидатора.
 * `prefixes` - префиксы, которые будут добавлены к путям в контроллерах или неймспейсах
 * `routes` - ручная конфигурация путей. Она переопределит пути, если такие были созданы через атрибуты.
 
@@ -190,3 +185,29 @@ class HealthCheckController
 Теперь, если наше приложение получит запрос методом GET с путём `healthcheck/12`,
 то во время поиска нужной функции, роутер установит кастомный атрибут в `request`,
 у которого имя будет совпадать с тем, что написано в фигурных скобках, а значение со значением.
+
+### Декораторы
+
+```php
+interface DecoratorInterface
+{
+    public function getType(): DecoratorType;
+
+    public function getPriority(): int;
+    
+    /**
+     * Генерирует код, который надо вызвать до/после вызова метода
+     */
+    public function decorate(
+        ReflectionMethod $decoratedMethod,
+        Variables $variables,
+        NewInstanceGeneratorInterface $newInstanceGenerator,
+    ): string;
+}
+
+enum DecoratorType
+{
+    case Pre;
+    case Post;
+}
+```

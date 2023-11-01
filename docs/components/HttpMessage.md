@@ -1,30 +1,28 @@
-# HttpFoundation - предоставляет классы для удобной работы с запросами и ответами HTTP
+# HttpMessage
+
+### Содержание
+
+* [Введение](#введение)
+* [Request](#request)
+* [Response](#response)
+* [JsonResponse](#jsonresponse-создание-и-работа-с-содержимым)
+* [RedirectResponse](#redirectresponse)
 
 ### Введение
 
-Компонент HttpFoundation предоставляет удобный способ работы с базовыми элементами HTTP (ничего удивительного!). Но что
-мы понимаем под "основами" HTTP?
-В основном HTTP работает по простой схеме: клиент посылает запрос на сервер, а сервер посылает ответ. Компонент
-HttpFoundation предоставляет вам классы и инструменты для более организованной и эффективной работы с этими запросами и
-ответами. Вместо того чтобы работать со сложными суперглобалами PHP, такими как $_GET и $_COOKIE, мы можем использовать
-такие классы, как Response и Request, для достижения тех же результатов.
-Но более того, компонент добавляет методы для удобного и безопасного чтения содержимого request, составления
-собственного response, решает проблемы кодировки в KPHP, работает с JSON, даёт анонимизацию IP-адресов клиентов и не
-только.
+`HttpMessage` предоставляет классы для удобной работы с HTTP запросами и ответами.
 
-### Request - запрос к серверу от клиента
+### Request
 
-#### Cоздание объекта класса Request
-
-Чтобы создать новый запрос в программе, проще всего сделать
+#### Получение запроса Request
 
 ```php
 use Kaa\HttpFoundation\Request;
 
-$request = new Request();
+$request = Request::initFromGlobals();
 ```
 
-Так мы создадим пустой объект класса Request. Значения такого объекта можно проинициализировать методом `initialize()`.
+Также мы можем создать пустой объект класса Request. Значения такого объекта можно проинициализировать методом `initialize()`.
 Он позволяет задать уже различные параметры объекта Request самостоятельно, такие как параметры запроса (query),
 параметры формы (request), атрибуты (attributes) и заголовки (headers).
 
@@ -39,7 +37,6 @@ $request->initialize([], ['foo' => 'bar']);
 
 $request->initialize([], [], ['foo' => 'bar']);
 //'bar' === $request->attributes->get('foo')
-
 ```
 
 Можно сымитировать запрос от сервера
@@ -64,15 +61,14 @@ $request->overrideGlobals();
 #### Доступ к данным запроса и ParameterBag
 
 Объект запроса содержит информацию о запросе клиента. К этой информации можно получить доступ через несколько
-общедоступных свойств:
+публичных свойств:
 
-- request: эквивалент $_POST;
-- query: эквивалент $_GET ($request->query->get('name'));
-- cookies: эквивалент $_COOKIE;
-- attributes: нет эквивалента - используется вашим приложением для хранения других данных, удобнее всего в виде массива
-  строк = string[]
-- server: эквивалент $_SERVER;
-- headers: в основном эквивалентно подмножеству $_SERVER ($request->headers->get('User-Agent')).
+- `request`: эквивалент `$_POST`;
+- `query`: эквивалент `$_GET` ($request->query->get('name'));
+- `cookies`: эквивалент `$_COOKIE`;
+- `attributes`: нет эквивалента. Используется для хранения кастомных атрибутов
+- `server`: эквивалент `$_SERVER`;
+- `headers`: в основном эквивалентно подмножеству $_SERVER ($request->headers->get('User-Agent')).
 
 Каждое свойство является экземпляром ParameterBag
 
@@ -86,28 +82,24 @@ $request->overrideGlobals();
 Все экземпляры ParameterBag имеют методы для извлечения и обновления своих данных:
 
 ```php
-@param string[] $parameters
-all() // Возвращает параметры.
-@return string[]
-keys() // Возвращает параметр keys.
-@param string[] $parameters
-replace() // заменяет текущие параметры новым набором.
-@param string[] $parameters
-add() // добавляет параметры.
-@param string $key, ?string $default = null
-@return ?string
-get() // возвращает параметр по имени.
-@param string $key, boolean|string $value<
-set() // задает строковое значение для параметра по его имени.
-@return bool
-has() // Возвращает true, если параметр определен.
-@param string $key
-remove() // удаляет параметр.
+all(string[] $parameters): string[]; // Возвращает параметры.
+
+keys(): string[] // Возвращает параметр keys.
+
+add(string[] $parameters): self; // добавляет параметры.
+
+get(string $key, ?string $default = null): ?string; // возвращает параметр по имени.
+
+set(string $key, string $value): self; // задает строковое значение для параметра по его имени.
+
+has(): bool; // Возвращает true, если параметр определен.
+
+remove(string $key): self; // удаляет параметр.
 ```
 
 Экземпляр ParameterBag также имеет некоторые методы для фильтрации входных значений:
 
-- <i>Всегда запрашивается значение по строковому ключу значение @param string $key</i>
+- Всегда запрашивается значение по строковому ключу значение string $key
 - getAlpha() - Возвращает буквенные символы значения параметра как <b>string</b>
 - getAlnum() - Возвращает буквенные символы и цифры значения параметра как <b>string</b>
 - getDigits() - Возвращает цифры значения параметра как <b>string</b>
@@ -250,22 +242,10 @@ Json ответы можно создать классом JsonResponse
 ```php
 use Symfony\Component\HttpFoundation\JsonResponse;
 
-// если мы уже знаем информацию, которую будем отдавать в json
-$response = new JsonResponse(['data' => 123]);
-
-// если мы ещё не знаем информацию, которую отдаём пользователя в виде json
-$response = new JsonResponse();
-
-// Далее можно менять параметры запроса (содержание ответа, статус ответа, HTTP заголовки)
-// Важно: если необходимо задать опции кодирования, то их нужно назначать до вызоыва "setData()"
-$response->setEncodingOptions(JsonResponse::DEFAULT_ENCODING_OPTIONS | \JSON_PRESERVE_ZERO_FRACTION);
-$response->setData(['data' => 123]);
-
-// Если содержание response уже является строкой json, ставим значение $json = true
-$response = new JsonResponse('{ "data": 123 }', 200, [], true);
-
-// либо проще всего использовать метод fromJsonString()
 $response = JsonResponse::fromJsonString('{ "data": 123 }');
+
+// вызовет JsonEncoder::encode
+$response = JsonResponse::fromObject($myModel);
 
 // получаем содержимое объекта JsonResponse
 $response->getContent() // '{ "data": 123 }'
@@ -295,62 +275,12 @@ $response->headers->get('Content-Type'); // 'application/vnd.acme.blog-v1+json'
 $response = new JsonResponse([], 200, ['ETag' => 'foo']);
 $response->headers->get('Content-Type')); // 'application/json'
 $response->headers->get('ETag'); // 'foo'
-```
+``` 
 
-#### JSON Hijacking
 
-Чтобы избежать XSSI JSON Hijacking, следует передавать в JsonResponse ассоциативный массив в качестве крайнего массива,
-а не индексированный массив, чтобы конечным результатом был объект (например, {"object": "not inside an array"}), а не
-массив (например, [{"object": "inside an array"}]). Более подробная информация приведена в руководстве OWASP.
-
-Чтобы передать объект в json-ответ. Необходимо вызвать метод JsonResponse::fromObject(). Он использует JsonEncoder из
-vkcom/kphp-polyfills
-
-Пример объекта, который подходит для JsonEncoder
+### RedirectResponse
+`RedirectResponse` ставит правильные заголовки для того, чтобы сделать редирект.
 
 ```php
-class UserObjectJsonResponse
-{
-    public string $name;
-
-    public int $age;
-
-    public function __construct(string $name, int $age)
-    {
-        $this->name = $name;
-        $this->age = $age;
-    }
-}
+$response = new RedirectReponse('/path/to/redirect');
 ```
-
-Теперь создаём JsonResponse из объекта:
-
-```php
-$obj = new UserObjectJsonResponse("Vasiliy", 42);
-$response = JsonResponse::fromObject($obj);
-$response->getContent(); // {"name":"Vasiliy","age":42} - мы спаслись от JSON Hijacking
-```
-
-Используем по назначению. Только методы, отвечающие на GET-запросы, уязвимы к XSSI 'JSON Hijacking'. Методы, отвечающие
-только на POST-запросы, остаются незатронутыми.
-
-#### JsonCallback
-
-```php 
-response = (new JsonResponse(['foo' => 'bar']))->setCallback('callback');
-// HTTP заголовок 'Content-Type' устанавливается как 'text/javascript' 
-$response->headers->get('Content-Type'); // 'text/javascript'
-// к содержимому дописывается callback
-$response->getContent(); // '/**/callback({"foo":"bar"});'
-// теперь оно выглядит как
-callback({"foo":"bar"});
-```
-
-### Заключение
-
-Дополнительно рекомендую смотреть полноценную доку:
-https://kphp-hse.gitbook.io/httpfoundation/use-cases/response
-И исходники:
-https://github.com/m-fedosov/http-foundation-kphp
-
-Если нужно объяснить конкретные моменты - пишите @mfedos tg/vk

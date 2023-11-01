@@ -18,7 +18,7 @@
 interface ModuleGeneratorInterface extends GeneratorInterface
 {
     public function getRootConfigurationKey(): string;
-    public function getConfiguration(): Symfony\Component\Config\Definition\NodeInterface;
+    public function getConfiguration(): ?Symfony\Component\Config\Definition\NodeInterface;
     public function getPriority(): int;
     public function getConfigArray();
 }
@@ -71,9 +71,7 @@ class FrameworkGenerator
             $generator->generate($sharedConfig, $config);
             
             $configArray = $generator->getConfigArray();
-            foreach ($configArray as $key => $values) {
-                $config[$key] = array_merge($values, $config[$key] ?? []);
-            }
+            $config = array_merge_recursive($config, $configArray);
         }
     }
 }

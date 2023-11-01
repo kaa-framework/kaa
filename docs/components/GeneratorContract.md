@@ -20,14 +20,12 @@ Kaa является компилируемым фреймворком.
 ```php
 interface GeneratorInterface
 {
-    public function generate(ReplacedClasses $replacedClasses, SharedConfig $sharedConfig, array $config): void;
+    public function generate(SharedConfig $sharedConfig, array $config): void;
 }
 ```
 
 * `mixed[] $config` - массив с пользовательской конфигурацией генератора
 * `SharedConfig $sharedConfig` - общая конфигурация для всех генераторов
-* `ReplacedClasses $replacedClasses` - классы, которые были заменены другими генераторами.
-  Если вы встречаете такой класс в своём генераторе, то надо сканировать его замену, а не его самого.
 
 ```php
 readonly class SharedConfig
@@ -36,18 +34,6 @@ readonly class SharedConfig
         public string $exportDirectory,
         public NewInstanceGeneratorInterface $newInstanceGenerator = new Kaa\GeneratorContract\DefaultNewInstanceGenerator(),
     )
-}
-
-class ReplacedClasses
-{
-    /** Есть ли замена для переданного класса */
-    public function hasReplacement(string $originalClass): bool;
-    
-    /** Получить имя класса, который заменяет переданный */
-    public function getReplacement(string $originalClass): string;
-    
-    /** Заменить класс */
-    public function addReplacement(string $originalClass, string $replacementClass);
 }
 ```
 

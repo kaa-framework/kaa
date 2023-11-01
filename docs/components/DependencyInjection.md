@@ -1,5 +1,12 @@
 # Dependency Injection
 
+### Содержание
+
+* [Введение](#введение)
+* [Использование генератора контейнера](#использование-генератора-контейнера)
+* [Конфигурация контейнера](#конфигурация-контейнера)
+* [Конфигурация через атрибуты](#конфигурация-через-атрибуты)
+
 ### Введение
 
 `Dependency Injection` позволяет легко справиться с зависимостями ваших классов и избавиться от boilerplate-кода
@@ -33,15 +40,14 @@ interface ContainerInterface
 $replacedClasses = new ReplacedClasses();
 $sharedConfig = new SharedConfig('./generated');
 $config = [
-    'scanNamespaces' => [
-      'App\Model',
-      'App\Entity',
+    'scan' => [
+      'App\\Service',
+      'App\\EventListener',
     ],
     
     'ignore' => [
-      'App\Model\Builtin',
-      App\Model\User::class,
-    ],
+      'App\\Service\\NotAService',
+    ],  
     
     'parameters' => [
         'app.some_parameter' => 'my_value',
@@ -69,7 +75,7 @@ $config = [
     'aliases' => [
         'app.other_service' => OtherService::class,
     ],
-]
+];
 
 $containerGenerator = new ContainerGenerator();
 $containerGenerator->generate($replacedClasses, $sharedConfig, $config);
@@ -102,7 +108,6 @@ $service = \Kaa\Generated\DependencyInjection\Container::get(OtherService::class
 
 Тот же конфиг можно получить с помощью атрибутов:
 ```php
-
 #[Service(name: 'app.manual_service_name')]
 class MyService 
 {

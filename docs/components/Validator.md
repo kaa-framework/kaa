@@ -26,7 +26,7 @@
 `Kaa\Generated\Validator\Validator`, реализующий `ValidatorInterface`.
 
 ```php
-class ValidatorInterface
+interface ValidatorInterface
 {
     function validate(object $model): Violation[];
 }
@@ -42,11 +42,7 @@ $config = [
       'App\Model',
       'App\Entity',
     ],
-    'ignore' => [
-      'App\Model\Builtin',
-      App\Model\User::class,
-    ],
-]
+];
 
 $validatorGenerator = new ValidatorGenerator();
 $validatorGenerator->generate($replacedClasses, $sharedConfig, $config);
@@ -65,7 +61,6 @@ $violations = $validator->validate(new App\Model\SomeModel());
 
 * `scan` - в данном поле необходимо указать пространства имен, для классов в которых нужно создать правила
   валидации.
-* `ignore` - здесь указываются пространства имен или классы, которые нужно игнорировать при генерации валидатора.
 
 #### Пример использования правил
 
