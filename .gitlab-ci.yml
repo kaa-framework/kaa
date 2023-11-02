@@ -1,0 +1,91 @@
+stages:
+    - install test dependencies
+    - test
+
+.test-rules:
+    rules:
+        - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+        - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+# install test dependencies
+
+composer install:
+    extends:
+        - .test-rules
+    stage: install test dependencies
+
+    tags: [ docker ]
+    image: registry.miem.hse.ru/kaa-framework/kaa/php:latest
+
+    script:
+        - composer install --no-interaction
+
+    artifacts:
+        paths:
+            - vendor
+            - var
+
+# test
+
+PHPStan:
+    stage: test
+    extends:
+        - .test-rules
+
+    tags: [ docker ]
+    image: registry.miem.hse.ru/kaa-framework/kaa/php:latest
+
+    script:
+        - vendor/bin/phpstan --configuration=fixer/phpstan.neon --no-progress --error-format=gitlab > phpstan.json
+
+    artifacts:
+        reports:
+            codequality: phpstan.json
+
+
+PHP Mess Detector:
+    stage: test
+    extends:
+        - .test-rules
+
+    tags: [ docker ]
+    image: registry.miem.hse.ru/kaa-framework/kaa/php:latest
+
+    script:
+        - vendor/bin/phpmd src gitlab fixer/phpmd.xml > phpmd-report.json
+
+    artifacts:
+        reports:
+            codequality: phpmd-report.json
+
+
+Easy Coding Standard:
+    stage: test
+    extends:
+        - .test-rules
+
+    tags: [ docker ]
+    image: registry.miem.hse.ru/kaa-framework/kaa/php:latest
+
+    script:
+        - vendor/bin/ecs check --config=fixer/ecs.php
+
+
+PHPUnit:
+    stage: test
+    extends:
+        - .test-rules
+
+    tags: [ docker ]
+    image: registry.miem.hse.ru/kaa-framework/kaa/php:latest
+    script:
+        - XDEBUG_MODE=coverage vendor/bin/phpunit -c fixer/phpunit.xml.dist --do-not-cache-result --log-junit phpunit-report.xml --coverage-cobertura phpunit-coverage.xml --coverage-text --colors=never
+
+    artifacts:
+        when: always
+        reports:
+            junit: phpunit-report.xml
+            coverage_report:
+                coverage_format: cobertura
+                path: phpunit-coverage.xml
+    coverage: '/^\s*Lines:\s*\d+.\d+\%/'

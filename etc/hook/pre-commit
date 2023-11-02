@@ -1,0 +1,15 @@
+#!/bin/sh
+
+set -e
+set +x
+
+GREEN='\033[0;32m'
+NC=\033[0m
+
+export KAA_NO_TTY='1'
+
+make lintfix
+
+unset KAA_NO_TTY
+
+git update-index --again
