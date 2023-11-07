@@ -1,0 +1,9 @@
+if (self::${{ service.name|varName }} === null) {
+    self::${{ service.name|varName }} = {% if service.constructionType.value == 'constructor' %}
+            {% include 'constructor.php.twig' %}
+        {% else %}
+            {% include 'factory.php.twig' %}
+        {% endif %}
+}
+
+return self::${{ service.name|varName }};

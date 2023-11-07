@@ -50,9 +50,15 @@ parameters:
     checkAlwaysTrueCheckTypeFunctionCall: true
     checkUninitializedProperties: true
     reportWrongPhpDocTypeInVarTag: true
+    checkGenericClassInNonGenericObjectType: false
 
     ignoreErrors:
         - '#.*\\shape.*#'
 
         - message: '#Property Kaa\\Component\\EventDispatcher\\EventDispatcher::\$listeners type has no value type specified in iterable type array\.#'
           path: ../src/Component/EventDispatcher/EventDispatcher.php
+
+        - message: '#.*#'
+          path: ../src/Component/*/Test/*
+
+        - message: '#Parameter \#1 \$objectOrClass of class ReflectionClass constructor expects class-string\<T of object\>\|T of object, string given\.#'

@@ -14,8 +14,7 @@
 
     "autoload-dev": {
         "psr-4": {
-            "Kaa\\": "fixer/",
-            "Kaa\\Test\\": "test/"
+            "Kaa\\": "fixer/"
         }
     },
 
@@ -26,7 +25,10 @@
     },
 
     "require": {
-        "vkcom/kphp-polyfills": "^1.0"
+        "vkcom/kphp-polyfills": "^1.0",
+        "haydenpierce/class-finder": "0.5.3",
+        "nette/php-generator": "^4.1",
+        "twig/twig": "^3.7"
     },
 
     "require-dev": {

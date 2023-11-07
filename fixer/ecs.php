@@ -194,7 +194,7 @@ return static function (ECSConfig $ecsConfig): void {
         UnaryOperatorSpacesFixer::class,
 
         Kaa\Fixer\AttributeFixer::class,
-        Kaa\Fixer\RemoveThrowsTagFixer::class,
+        Kaa\Fixer\ThrowsTagFixer::class,
     ]);
 
     $ecsConfig->skip([

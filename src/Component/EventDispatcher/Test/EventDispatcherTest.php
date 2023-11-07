@@ -1,6 +1,8 @@
 <?php
 
-namespace Kaa\Test\Component\EventDispatcher;
+declare(strict_types=1);
+
+namespace Kaa\Component\EventDispatcher\Test;
 
 use Kaa\Component\EventDispatcher\AbstractEvent;
 use Kaa\Component\EventDispatcher\EventDispatcher;

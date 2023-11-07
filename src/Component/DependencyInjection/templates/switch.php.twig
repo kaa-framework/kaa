@@ -1,0 +1,18 @@
+switch($class) {
+    {% for class, services in classesToServices %}
+        case \{{ class }}::class:
+                {% for service in services %}
+                    {% for alias in aliases.getServiceAliases(service.name) %}
+                        if ($nameOrAlias === '{{ alias }}') {
+                            return self::{{ service.name|methodName }}();
+                        }
+                    {% endfor %}
+
+                    if ($nameOrAlias === '{{ service.name }}') {
+                        return self::{{ service.name|methodName }}();
+                    }
+                {% endfor %}
+
+                break;
+    {% endfor %}
+}

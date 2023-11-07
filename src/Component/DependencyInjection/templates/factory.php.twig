@@ -1,0 +1,5 @@
+{% if service.factory.isStatic %}
+    \{{ service.factory.serviceName }}::{{ service.factory.method }}();
+{% else %}
+    self::get('{{ service.factory.serviceName }}', '\{{ services.getClass(service.factory.serviceName) }}')->{{ service.factory.method }}();
+{% endif %}

@@ -1,0 +1,5 @@
+return {% if service.constructionType.value == 'constructor' %}
+    {% include 'constructor.php.twig' %}
+{% else %}
+    {% include 'factory.php.twig' %}
+{% endif %}

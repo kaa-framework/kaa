@@ -12,7 +12,7 @@ use PhpCsFixer\Tokenizer\Token;
 use PhpCsFixer\Tokenizer\Tokens;
 use SplFileInfo;
 
-class RemoveThrowsTagFixer implements FixerInterface
+class ThrowsTagFixer implements FixerInterface
 {
     public function fix(SplFileInfo $file, Tokens $tokens): void
     {
@@ -27,15 +27,17 @@ class RemoveThrowsTagFixer implements FixerInterface
                 continue;
             }
 
-            // Заменить все строки @throws, но не содержащие комментарий после него
-            $comment = preg_replace('/([\t ])*\* @throws (\w*|((\w*\|)*\w*))([\t ])*\n/', '', $comment);
-
-            // После замены в комментарии ничего не осталось
-            if (preg_match('/[\wА-яёЁ]+/u', $comment) === 0) {
-                $tokens->clearAt($index);
-            } else {
-                $tokens[$index] = new Token([T_DOC_COMMENT, $comment]);
+            // Если после @throws стоит описание ошибки
+            if (preg_match('/@throws \w* \w*/', $comment) === 1) {
+                continue;
             }
+
+            preg_match_all('/@throws (?<exception_class>(\w|\|)*)/', $comment, $matches);
+
+            $exceptions = '@throws ' . implode('|', $matches['exception_class']);
+            $comment = preg_replace('/(@throws (\w|\|)*\s+\*\s)+@throws \w*/', $exceptions, $comment);
+
+            $tokens[$index] = new Token([T_DOC_COMMENT, $comment]);
         }
     }
 
@@ -71,7 +73,7 @@ PHP
 
     public function getPriority(): int
     {
-        return 0;
+        return -10;
     }
 
     public function getName(): string
