@@ -32,7 +32,7 @@ readonly class SharedConfig
 {
     public function __construct(
         public string $exportDirectory,
-        public NewInstanceGeneratorInterface $newInstanceGenerator = new Kaa\GeneratorContract\DefaultNewInstanceGenerator(),
+        public NewInstanceGeneratorInterface $newInstanceGenerator = new DefaultNewInstanceGenerator(),
     )
 }
 ```

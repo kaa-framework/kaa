@@ -47,6 +47,12 @@ $config = [
             'service' => ExternalController::class,
             'method' => 'callExternalApi'
         ],
+        [
+            'route' => '/api/get',
+            'method' => 'GET',
+            'service' => ['class' => ExternalController::class, 'name' => 'app.service'],
+            'method' => 'callExternalApi'
+        ],
     ],
 ];
 

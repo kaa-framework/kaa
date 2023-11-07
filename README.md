@@ -32,8 +32,6 @@
 
 + [Dependency Injection Decorator](docs/components/DependedncyInjectionDecorator.md)
 
-### [Диаграмма обработки запроса](https://miro.com/welcomeonboard/dkV1ZXNGekY3R2dTM1pzRmN1SWpQMTllUGdBbWhMaEJyR0JxR0E4RE5zem9iTlJ5YTRQWjRNbktRTk9laU95TnwzNDU4NzY0NTM2NTEwODMzNzI1fDI=?share_link_id=856045042759)
-
 И следующих модулей:
 
 + [Framework Generator](docs/modules/FrameworkGenerator.md) - общий интерфейс всех модулей, генерирующих код
@@ -44,4 +42,5 @@
 + [Dependency Injection](docs/modules/DependencyInjection.md)
 + [Security](docs/modules/Security.md)
 
+### [Диаграмма обработки запроса](https://miro.com/welcomeonboard/dkV1ZXNGekY3R2dTM1pzRmN1SWpQMTllUGdBbWhMaEJyR0JxR0E4RE5zem9iTlJ5YTRQWjRNbktRTk9laU95TnwzNDU4NzY0NTM2NTEwODMzNzI1fDI=?share_link_id=856045042759)
 ![Диаграмма обработки запроса](docs/request_handling.jpg)

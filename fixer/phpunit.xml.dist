@@ -14,7 +14,7 @@
 
     <testsuites>
         <testsuite name="Kaa Test Suite">
-            <directory>../test</directory>
+            <directory>../src/Component/*/Test/</directory>
         </testsuite>
     </testsuites>
 

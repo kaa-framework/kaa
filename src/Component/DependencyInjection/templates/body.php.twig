@@ -1,0 +1,5 @@
+{% if service.isSingleton %}
+    {% include 'singleton.php.twig' %}
+{% else %}
+    {% include 'not_singleton.php.twig' %}
+{% endif %}

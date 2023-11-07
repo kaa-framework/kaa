@@ -1,0 +1,8 @@
+new \{{ service.class.getName() }}(
+{% for arg in service.arguments %}
+    {% if arg.type.value == 'service' %}
+        self::get('{{ arg.name }}', \{{ services.getClass(arg.name) }}::class){{ not loop.last ? ',' }}
+    {% else %}
+        {{ parameters.get(arg.name)|literal|raw }}{{ not loop.last ? ',' }}
+    {% endif %}
+{% endfor %});
