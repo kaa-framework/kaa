@@ -101,7 +101,7 @@ class AttributesToConfigParserTest extends TestCase
     private function locate(array $config): void
     {
         $config = (new AttributesToConfigParser(
-            $config
+            $config,
         ))
             ->getConfig();
 
@@ -109,7 +109,7 @@ class AttributesToConfigParserTest extends TestCase
             $config,
             $this->serviceCollection,
             $this->parameterCollection,
-            $this->aliasCollection
+            $this->aliasCollection,
         ))
             ->locate();
     }

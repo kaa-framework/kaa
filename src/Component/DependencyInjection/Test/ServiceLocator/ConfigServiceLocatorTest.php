@@ -185,7 +185,7 @@ class ConfigServiceLocatorTest extends TestCase
             $config,
             $this->serviceCollection,
             $this->parameterCollection,
-            $this->aliasCollection
+            $this->aliasCollection,
         ))
             ->locate();
     }

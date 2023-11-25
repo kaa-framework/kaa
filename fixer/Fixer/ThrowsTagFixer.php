@@ -67,7 +67,7 @@ private function a() {
 )
 PHP
                 ),
-            ]
+            ],
         );
     }
 
