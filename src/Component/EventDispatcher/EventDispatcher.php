@@ -31,12 +31,12 @@ class EventDispatcher implements EventDispatcherInterface
     {
         usort(
             $this->listeners[$eventName],
-            static fn ($first, $second) => -($first['priority'] <=> $second['priority'])
+            static fn ($first, $second) => -($first['priority'] <=> $second['priority']),
         );
 
         $this->sortedListeners[$eventName] = array_map(
             static fn ($listenerShape) => $listenerShape['listener'],
-            $this->listeners[$eventName]
+            $this->listeners[$eventName],
         );
     }
 

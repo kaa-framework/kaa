@@ -87,7 +87,7 @@ readonly class ConfigServiceLocator
             $serviceData['singleton'] ?? true,
             $factory !== null ? ConstructionType::Factory : ConstructionType::Constructor,
             $arguments,
-            $factory
+            $factory,
         );
 
         $this->serviceCollection->add($service);

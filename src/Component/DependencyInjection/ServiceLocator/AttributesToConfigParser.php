@@ -87,7 +87,7 @@ class AttributesToConfigParser
 
             if (preg_match("/{$ignore}/", $class->getName(), $matches) === false) {
                 throw new DependencyInjectionGeneratorException(
-                    "Error while matching class name {$class->getName()} with pattern /{$ignore}/"
+                    "Error while matching class name {$class->getName()} with pattern /{$ignore}/",
                 );
             }
 
@@ -116,7 +116,7 @@ class AttributesToConfigParser
         foreach ((array) $serviceAttribute->aliases as $alias) {
             if (array_key_exists($alias, $this->config['aliases'])) {
                 throw new InvalidServiceDefinitionException(
-                    "Class {$class->getName()} redefines alias '{$alias}' already set to '{$this->config['aliases'][$alias]}'"
+                    "Class {$class->getName()} redefines alias '{$alias}' already set to '{$this->config['aliases'][$alias]}'",
                 );
             }
 
@@ -170,7 +170,7 @@ class AttributesToConfigParser
                 || ($autowireAttribute->service !== null && $autowireAttribute->parameter !== null)
             ) {
                 throw new InvalidServiceDefinitionException(
-                    "Exactly one of service or parameter must be set in #[Autowire] for {$class->getName()}::{$argument->getName()}"
+                    "Exactly one of service or parameter must be set in #[Autowire] for {$class->getName()}::{$argument->getName()}",
                 );
             }
 

@@ -27,7 +27,9 @@ use PhpCsFixer\Fixer\Comment\SingleLineCommentStyleFixer;
 use PhpCsFixer\Fixer\ControlStructure\EmptyLoopBodyFixer;
 use PhpCsFixer\Fixer\ControlStructure\IncludeFixer;
 use PhpCsFixer\Fixer\ControlStructure\NoUnneededControlParenthesesFixer;
+use PhpCsFixer\Fixer\ControlStructure\NoUnneededCurlyBracesFixer;
 use PhpCsFixer\Fixer\ControlStructure\SwitchContinueToBreakFixer;
+use PhpCsFixer\Fixer\ControlStructure\TrailingCommaInMultilineFixer;
 use PhpCsFixer\Fixer\FunctionNotation\MethodArgumentSpaceFixer;
 use PhpCsFixer\Fixer\Import\FullyQualifiedStrictTypesFixer;
 use PhpCsFixer\Fixer\Import\GlobalNamespaceImportFixer;
@@ -113,6 +115,10 @@ return static function (ECSConfig $ecsConfig): void {
         'style' => 'post',
     ]);
 
+    $ecsConfig->ruleWithConfiguration(NoUnneededCurlyBracesFixer::class, [
+        'namespaces' => true,
+    ]);
+
     $ecsConfig->ruleWithConfiguration(NoUnneededControlParenthesesFixer::class, [
         'statements' => [
             'break',
@@ -134,6 +140,10 @@ return static function (ECSConfig $ecsConfig): void {
 
     $ecsConfig->ruleWithConfiguration(SingleLineCommentStyleFixer::class, [
         'comment_types' => ['hash'],
+    ]);
+
+    $ecsConfig->ruleWithConfiguration(TrailingCommaInMultilineFixer::class, [
+        'elements' => ['arguments', 'arrays', 'match', 'parameters'],
     ]);
 
     $ecsConfig->rules([

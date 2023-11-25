@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<phpmd-baseline>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="src/Component/HttpMessage/HeaderUtils.php" method="makeDisposition"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="src/Component/HttpMessage/HeaderUtils.php" method="parseQuery"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="src/Component/HttpMessage/HeaderUtils.php" method="parseQuery"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="src/Component/HttpMessage/HeaderUtils.php" method="groupParts"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="src/Component/HttpMessage/ServerBag.php" method="getHeaders"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="src/Component/HttpMessage/ServerBag.php" method="getHeaders"/>
+</phpmd-baseline>

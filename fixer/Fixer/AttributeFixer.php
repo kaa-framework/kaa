@@ -162,7 +162,7 @@ private int $a;
 )
 PHP
                 ),
-            ]
+            ],
         );
     }
 

@@ -58,21 +58,21 @@ readonly class ContainerWriter
             new Twig\TwigFilter(
                 'literal',
                 static fn (mixed $value) => is_string($value) ? "'" . $value . "'" : $value,
-            )
+            ),
         );
 
         $twig->addFilter(
             new Twig\TwigFilter(
                 'methodName',
                 $this->serviceNameToMethodName(...),
-            )
+            ),
         );
 
         $twig->addFilter(
             new Twig\TwigFilter(
                 'varName',
                 $this->serviceNameToVariableName(...),
-            )
+            ),
         );
 
         return $twig;
@@ -160,7 +160,7 @@ readonly class ContainerWriter
         string $name,
         string $type,
         string $code,
-        string $visibility = ClassLike::VisibilityPrivate
+        string $visibility = ClassLike::VisibilityPrivate,
     ): Method {
         $method = $this->class->addMethod($name);
         $method->setReturnType($type);
