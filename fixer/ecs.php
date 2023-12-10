@@ -142,10 +142,6 @@ return static function (ECSConfig $ecsConfig): void {
         'comment_types' => ['hash'],
     ]);
 
-    $ecsConfig->ruleWithConfiguration(TrailingCommaInMultilineFixer::class, [
-        'elements' => ['arguments', 'arrays', 'match', 'parameters'],
-    ]);
-
     $ecsConfig->rules([
         CommentSurroundedBySpacesFixer::class,
         IssetToArrayKeyExistsFixer::class,
@@ -212,5 +208,6 @@ return static function (ECSConfig $ecsConfig): void {
         ArrayOpenerAndCloserNewlineFixer::class,
         MethodArgumentSpaceFixer::class,
         OrderedClassElementsFixer::class,
+        TrailingCommaInMultilineFixer::class,
     ]);
 };

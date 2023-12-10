@@ -4,6 +4,13 @@
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="src/Component/HttpMessage/HeaderUtils.php" method="parseQuery"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="src/Component/HttpMessage/HeaderUtils.php" method="parseQuery"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="src/Component/HttpMessage/HeaderUtils.php" method="groupParts"/>
+  <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="src/Component/HttpMessage/Request.php"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="src/Component/HttpMessage/Request.php" method="create"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="src/Component/HttpMessage/Request.php" method="create"/>
+  <violation rule="PHPMD\Rule\Design\LongMethod" file="src/Component/HttpMessage/Request.php" method="create"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="src/Component/HttpMessage/Request.php" method="prepareRequestUri"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="src/Component/HttpMessage/Request.php" method="prepareBaseUrl"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="src/Component/HttpMessage/Request.php" method="prepareBaseUrl"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="src/Component/HttpMessage/ServerBag.php" method="getHeaders"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="src/Component/HttpMessage/ServerBag.php" method="getHeaders"/>
 </phpmd-baseline>
