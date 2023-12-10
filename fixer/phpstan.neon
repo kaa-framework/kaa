@@ -62,3 +62,5 @@ parameters:
           path: ../src/Component/*/Test/*
 
         - message: '#Parameter \#1 \$objectOrClass of class ReflectionClass constructor expects class-string\<T of object\>\|T of object, string given\.#'
+
+        - message: '#Call to an undefined method Symfony\\Component\\Config\\Definition\\Builder\\NodeDefinition::children\(\)\.#'
