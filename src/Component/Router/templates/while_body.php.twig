@@ -1,0 +1,23 @@
+{% if current.getHandler is not null %}
+    {% if not current.isVariable %}
+        if(($nodes[{{ count }}] === '{{ current.getData }}') && ($count_nodes === {{ count }})){
+    {% else %}
+        if($count_nodes === {{ count }}){
+    {% endif %}
+
+    {% if current.getKeys is not null %}
+        {% for key, value in current.getKeys %}
+            $request->attributes->set('{{ value }}', $nodes[{{key}}]);
+        {% endfor %}
+    {% endif %}
+
+    {% if current.getRoute is not null %}
+        $obj = new {{ current.getRoute.className }}();
+        return [$obj, '{{ current.getRoute.methodName }}'];
+    {% else %}
+        return [];
+    {% endif %}
+
+    }
+{% endif %}
+

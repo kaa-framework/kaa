@@ -1,0 +1,15 @@
+{% if not t.isVariable %}
+    {% if indexes[depth] is same as(0) %}
+        if (($nodes[{{ depth + 1 }}] === '{{ route }}') && ($count_nodes >= {{ depth + 1 }})){
+    {% else %}
+        else if (($nodes[{{ depth + 1 }}] === '{{ route }}') && ($count_nodes >= {{ depth + 1 }})){
+    {%  endif %}
+
+{% else %}
+    {% if indexes[depth] is same as(0) %}
+        if ($count_nodes >= {{ depth + 1 }}){
+    {% else %}
+        else if ($count_nodes >= {{ depth + 1 }}){
+    {%  endif %}
+
+{% endif %}
