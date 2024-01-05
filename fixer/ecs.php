@@ -81,10 +81,6 @@ return static function (ECSConfig $ecsConfig): void {
         __DIR__ . '/../fixer',
     ]);
 
-    $ecsConfig->skip([
-        __DIR__ . '/../src/Bundle/*/*Bundle.php',
-    ]);
-
     $ecsConfig->sets([
         SetList::COMMON,
         SetList::PSR_12,

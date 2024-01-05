@@ -18,7 +18,8 @@
 `Kaa\Generated\Router\Router`, реализующий `RouterInterface`.
 
 ```php
-interface RouterInterface{
+interface RouterInterface
+{
     /**
      * @param Request $request
      * @return callable(Request): Response $request

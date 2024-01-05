@@ -7,6 +7,7 @@ namespace Kaa\Bundle\Router;
 use Kaa\Bundle\Framework\BundleGeneratorInterface;
 use Kaa\Component\Router\RouterGenerator;
 use Kaa\Component\Router\RouterInterface;
+use Kaa\HttpKernel\HttpKernelEvents;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 
 readonly class RouterBundle extends RouterGenerator implements BundleGeneratorInterface
@@ -55,6 +56,13 @@ readonly class RouterBundle extends RouterGenerator implements BundleGeneratorIn
                     RouterInterface::class => [
                         'class' => 'Kaa\Generated\Router\Router',
                     ],
+                ],
+            ],
+
+            'dispatcher' => [
+                'listeners' => [
+                    'service' => '\Kaa\Generated\Router\FindActionListener',
+                    'event' => HttpKernelEvents::FIND_ACTION,
                 ],
             ],
         ];
