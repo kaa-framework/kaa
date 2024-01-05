@@ -62,7 +62,7 @@ readonly class RouterBundle extends RouterGenerator implements BundleGeneratorIn
     {
         return [
             'di' => [
-                'serivces' => [
+                'services' => [
                     RouterInterface::class => [
                         'class' => 'Kaa\Generated\Router\Router',
                     ],
