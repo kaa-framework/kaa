@@ -1,4 +1,4 @@
-# Event Dispatcher Module
+# Event Dispatcher Bundle
 
 Модуль Event Dispatcher предоставляет автоконфигурацию слушателей и диспатчеров.
 
@@ -10,6 +10,7 @@ dispatcher:
     
     listeners:
         - service: 'app.some_event_listener'
+          service_class: App\EventListenerService
           method: onSomeEvent
           event: 'event.some'
           dispatcher: kernel
@@ -35,10 +36,9 @@ class Service {
 
 Также поддерживает конфигурация через атрибуты:
 ```php
-// по умолчанию сервис совпадает с именем класса
 // method по умолчанию называется invoke (без подчёркиваний)
 // dispatcher по умолчанию равен kernel
-#[EventListener(service: 'app.some_event_listener', method: 'onSomeEvent', event: 'event.some')]
+#[EventListener(method: 'onSomeEvent', event: 'event.some', dispatcher: 'app')]
 class SomeEventListener
 {
 

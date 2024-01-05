@@ -1,4 +1,4 @@
-# Dependency Injection Module
+# Dependency Injection Bundle
 
 Модуль DI просто позволяет делать красивый yaml-конфиг для DI.
 

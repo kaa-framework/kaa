@@ -1,0 +1,7 @@
+$castedEvent = instance_cast($event, \{{ type }}::class);
+
+if ($castedEvent === null) {
+    return;
+}
+
+({{ service }})->{{ method }}($castedEvent);

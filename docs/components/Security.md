@@ -49,7 +49,6 @@ interface SessionServiceInterface
 Пример генерации `Security`:
 
 ```php
-$replacedClasses = new ReplacedClasses();
 $sharedConfig = new SharedConfig('./generated');
 $config = [
     'scan' => [
@@ -90,7 +89,7 @@ $config = [
 ];
 
 $securityGenerator = new SecurityGenerator();
-$securityGenerator->generate($replacedClasses, $sharedConfig, $config);
+$securityGenerator->generate($sharedConfig, $config);
 
 // теперь можно использовать сам валидатор
 

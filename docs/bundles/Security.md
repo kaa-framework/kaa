@@ -1,4 +1,4 @@
-# Security Module
+# Security Bundle
 
 Модуль security просто позволяет делать красивый yaml-конфиг для Security.
 

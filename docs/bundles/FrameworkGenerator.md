@@ -3,7 +3,7 @@
 ### Содержание
 
 * [Введение](#введение)
-* [ModuleGeneratorInterface](#modulegeneratorinterface)
+* [BundleGeneratorInterface](#Bundlegeneratorinterface)
 * [FrameworkGenerator](#frameworkgenerator)
 * [Пример приложения](#пример-приложения-на-kaa)
 
@@ -12,10 +12,10 @@
 `FrameworkGenerator` - сердце фреймворка.
 Он сгенерирует весь код, который необходим для полноценной работы приложения.
 
-### ModuleGeneratorInterface
+### BundleGeneratorInterface
 
 ```php
-interface ModuleGeneratorInterface extends GeneratorInterface
+interface BundleGeneratorInterface extends GeneratorInterface
 {
     public function getRootConfigurationKey(): string;
     public function getConfiguration(): ?Symfony\Component\Config\Definition\NodeInterface;
@@ -24,7 +24,7 @@ interface ModuleGeneratorInterface extends GeneratorInterface
 }
 ```
 
-`ModuleGeneratorInterface` используется для создания генераторов, которые можно легко подключить к приложению клиента.
+`BundleGeneratorInterface` используется для создания генераторов, которые можно легко подключить к приложению клиента.
 
 В приложениях, использующих фреймворк конфигурация задаётся в `yaml`-файлах.
 При запуске генерации кода, все `yaml`-файлы парсятся и сливаются в один `php`-массив.
@@ -47,7 +47,7 @@ class FrameworkGenerator
     public function generate(string $pathToConfig, string $pathToGenerated, string $pathToEnvJson): void
     {
         $newInstanceGenerator = new DefaultNewInstanceGenerator();
-        $generators = require_once $pathToConfig . '/modules.php';
+        $generators = require_once $pathToConfig . '/Bundles.php';
         foreach ($generators as $generatorClass) {
             if (is_a($generatorClass, NewInstanceGenerator::class)) {
                 $newInstanceGenerator = new $generatorClass();
@@ -86,7 +86,7 @@ config/
 ------router.yaml
 ------services.yaml
 ------ ...
-------modules.php
+------Bundles.php
 src/
 generated/
 generate.php
@@ -103,14 +103,14 @@ composer.lock
 
 ```php
 <?php
-// config/modules.php
+// config/Bundles.php
 
 return [
-    Kaa\Module\Router\RouterModule::class,
-    Kaa\Module\Validator\ValidatorModule::class,
-    Kaa\Module\Security\SecurityModule::class,
-    Kaa\Module\DependencyInjection\DependencyInjectionModule::class,
-    Kaa\Module\DependencyInjection\DependencyInjectionInstanceProvider::class,
+    Kaa\Bundle\Router\RouterBundle::class,
+    Kaa\Bundle\Validator\ValidatorBundle::class,
+    Kaa\Bundle\Security\SecurityBundle::class,
+    Kaa\Bundle\DependencyInjection\DependencyInjectionBundle::class,
+    Kaa\Bundle\DependencyInjection\DependencyInjectionInstanceProvider::class,
 ];
 ```
 

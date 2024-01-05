@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Kaa\Module\Router;
+namespace Kaa\Bundle\Router;
 
+use Kaa\Bundle\Framework\BundleGeneratorInterface;
 use Kaa\Component\Router\RouterGenerator;
 use Kaa\Component\Router\RouterInterface;
-use Kaa\Module\Framework\ModuleGeneratorInterface;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 
-readonly class RouterModule extends RouterGenerator implements ModuleGeneratorInterface
+readonly class RouterBundle extends RouterGenerator implements BundleGeneratorInterface
 {
     public function getRootConfigurationKey(): string
     {
@@ -23,13 +23,13 @@ readonly class RouterModule extends RouterGenerator implements ModuleGeneratorIn
             ->getRootNode()
             ->children()
             ->arrayNode('scan')
-            ->prototype('scalar')->end()
+            ->prototype('scalar')
             ->end()
             ->arrayNode('prefixes')
-            ->prototype('scalar')->end()
+            ->prototype('scalar')
             ->end()
             ->arrayNode('routes')
-            ->prototype('array')
+            ->arrayPrototype()
             ->children()
             ->scalarNode('route')->end()
             ->scalarNode('method')->end()
@@ -44,7 +44,7 @@ readonly class RouterModule extends RouterGenerator implements ModuleGeneratorIn
 
     public function getPriority(): int
     {
-        return 20;
+        return 50;
     }
 
     public function getConfigArray(): mixed

@@ -1,4 +1,4 @@
-# Router Module
+# Router Bundle
 
 Модуль роутера просто позволяет делать красивый yaml-конфиг для роутера.
 
@@ -14,5 +14,5 @@ prefixes:
     Kaa\SampleProject\Controller\BlogApiController: /api/
 
 routes:
-    - { route: /external-api, method: callExternalApi, service: AppConteollerExternalController }
+    - { route: /external-api, method: callExternalApi, service: AppControllerExternalController }
 ```
