@@ -22,7 +22,7 @@ interface RouterInterface
 {
     /**
      * @param Request $request
-     * @return callable(Request): Response $request
+     * @return callable(Request): Response
      */
     public function findAction(Request $request): callable;
 }

@@ -15,7 +15,7 @@
         $obj = new {{ current.getRoute.className }}();
         return [$obj, '{{ current.getRoute.methodName }}'];
     {% else %}
-        return [];
+        return null;
     {% endif %}
 
     }

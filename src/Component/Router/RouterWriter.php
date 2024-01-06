@@ -116,7 +116,7 @@ final class RouterWriter
             }
         }
 
-        $code[] = "return [];\n";
+        $code[] = "return null;\n";
         $method = $this->addMethod(
             implode("\n", $code),
             ClassLike::VisibilityPublic,
@@ -129,6 +129,7 @@ final class RouterWriter
         string $visibility = ClassLike::VisibilityPrivate,
     ): Method {
         $method = $this->class->addMethod('findAction');
+        $method->setComment('@return (callable(\Kaa\Component\HttpMessage\Request): \Kaa\Component\HttpMessage\Response\Response)|null');
         $method->setReturnType('callable');
         $method->setStatic();
         $method->setVisibility($visibility);
@@ -146,6 +147,7 @@ final class RouterWriter
         if (!is_dir($directory) && !mkdir($directory) && !is_dir($directory)) {
             throw new RouterGeneratorException("Directory {$directory} was not created");
         }
+
         file_put_contents(
             $directory . '/Router.php',
             (new PsrPrinter())->printFile($this->file),
