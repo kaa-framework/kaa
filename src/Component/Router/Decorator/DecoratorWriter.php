@@ -108,8 +108,13 @@ class DecoratorWriter
         $variables->addVariable(Request::class, 'kaaRequest');
 
         $code = [];
-        foreach ($preDecorators as $decorator) {
-            $code[] = $decorator->decorate($method, $variables, $this->config->newInstanceGenerator);
+        foreach ($preDecorators as $decoratorAndParameter) {
+            $code[] = $decoratorAndParameter->decorator->decorate(
+                $method,
+                $decoratorAndParameter->parameter,
+                $variables,
+                $this->config->newInstanceGenerator,
+            );
         }
 
         $parameters = $this->getControllerParameterNames($method, $variables);
@@ -129,8 +134,13 @@ class DecoratorWriter
         );
 
         $code = [];
-        foreach ($postDecorators as $decorator) {
-            $code[] = $decorator->decorate($method, $variables, $this->config->newInstanceGenerator);
+        foreach ($postDecorators as $decoratorAndParameter) {
+            $code[] = $decoratorAndParameter->decorator->decorate(
+                $method,
+                $decoratorAndParameter->parameter,
+                $variables,
+                $this->config->newInstanceGenerator,
+            );
         }
 
         $code[] = $this->twig->render('return.php.twig', [
@@ -141,7 +151,7 @@ class DecoratorWriter
     }
 
     /**
-     * @return array{DecoratorInterface[], DecoratorInterface[]} [Пре-декораторы, Пост-декораторы]
+     * @return array{DecoratorAndParameter[], DecoratorAndParameter[]} [Пре-декораторы, Пост-декораторы]
      */
     public function getDecorators(ReflectionMethod $method): array
     {
@@ -151,24 +161,36 @@ class DecoratorWriter
         );
 
         $decorators = array_map(
-            static fn (ReflectionAttribute $a) => $a->newInstance(),
+            static fn (ReflectionAttribute $a) => new DecoratorAndParameter($a->newInstance(), null),
             $decoratorAttributes,
         );
 
+        foreach ($method->getParameters() as $parameter) {
+            $attributes = $parameter->getAttributes(
+                DecoratorInterface::class,
+                ReflectionAttribute::IS_INSTANCEOF
+            );
+
+            foreach ($attributes as $attribute) {
+                $decorators[] = new DecoratorAndParameter($attribute->newInstance(), $parameter);
+            }
+        }
+
         usort(
             $decorators,
-            static fn (DecoratorInterface $left, DecoratorInterface $right) => -($left->getPriority(
-            ) <=> $right->getPriority()),
+            static fn (DecoratorAndParameter $left, DecoratorAndParameter $right) => -(
+                $left->decorator->getPriority() <=> $right->decorator->getPriority()
+            ),
         );
 
         $preDecorators = array_filter(
             $decorators,
-            static fn (DecoratorInterface $d) => $d->getType() === DecoratorType::Pre,
+            static fn (DecoratorAndParameter $d) => $d->decorator->getType() === DecoratorType::Pre,
         );
 
         $postDecorators = array_filter(
             $decorators,
-            static fn (DecoratorInterface $d) => $d->getType() === DecoratorType::Pre,
+            static fn (DecoratorAndParameter $d) => $d->decorator->getType() === DecoratorType::Pre,
         );
 
         return [$preDecorators, $postDecorators];

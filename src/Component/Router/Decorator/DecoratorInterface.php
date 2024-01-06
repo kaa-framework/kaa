@@ -4,6 +4,7 @@ namespace Kaa\Component\Router\Decorator;
 
 use Kaa\Component\GeneratorContract\NewInstanceGeneratorInterface;
 use ReflectionMethod;
+use ReflectionParameter;
 
 interface DecoratorInterface
 {
@@ -16,6 +17,7 @@ interface DecoratorInterface
      */
     public function decorate(
         ReflectionMethod $decoratedMethod,
+        ?ReflectionParameter $reflectionParameter,
         Variables $variables,
         NewInstanceGeneratorInterface $newInstanceGenerator,
     ): string;
