@@ -27,8 +27,8 @@ final class RouterWriter
     private Twig\Environment $twig;
 
     public function __construct(
-        private SharedConfig $config,
-        private RoutingTree $tree,
+        private readonly SharedConfig $config,
+        private readonly RoutingTree $tree,
     ) {
         $this->file = new PhpFile();
         $this->file->setStrictTypes();

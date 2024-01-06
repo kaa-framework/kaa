@@ -9,6 +9,7 @@ use Kaa\Bundle\EventDispatcher\Writer\BootstrapWriter;
 use Kaa\Bundle\EventDispatcher\Writer\ListenerWriter;
 use Kaa\Bundle\Framework\BundleGeneratorInterface;
 use Kaa\Component\EventDispatcher\EventDispatcher;
+use Kaa\Component\EventDispatcher\EventDispatcherInterface;
 use Kaa\Component\GeneratorContract\PhpOnly;
 use Kaa\Component\GeneratorContract\SharedConfig;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
@@ -102,7 +103,11 @@ class EventDispatcherBundle implements BundleGeneratorInterface
         return [
             'di' => [
                 'services' => $services,
-            ]
+                'aliases' => [
+                    EventDispatcher::class => 'kernel.dispatcher.kernel',
+                    EventDispatcherInterface::class => 'kernel.dispatcher.kernel',
+                ],
+            ],
         ];
     }
 }

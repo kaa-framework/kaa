@@ -8,6 +8,7 @@ use Exception;
 use Kaa\Component\GeneratorContract\GeneratorInterface;
 use Kaa\Component\GeneratorContract\PhpOnly;
 use Kaa\Component\GeneratorContract\SharedConfig;
+use Kaa\Component\Router\Decorator\DecoratorWriter;
 use Kaa\Component\Router\Dto\RoutesCollection;
 use Kaa\Component\Router\Exception\RouterGeneratorException;
 use Kaa\Component\Router\RoutesLocator\AttributesToConfigParser;
@@ -22,15 +23,20 @@ readonly class RouterGenerator implements GeneratorInterface
      * @param mixed[] $config
      * @throws ReflectionException|RouterGeneratorException|Exception
      */
-    public function generate(SharedConfig $sharedConfig, $config): void
+    public function generate(SharedConfig $sharedConfig, array $config): void
     {
         $tree = new RoutingTree();
         $config = (new AttributesToConfigParser($config))->getConfig();
         ConfigValidator::validate($config);
-        $routesCollection = new RoutesCollection($config);
+
+        $decoratorWriter = new DecoratorWriter($sharedConfig);
+
+        $routesCollection = new RoutesCollection($config, $decoratorWriter);
         foreach ($routesCollection as $route) {
             $tree->addElement($route);
         }
+
         (new RouterWriter($sharedConfig, $tree))->write();
+        $decoratorWriter->write();
     }
 }

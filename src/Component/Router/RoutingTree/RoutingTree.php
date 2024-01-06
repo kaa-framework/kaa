@@ -69,6 +69,7 @@ class RoutingTree
         /** @var TreeNode $createdElement */
         $createdElement = $this->createdElements[$nodesCount - 1][$prevKey];
         $createdElement->addNext($prom);
+
         // {$prevKey}/{$nodes[count($nodes) - 1]} ключ по которому хранятся последние части каждого путя
         $this->createdElements[$nodesCount]["{$prevKey}/{$nodes[$nodesCount - 1]}"] = $prom;
     }

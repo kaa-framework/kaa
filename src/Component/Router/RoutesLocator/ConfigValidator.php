@@ -25,6 +25,7 @@ class ConfigValidator
                 $troubleRoutes[$index] = 1;
             }
         }
+
         $troubleRoutes = array_filter($troubleRoutes, static fn ($v) => $v > 1);
         $listTroubles = implode(' ', array_keys($troubleRoutes));
         if ($troubleRoutes !== []) {

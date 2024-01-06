@@ -7,6 +7,7 @@ namespace Kaa\Component\Router\Dto;
 use ArrayIterator;
 use IteratorAggregate;
 use Kaa\Component\GeneratorContract\PhpOnly;
+use Kaa\Component\Router\Decorator\DecoratorWriter;
 use Traversable;
 
 #[PhpOnly]
@@ -18,20 +19,25 @@ class RoutesCollection implements IteratorAggregate
     /**
      * @param mixed[] $config
      */
-    public function __construct(array $config)
+    public function __construct(array $config, DecoratorWriter $decoratorWriter)
     {
         foreach ($config['routes'] as $route) {
             $className = is_array($route['service'] ?? []) ? $route['service']['class'] : $route['service'];
+            $serviceName = is_array($route['service'] ?? []) ? $route['service']['name'] : $route['service'];
+
             $name = is_array($route['service'] ?? []) ? $route['service']['class'] : $route['service'] . $route['method'];
             $routePath = array_key_exists($className, $config['prefixes'] ?? []) ?
                 str_replace('//', '/', $config['prefixes'][$className] . $route['route']) :
                 $route['route'];
+
+            [$class, $methodName] = $decoratorWriter->addMethod($className, $serviceName, $route['classMethod']);
+
             $this->data[] = new RouteDto(
-                $routePath,
-                $route['method'],
-                $name,
-                $className,
-                $route['classMethod'],
+                route: $routePath,
+                method: $route['method'],
+                name: $name,
+                className: $class,
+                methodName: $methodName,
             );
         }
     }
