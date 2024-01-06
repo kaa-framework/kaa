@@ -1,3 +1,5 @@
 /vendor/
 /.idea
 /var
+/src/Component/Validator/Test/generated/
+/src/Component/Validator/Test/TestValidatorWriter.php

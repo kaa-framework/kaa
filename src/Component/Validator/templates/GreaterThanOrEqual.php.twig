@@ -1,0 +1,3 @@
+if ($model->{{ getMethod }} < {{ compared_value }}){
+    $violationsList[] = new \Kaa\Component\Validator\Violation('{{ class }}', '{{ property }}', '{{ message }}');
+}

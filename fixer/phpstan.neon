@@ -63,6 +63,14 @@ parameters:
 
         - message: '#Parameter \#1 \$objectOrClass of class ReflectionClass constructor expects class-string\<T of object\>\|T of object, string given\.#'
 
+        - message: '#Parameter \#1 \$assert .* of method Kaa\\Component\\Validator\\Generator\\.*::generateAssert\(\) should be contravariant with parameter \$assert .*#'
+
+        - message: '#.*#'
+          path: ../src/Component/Validator/ValidatorLocator/AttributesParser.php
+
+        - message: '#.*#'
+          path: ../src/Component/Validator/ValidatorWriter.php
+
         - message: '#Call to an undefined method Symfony\\Component\\Config\\Definition\\Builder\\NodeDefinition::children\(\)\.#'
 
         - message: '#.*#'

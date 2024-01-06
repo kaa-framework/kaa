@@ -43,22 +43,6 @@ PHPStan:
             codequality: phpstan.json
 
 
-PHP Mess Detector:
-    stage: test
-    extends:
-        - .test-rules
-
-    tags: [ docker ]
-    image: registry.miem.hse.ru/kaa-framework/kaa/php:latest
-
-    script:
-        - vendor/bin/phpmd src gitlab fixer/phpmd.xml > phpmd-report.json
-
-    artifacts:
-        reports:
-            codequality: phpmd-report.json
-
-
 Easy Coding Standard:
     stage: test
     extends:

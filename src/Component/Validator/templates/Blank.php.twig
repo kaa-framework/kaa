@@ -1,0 +1,7 @@
+{% if allowNull == true %}
+    if ('' !== $model->{{ getMethod }} && null !== $model->{{ getMethod }}) {
+{% else %}
+    if ('' !== $model->{{ getMethod }} && null !== $model->{{ getMethod }}) {
+{% endif %}
+        $violationsList[] = new \Kaa\Component\Validator\Violation('{{ class }}', '{{ property }}', '{{ message }}');
+    }

@@ -1,0 +1,10 @@
+$violationsList = [];
+switch(get_class($model)) {
+{% for class, value in methodNames %}
+    case \{{ class }}::class:
+        $violationsList = $this->{{ value }}($model);
+
+    break;
+{% endfor %}
+}
+return $violationsList;

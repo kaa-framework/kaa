@@ -21,6 +21,3 @@ lintfix:
 
 unit:
 	@docker run -t -v $(shell pwd):/app kaa/php vendor/bin/phpunit -c fixer/phpunit.xml.dist
-
-md:
-	@docker run -t -v $(shell pwd):/app kaa/php vendor/bin/phpmd src ansi fixer/phpmd.xml

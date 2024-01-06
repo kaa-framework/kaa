@@ -19,7 +19,6 @@ use Kaa\Component\DependencyInjection\Test\ClassFixture\Ignored\IgnoredService;
 use Kaa\Component\DependencyInjection\Test\ClassFixture\JustService;
 use Kaa\Component\DependencyInjection\Test\ClassFixture\Scanned\ScannedService;
 use PHPUnit\Framework\TestCase;
-
 use function PHPUnit\Framework\assertEquals;
 use function PHPUnit\Framework\assertFalse;
 use function PHPUnit\Framework\assertTrue;

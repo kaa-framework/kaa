@@ -15,7 +15,6 @@ use Kaa\Component\DependencyInjection\Exception\ServiceDoesNotExistException;
 use Kaa\Component\DependencyInjection\ServiceLocator\ConfigServiceLocator;
 use Kaa\Component\DependencyInjection\Test\ClassFixture\JustService;
 use PHPUnit\Framework\TestCase;
-
 use function PHPUnit\Framework\assertEquals;
 use function PHPUnit\Framework\assertFalse;
 use function PHPUnit\Framework\assertTrue;
