@@ -35,7 +35,6 @@ interface ValidatorInterface
 Пример генерации валидатора:
 
 ```php
-$replacedClasses = new ReplacedClasses();
 $sharedConfig = new SharedConfig('./generated');
 $config = [
     'scan' => [
@@ -45,7 +44,7 @@ $config = [
 ];
 
 $validatorGenerator = new ValidatorGenerator();
-$validatorGenerator->generate($replacedClasses, $sharedConfig, $config);
+$validatorGenerator->generate($sharedConfig, $config);
 
 // теперь можно использовать сам валидатор
 

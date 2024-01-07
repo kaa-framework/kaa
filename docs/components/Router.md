@@ -31,7 +31,6 @@ interface RouterInterface
 Пример генерации роутера:
 
 ```php
-$replacedClasses = new ReplacedClasses();
 $sharedConfig = new SharedConfig('./generated');
 $config = [
     'scan' => [
@@ -58,7 +57,7 @@ $config = [
 ];
 
 $validatorGenerator = new RouterGenerator();
-$routerGenerator->generate($replacedClasses, $sharedConfig, $config);
+$routerGenerator->generate($sharedConfig, $config);
 
 // теперь можно использовать сам роутер
 $request = Request::initFromGlobals();

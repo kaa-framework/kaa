@@ -37,7 +37,6 @@ interface ContainerInterface
 ```php
 <?php
 
-$replacedClasses = new ReplacedClasses();
 $sharedConfig = new SharedConfig('./generated');
 $config = [
     'scan' => [
@@ -78,7 +77,7 @@ $config = [
 ];
 
 $containerGenerator = new ContainerGenerator();
-$containerGenerator->generate($replacedClasses, $sharedConfig, $config);
+$containerGenerator->generate($sharedConfig, $config);
 
 // Теперь можно использовать контейнер
 $service = \Kaa\Generated\DependencyInjection\Container::get(OtherService::class, OtherService::class);
