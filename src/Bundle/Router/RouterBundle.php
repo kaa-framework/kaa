@@ -58,7 +58,7 @@ readonly class RouterBundle extends RouterGenerator implements BundleGeneratorIn
         return 50;
     }
 
-    public function getConfigArray(): mixed
+    public function getConfigArray(): array
     {
         return [
             'di' => [

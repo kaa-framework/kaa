@@ -80,7 +80,7 @@ class EventDispatcherBundle implements BundleGeneratorInterface
         return 20;
     }
 
-    public function getConfigArray(): mixed
+    public function getConfigArray(): array
     {
         $dispatchers = array_column($this->listeners, 'dispatcher');
         $dispatchers[] = 'kernel';

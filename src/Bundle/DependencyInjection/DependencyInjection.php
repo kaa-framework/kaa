@@ -70,7 +70,7 @@ readonly class DependencyInjection extends ContainerGenerator implements BundleG
         return 0;
     }
 
-    public function getConfigArray(): mixed
+    public function getConfigArray(): array
     {
         return [];
     }

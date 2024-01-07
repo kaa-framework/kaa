@@ -2,17 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Kaa\HttpKernel;
+namespace Kaa\Component\HttpKernel;
 
-use Kaa\EventDispatcher\EventDispatcherInterface;
-use Kaa\HttpFoundation\Request;
-use Kaa\HttpFoundation\Response;
-use Kaa\HttpKernel\Event\FindActionEvent;
-use Kaa\HttpKernel\Event\RequestEvent;
-use Kaa\HttpKernel\Event\ResponseEvent;
-use Kaa\HttpKernel\Event\ThrowableEvent;
+use Kaa\Component\EventDispatcher\EventDispatcherInterface;
+use Kaa\Component\HttpKernel\Event\FindActionEvent;
+use Kaa\Component\HttpKernel\Event\RequestEvent;
+use Kaa\Component\HttpKernel\Event\ResponseEvent;
+use Kaa\Component\HttpKernel\Event\ThrowableEvent;
+use Kaa\Component\HttpMessage\Request;
+use Kaa\Component\HttpMessage\Response\Response;
 use Kaa\HttpKernel\Exception\ActionNotFoundException;
 use Kaa\HttpKernel\Exception\ResponseNotReachedException;
+use Kaa\HttpKernel\HttpKernelEvents;
 use Throwable;
 
 class HttpKernel

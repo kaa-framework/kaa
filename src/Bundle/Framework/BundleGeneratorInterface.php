@@ -9,11 +9,14 @@ use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 
 interface BundleGeneratorInterface extends GeneratorInterface
 {
-    public function getRootConfigurationKey(): string;
+    public function getRootConfigurationKey(): ?string;
 
-    public function getConfiguration(): TreeBuilder;
+    public function getConfiguration(): ?TreeBuilder;
 
     public function getPriority(): int;
 
-    public function getConfigArray(): mixed;
+    /**
+     * @return mixed[]
+     */
+    public function getConfigArray(): array;
 }

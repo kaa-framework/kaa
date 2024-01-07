@@ -38,7 +38,7 @@ readonly class ValidatorBundle extends ValidatorGenerator implements BundleGener
         return 50;
     }
 
-    public function getConfigArray(): mixed
+    public function getConfigArray(): array
     {
         return [
             'di' => [
