@@ -1,0 +1,5 @@
+${{ violationList }} = ({{ service }})->validate(${{ model }});
+
+if (${{ violationList}} !== []) {
+    throw new \Kaa\Component\RequestMapperDecorator\Exception\ValidationException(${{ violationList }});
+}

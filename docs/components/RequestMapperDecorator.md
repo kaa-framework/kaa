@@ -3,10 +3,11 @@
 Это компонент предоставляет декораторы:
 
 * `#[MapRequestPayload]` - маппит данные запроса из `$_POST` в модель
-* `#[MapJsonPayload]` - декодитрует JSON-тело запроса в переденную модель с помощью `JsonDecoder::decode`
+* `#[MapJsonPayload]` - декорирует JSON-тело запроса в переданную модель с помощью `JsonDecoder::decode`
 * `#[MapQueryParameter]` - подставляет параметр из query в переменную
-* `#[MapQueryParametesrs]` - мапит все переменные из query в модель
+* `#[MapQueryParametesrs]` - маппит все переменные из query в модель
 * `#[MapRouteParameter]` - подставляет параметр пути в модель
+* `#[AsJsonResponse]` - конвертирует возвращаемое значение в JsonResponse
 
 Примеры:
 ```php

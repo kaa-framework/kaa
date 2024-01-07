@@ -11,6 +11,10 @@ class Variables
 
     public function addVariable(string $type, string $name): void
     {
+        $type = in_array($type, ['string', 'float', 'int'], true)
+            ? $type
+            : '\\' . ltrim($type, '\\');
+
         $this->variables[$name] = $type;
     }
 
@@ -21,12 +25,20 @@ class Variables
 
     public function hasSame(string $type, string $name): bool
     {
+        $type = in_array($type, ['string', 'float', 'int'], true)
+            ? $type
+            : '\\' . ltrim($name, '\\');
+
         return array_key_exists($name, $this->variables)
             && $this->variables[$name] === $type;
     }
 
     public function getLastByType(string $type): ?string
     {
+        $type = in_array($type, ['string', 'float', 'int'], true)
+            ? $type
+            : '\\' . ltrim($type, '\\');
+
         $name = null;
 
         foreach ($this->variables as $varName => $varType) {

@@ -16,14 +16,29 @@ use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
 use ReflectionParameter;
+use ReflectionProperty;
 use ReflectionType;
+use Twig;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 
 #[PhpOnly]
 abstract readonly class AbstractBagDecorator implements DecoratorInterface
 {
+    private Twig\Environment $twig;
+
     public function __construct(
         private bool $validate = true,
     ) {
+        $this->twig = $this->createTwig();
+    }
+
+    private function createTwig(): Twig\Environment
+    {
+        $loader = new Twig\Loader\FilesystemLoader(__DIR__ . '/templates');
+
+        return new Twig\Environment($loader);
     }
 
     public function getType(): DecoratorType
@@ -37,7 +52,7 @@ abstract readonly class AbstractBagDecorator implements DecoratorInterface
     }
 
     /**
-     * @throws DecoratorException|BadParameterTypeException|ReflectionException
+     * @throws BadParameterTypeException|DecoratorException|ReflectionException|LoaderError|RuntimeError|SyntaxError
      */
     public function decorate(
         ReflectionMethod $decoratedMethod,
@@ -66,13 +81,21 @@ abstract readonly class AbstractBagDecorator implements DecoratorInterface
         $modelClass = new ReflectionClass(Reflection::namedType($parameter->getType())->getName());
         $constructorParameters = $this->getConstructorParameters($requestVarName, $modelClass);
 
-        $parameterCode = [];
+        $code = [
+            sprintf(
+                '$%s = new \%s(%s);',
+                $modelName,
+                $modelClass->name,
+                implode(",\n", $constructorParameters)
+            ),
+        ];
+
         foreach ($modelClass->getProperties() as $property) {
             if (array_key_exists($property->getName(), $constructorParameters)) {
                 continue;
             }
 
-            $parameterCode[] = SetUtil::generateSetStatement(
+            $code[] = $this->generateSetStatement(
                 $property,
                 $modelName,
                 $this->generateGetFromBagCode(
@@ -85,37 +108,15 @@ abstract readonly class AbstractBagDecorator implements DecoratorInterface
 
         $variables->addVariable($modelClass->getName(), $modelName);
 
-        $code = [
-            sprintf(
-                '$%s = new \%s(%s);',
-                $modelName,
-                $modelClass->name,
-                implode(",\n", $constructorParameters)
-            ),
-            ...$parameterCode,
-        ];
-
         if (class_exists(ValidatorInterface::class) && $this->validate) {
             $validatorService = $newInstanceGenerator->generate(ValidatorInterface::class, ValidatorInterface::class);
 
             $violationListName = 'kaaDecoratorViolationList' . $modelName;
-
-            $code[] = "\n";
-            $code[] = sprintf(
-                '$%s = (%s)->validate($%s);',
-                $violationListName,
-                $validatorService,
-                $modelName,
-            );
-
-            $code[] = "\n";
-            $code[] = sprintf('if ($%s !== []) {', $violationListName);
-            $code[] = "\n";
-            $code[] = sprintf(
-                'throw new \Kaa\Component\RequestMapperDecorator\Exception\ValidationException($%s);',
-                $violationListName,
-            );
-            $code[] = "\n}";
+            $code[] = $this->twig->render('validate.php.twig', [
+                'violationList' => $violationListName,
+                'service' => $validatorService,
+                'model' => $modelName,
+            ]);
 
             $variables->addVariable('array', $violationListName);
         }
@@ -158,6 +159,63 @@ abstract readonly class AbstractBagDecorator implements DecoratorInterface
             $this->getInputBagName(),
             $paramName,
         );
+    }
+
+    /**
+     * Генерирует строчку кода, которая устанавливает свойству $reflectionProperty объекта с именем $objectName
+     * значение $value
+     *
+     * @param string $value Может быть строкой с константой, вызовом метода, конструктора и т.д.
+     * @throws ReflectionException|DecoratorException
+     */
+    public function generateSetStatement(
+        ReflectionProperty $reflectionProperty,
+        string $modelName,
+        string $value,
+    ): string {
+        if ($reflectionProperty->isPublic()) {
+            return sprintf('$%s->%s = %s;', $modelName, $reflectionProperty->name, $value);
+        }
+
+        $reflectionClass = $reflectionProperty->getDeclaringClass();
+        $setterMethodName = $this->getMethodNameWithRightCase(
+            $reflectionClass,
+            'set' . $reflectionProperty->name
+        );
+
+        if ($setterMethodName === null) {
+            throw new DecoratorException(
+                sprintf(
+                    'Property %s::%s is private and it`s class does not have setter method',
+                    $reflectionClass->name,
+                    $reflectionProperty->name,
+                )
+            );
+        }
+
+        if (!$reflectionClass->getMethod($setterMethodName)->isPublic()) {
+            throw new DecoratorException(
+                sprintf(
+                    'Property %s::%s is private and it`s setter %s is also private',
+                    $reflectionClass->name,
+                    $reflectionProperty->name,
+                    $reflectionProperty->name,
+                )
+            );
+        }
+
+        return sprintf('$%s->%s(%s);', $modelName, $setterMethodName, $value);
+    }
+
+    private function getMethodNameWithRightCase(ReflectionClass $reflectionClass, string $methodName): ?string
+    {
+        foreach ($reflectionClass->getMethods() as $reflectionMethod) {
+            if (strcasecmp($reflectionMethod->name, $methodName) === 0) {
+                return $reflectionMethod->name;
+            }
+        }
+
+        return null;
     }
 
     abstract protected function getInputBagName(): string;

@@ -17,7 +17,7 @@ interface DecoratorInterface
      */
     public function decorate(
         ReflectionMethod $decoratedMethod,
-        ?ReflectionParameter $reflectionParameter,
+        ?ReflectionParameter $parameter,
         Variables $variables,
         NewInstanceGeneratorInterface $newInstanceGenerator,
     ): string;

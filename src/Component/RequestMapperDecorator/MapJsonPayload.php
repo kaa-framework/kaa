@@ -17,6 +17,10 @@ use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
 use ReflectionParameter;
+use Twig;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 
 #[
     PhpOnly,
@@ -24,9 +28,19 @@ use ReflectionParameter;
 ]
 readonly class MapJsonPayload implements DecoratorInterface
 {
+    private Twig\Environment $twig;
+
     public function __construct(
         private bool $validate = true,
     ) {
+        $this->twig = $this->createTwig();
+    }
+
+    private function createTwig(): Twig\Environment
+    {
+        $loader = new Twig\Loader\FilesystemLoader(__DIR__ . '/templates');
+
+        return new Twig\Environment($loader);
     }
 
     public function getType(): DecoratorType
@@ -40,7 +54,7 @@ readonly class MapJsonPayload implements DecoratorInterface
     }
 
     /**
-     * @throws ReflectionException|BadParameterTypeException|DecoratorException
+     * @throws BadParameterTypeException|DecoratorException|ReflectionException|LoaderError|RuntimeError|SyntaxError
      */
     public function decorate(
         ReflectionMethod $decoratedMethod,
@@ -78,24 +92,17 @@ readonly class MapJsonPayload implements DecoratorInterface
         $variables->addVariable($modelClass->name, $modelName);
 
         if (class_exists(ValidatorInterface::class) && $this->validate) {
-            $validatorService = $newInstanceGenerator->generate(ValidatorInterface::class, ValidatorInterface::class);
+            $validatorService = $newInstanceGenerator->generate(
+                ValidatorInterface::class,
+                ValidatorInterface::class
+            );
 
             $violationListName = 'kaaDecoratorViolationList' . $modelName;
-            $code .= sprintf(
-                '$%s = (%s)->validate($%s);',
-                $violationListName,
-                $validatorService,
-                $modelName,
-            );
-
-            $code .= "\n";
-            $code .= sprintf('if ($%s !== []) {', $violationListName);
-            $code .= "\n";
-            $code .= sprintf(
-                'throw new \Kaa\Component\RequestMapperDecorator\Exception\ValidationException($%s);',
-                $violationListName,
-            );
-            $code .= "\n}";
+            $code .= $this->twig->render('validate.php.twig', [
+                'violationList' => $violationListName,
+                'service' => $validatorService,
+                'model' => $modelName,
+            ]);
 
             $variables->addVariable('array', $violationListName);
         }
