@@ -28,14 +28,12 @@ interface BundleGeneratorInterface extends GeneratorInterface
 
 В приложениях, использующих фреймворк конфигурация задаётся в `yaml`-файлах.
 При запуске генерации кода, все `yaml`-файлы парсятся и сливаются в один `php`-массив.
-После этого весь массив проверяется, и если в нём есть ключ или значение, обёрнутое в `%env(name)%`, то оно заменяется на значение из файла `env.json`.
-Затем создаётся экземпляр каждого генератора и ему передаётся обработанный конфиг по ключу из `getRootConfigurationKey`.
 
 ### FrameworkGenerator
 
 `FrameworkGenerator` - класс, который соединяет все генераторы вместе.
-Если `FrameworkGenerator` видит в модулях класс, который реализует `NewInstanceGeneratorInterface`, то он добавляет его
-в `SharedConfig` до запуска генераторов.
+Если в массиве есть ключ `'instanceGenerator'`, то фреймворк добавляет его
+в `SharedConfig` до запуска генераторов, иначе запускается генератор по умолчанию.
 
 ```php
 // Это упрощённая реализация
@@ -44,7 +42,7 @@ use Symfony\Component\Config\Definition\Processor;
 
 class FrameworkGenerator
 {
-    public function generate(string $pathToConfig, string $pathToGenerated, string $pathToEnvJson): void
+    public function generate(string $pathToConfig, string $pathToGenerated): void
     {
         $newInstanceGenerator = new DefaultNewInstanceGenerator();
         $generators = require_once $pathToConfig . '/Bundles.php';
@@ -64,8 +62,8 @@ class FrameworkGenerator
             $generator = new $generatorClass();
             
             $generatorConfig = $processor->processConfiguration(
-                $genenerator->getConfiguration(),
-                $config[$generator->getRootConfigurationKey)()],
+                $generator->getConfiguration(),
+                $config[$generator->getRootConfigurationKey()],
             );
            
             $generator->generate($sharedConfig, $config);
@@ -98,19 +96,19 @@ composer.lock
 <?php
 // generate.php
 
-(new FrameworkGenerator)->generate(__DIR__.'/config', __DIR__.'/generated', __DIR__.'/env.json');
+(new FrameworkGenerator)->generate(__DIR__ . '/config', __DIR__ . '/generated');
 ```
 
 ```php
 <?php
-// config/Bundles.php
+// config/bundles.php
 
 return [
     Kaa\Bundle\Router\RouterBundle::class,
     Kaa\Bundle\Validator\ValidatorBundle::class,
     Kaa\Bundle\Security\SecurityBundle::class,
     Kaa\Bundle\DependencyInjection\DependencyInjectionBundle::class,
-    Kaa\Bundle\DependencyInjection\DependencyInjectionInstanceProvider::class,
+    'instanceGenerator' => Kaa\Bundle\DependencyInjection\InstanceProvider::class,
 ];
 ```
 
