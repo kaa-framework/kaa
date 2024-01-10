@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Kaa\Bundle\Validator;
 
 use Kaa\Bundle\Framework\BundleGeneratorInterface;
-use Kaa\Component\GeneratorContract\PhpOnly;
+use Kaa\Component\Generator\PhpOnly;
 use Kaa\Component\Validator\ValidatorGenerator;
 use Kaa\Component\Validator\ValidatorInterface;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;

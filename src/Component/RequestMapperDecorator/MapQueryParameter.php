@@ -3,8 +3,8 @@
 namespace Kaa\Component\RequestMapperDecorator;
 
 use Attribute;
-use Kaa\Component\GeneratorContract\NewInstanceGeneratorInterface;
-use Kaa\Component\GeneratorContract\PhpOnly;
+use Kaa\Component\Generator\NewInstanceGeneratorInterface;
+use Kaa\Component\Generator\PhpOnly;
 use Kaa\Component\HttpMessage\Request;
 use Kaa\Component\RequestMapperDecorator\Exception\DecoratorException;
 use Kaa\Component\Router\Decorator\DecoratorInterface;

@@ -78,7 +78,7 @@ parameters:
           path: ../src/Component/HttpMessage
 
         - message: '#.*#'
-          path: ../src/Tmp/KaaPrinter.php
+          path: ../src/Component/Generator/Writer/KaaPrinter.php
 
         - message: '#.*#'
           path: ../src/Component/EventDispatcher/EventDispatcher.php

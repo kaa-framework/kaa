@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Kaa\Component\Validator\ValidatorLocator;
 
-use Kaa\Component\GeneratorContract\PhpOnly;
+use Kaa\Component\Generator\PhpOnly;
 use Kaa\Component\Validator\Assert\AssertInterface;
 use ReflectionAttribute;
 use ReflectionClass;

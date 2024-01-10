@@ -6,7 +6,7 @@ namespace Kaa\Component\DependencyInjection\Dto;
 
 use Kaa\Component\DependencyInjection\Dto\Service\ServiceCollection;
 use Kaa\Component\DependencyInjection\Exception\ServiceDoesNotExistException;
-use Kaa\Component\GeneratorContract\PhpOnly;
+use Kaa\Component\Generator\PhpOnly;
 
 #[PhpOnly]
 readonly class Services

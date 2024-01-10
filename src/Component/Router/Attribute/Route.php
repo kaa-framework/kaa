@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Kaa\Component\Router\Attribute;
 
 use Attribute;
-use Kaa\Component\GeneratorContract\PhpOnly;
+use Kaa\Component\Generator\PhpOnly;
 
 #[
     Attribute(Attribute::TARGET_CLASS | Attribute::TARGET_METHOD),

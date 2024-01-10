@@ -6,7 +6,7 @@ namespace Kaa\Component\Validator\ValidatorLocator;
 
 use Exception;
 use HaydenPierce\ClassFinder\ClassFinder;
-use Kaa\Component\GeneratorContract\PhpOnly;
+use Kaa\Component\Generator\PhpOnly;
 use Kaa\Component\Validator\Assert\AssertInterface;
 use ReflectionAttribute;
 use ReflectionClass;

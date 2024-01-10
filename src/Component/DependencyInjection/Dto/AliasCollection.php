@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Kaa\Component\DependencyInjection\Dto;
 
-use Kaa\Component\GeneratorContract\PhpOnly;
+use Kaa\Component\Generator\PhpOnly;
 
 #[PhpOnly]
 class AliasCollection

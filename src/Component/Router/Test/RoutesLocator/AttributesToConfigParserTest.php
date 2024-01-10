@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Kaa\Component\Router\Test\RoutesLocator;
 
 use Exception;
-use Kaa\Component\GeneratorContract\PhpOnly;
+use Kaa\Component\Generator\PhpOnly;
 use Kaa\Component\Router\Dto\RoutesCollection;
 use Kaa\Component\Router\Exception\RouterGeneratorException;
 use Kaa\Component\Router\RoutesLocator\AttributesToConfigParser;

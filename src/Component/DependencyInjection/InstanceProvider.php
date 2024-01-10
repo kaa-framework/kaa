@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Kaa\Component\DependencyInjection;
 
-use Kaa\Component\GeneratorContract\NewInstanceGeneratorInterface;
+use Kaa\Component\Generator\NewInstanceGeneratorInterface;
 
 class InstanceProvider implements NewInstanceGeneratorInterface
 {

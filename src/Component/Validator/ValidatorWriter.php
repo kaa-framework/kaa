@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 namespace Kaa\Component\Validator;
 
-use Kaa\Component\GeneratorContract\PhpOnly;
-use Kaa\Component\GeneratorContract\SharedConfig;
+use Kaa\Component\Generator\Exception\WriterException;
+use Kaa\Component\Generator\PhpOnly;
+use Kaa\Component\Generator\SharedConfig;
+use Kaa\Component\Generator\Writer\ClassWriter;
+use Kaa\Component\Generator\Writer\Parameter;
+use Kaa\Component\Generator\Writer\TwigFactory;
+use Kaa\Component\Generator\Writer\Visibility;
 use Kaa\Component\Validator\Assert\AssertInterface;
 use Kaa\Component\Validator\Exception\UnsupportedAssertException;
 use Kaa\Component\Validator\Exception\ValidatorGeneratorException;
-use Nette\PhpGenerator\ClassLike;
-use Nette\PhpGenerator\ClassType;
-use Nette\PhpGenerator\PhpFile;
-use Nette\PhpGenerator\PsrPrinter;
 use ReflectionProperty;
 use Twig;
 use Twig\Error\LoaderError;
@@ -22,42 +23,55 @@ use Twig\Error\SyntaxError;
 #[PhpOnly]
 readonly class ValidatorWriter
 {
-    private PhpFile $file;
+    private ClassWriter $classWriter;
     private Twig\Environment $twig;
-    private ClassType $class;
 
     public function __construct(
         private SharedConfig $config,
         /** @var array<class-string<object>, array<int, array<string, array{attribute: AssertInterface, reflectionProperty: ReflectionProperty}>>> */
         private array $asserts,
     ) {
-        $this->file = new PhpFile();
-        $this->file->setStrictTypes();
-
-        $namespace = $this->file->addNamespace('Kaa\\Generated\\Validator');
-        $this->class = $namespace->addClass('Validator');
-        $this->class->addImplement(ValidatorInterface::class);
-
-        $this->twig = $this->createTwig();
-    }
-
-    private function createTwig(): Twig\Environment
-    {
-        $loader = new Twig\Loader\FilesystemLoader(__DIR__ . '/templates');
-        $twig = new Twig\Environment(
-            $loader, [
-                'autoescape' => false,
-            ]
+        $this->classWriter = new ClassWriter(
+            namespaceName: 'Validator',
+            className: 'Validator',
+            implements: [ValidatorInterface::class],
         );
 
-        return $twig;
+        $this->twig = TwigFactory::create(__DIR__ . '/templates');
+    }
+
+    /**
+     * @throws SyntaxError|ValidatorGeneratorException|RuntimeError|LoaderError|WriterException
+     */
+    public function write(): void
+    {
+        $code = $this->getAssertCodes();
+        $methodNames = $this->generateValidateMethods($code);
+
+        $code = $this->twig->render('switch.php.twig', [
+            'methodNames' => $methodNames,
+        ],
+        );
+
+        $this->classWriter->addMethod(
+            visibility: Visibility::Public,
+            name: 'validate',
+            returnType: 'array',
+            code: $code,
+            parameters: [
+                new Parameter(type: 'object', name: 'model'),
+            ],
+            comment: '@return \Kaa\Component\Validator\Violation[]'
+        );
+
+        $this->classWriter->writeFile($this->config->exportDirectory);
     }
 
     /**
      * @return string[]
      * @throws UnsupportedAssertException
      */
-    private function getAssertsCode(): array
+    private function getAssertCodes(): array
     {
         $code = [];
         foreach ($this->asserts as $class => $attributes) {
@@ -83,6 +97,7 @@ readonly class ValidatorWriter
                     $this->twig,
                 );
             }
+
             array_unshift($code[$class], '$violationsList = [];');
             $code[$class][] = 'return $violationsList;';
             $code[$class] = implode("\n", $code[$class]);
@@ -95,63 +110,24 @@ readonly class ValidatorWriter
      * @param string[] $code
      * @return string[]
      */
-    private function getMethodNames(array $code): array
+    private function generateValidateMethods(array $code): array
     {
         $methodNames = [];
         foreach ($code as $class => $value) {
             $methodNames[$class] = 'validate_' . str_replace('\\', '_', $class);
-            $this->class->addMethod($methodNames[$class])
-                ->setReturnType('array')
-                ->setVisibility(ClassLike::VisibilityPrivate)
-                ->setBody(
-                    $value,
-                )
-                ->addParameter('model')
-                ->setType('object');
+
+            $this->classWriter->addMethod(
+                visibility: Visibility::Private,
+                name: $methodNames[$class],
+                returnType: 'array',
+                code: $value,
+                parameters: [
+                    new Parameter(type: $class, name: 'model'),
+                ],
+                comment: '@return \Kaa\Component\Validator\Violation[]',
+            );
         }
 
         return $methodNames;
-    }
-
-    /**
-     * @throws SyntaxError|ValidatorGeneratorException|RuntimeError|LoaderError
-     */
-    public function write(): void
-    {
-        $code = $this->getAssertsCode();
-        $methodNames = $this->getMethodNames($code);
-
-        $this->class->addMethod('validate')
-            ->addComment("@return \Kaa\Component\Validator\Violation[]")
-            ->setReturnType('array')
-            ->setVisibility(ClassLike::VisibilityPublic)
-            ->setBody(
-                $this->twig->render(
-                    'switch.php.twig', [
-                        'methodNames' => $methodNames,
-                    ]
-                ),
-            )
-            ->addParameter('model')
-            ->setType('object');
-
-        $this->writeFile();
-    }
-
-    /**
-     * @throws ValidatorGeneratorException
-     */
-    private function writeFile(): void
-    {
-        $directory = $this->config->exportDirectory . '/Validator';
-
-        if (!is_dir($directory) && !mkdir($directory, recursive: true) && !is_dir($directory)) {
-            throw new ValidatorGeneratorException("Directory {$directory} was not created");
-        }
-
-        file_put_contents(
-            $directory . '/Validator.php',
-            (new PsrPrinter())->printFile($this->file),
-        );
     }
 }

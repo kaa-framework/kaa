@@ -2,7 +2,7 @@
 
 namespace Kaa\Component\Router\Decorator;
 
-use Kaa\Component\GeneratorContract\NewInstanceGeneratorInterface;
+use Kaa\Component\Generator\NewInstanceGeneratorInterface;
 use ReflectionMethod;
 use ReflectionParameter;
 

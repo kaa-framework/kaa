@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Kaa\Component\Router\RoutesLocator;
 
-use Kaa\Component\GeneratorContract\PhpOnly;
+use Kaa\Component\Generator\PhpOnly;
 use Kaa\Component\Router\Exception\ValidationException;
 
 #[PhpOnly]

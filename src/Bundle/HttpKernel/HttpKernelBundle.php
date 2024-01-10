@@ -3,7 +3,7 @@
 namespace Kaa\Bundle\HttpKernel;
 
 use Kaa\Bundle\Framework\BundleGeneratorInterface;
-use Kaa\Component\GeneratorContract\SharedConfig;
+use Kaa\Component\Generator\SharedConfig;
 use Kaa\Component\HttpKernel\HttpKernel;
 
 class HttpKernelBundle implements BundleGeneratorInterface

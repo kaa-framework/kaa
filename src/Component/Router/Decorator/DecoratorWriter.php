@@ -2,18 +2,18 @@
 
 namespace Kaa\Component\Router\Decorator;
 
-use Kaa\Component\GeneratorContract\PhpOnly;
-use Kaa\Component\GeneratorContract\SharedConfig;
+use Kaa\Component\Generator\Exception\WriterException;
+use Kaa\Component\Generator\PhpOnly;
+use Kaa\Component\Generator\SharedConfig;
+use Kaa\Component\Generator\Writer\ClassWriter;
+use Kaa\Component\Generator\Writer\Parameter;
+use Kaa\Component\Generator\Writer\TwigFactory;
+use Kaa\Component\Generator\Writer\Visibility;
 use Kaa\Component\HttpMessage\Request;
 use Kaa\Component\HttpMessage\Response\Response;
 use Kaa\Component\Router\Exception\DecoratorException;
-use Kaa\Component\Router\Exception\RouterGeneratorException;
-use Kaa\Tmp\KaaPrinter;
 use Kaa\Util\Exception\BadParameterTypeException;
 use Kaa\Util\Reflection;
-use Nette\PhpGenerator\ClassLike;
-use Nette\PhpGenerator\ClassType;
-use Nette\PhpGenerator\PhpFile;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionException;
@@ -26,30 +26,21 @@ use Twig\Error\SyntaxError;
 #[PhpOnly]
 class DecoratorWriter
 {
+    private ClassWriter $classWriter;
+    private Twig\Environment $twig;
+
     /** @var DecoratedMethod[] */
     public array $decoratedMethods = [];
-
-    private PhpFile $file;
-    private ClassType $class;
-    private Twig\Environment $twig;
 
     public function __construct(
         private readonly SharedConfig $config,
     ) {
-        $this->file = new PhpFile();
-        $this->file->setStrictTypes();
+        $this->classWriter = new ClassWriter(
+            namespaceName: 'Router',
+            className: 'Decorator',
+        );
 
-        $namespace = $this->file->addNamespace('Kaa\\Generated\\Router');
-        $this->class = $namespace->addClass('Decorator');
-
-        $this->twig = $this->createTwig();
-    }
-
-    private function createTwig(): Twig\Environment
-    {
-        $loader = new Twig\Loader\FilesystemLoader(__DIR__ . '/templates');
-
-        return new Twig\Environment($loader);
+        $this->twig = TwigFactory::create(__DIR__ . '/templates');
     }
 
     /**
@@ -70,29 +61,23 @@ class DecoratorWriter
     }
 
     /**
-     * @throws BadParameterTypeException|DecoratorException|LoaderError|ReflectionException|RouterGeneratorException|RuntimeError|SyntaxError
+     * @throws BadParameterTypeException|DecoratorException|LoaderError|ReflectionException|WriterException|RuntimeError|SyntaxError
      */
     public function write(): void
     {
         foreach ($this->decoratedMethods as $decoratedMethod) {
-            $this->decorate($decoratedMethod);
+            $this->classWriter->addMethod(
+                visibility: Visibility::Public,
+                name: $decoratedMethod->decoratedMethodName,
+                returnType: Response::class,
+                code: $this->generateCode($decoratedMethod),
+                parameters: [
+                    new Parameter(type: Request::class, name: 'request'),
+                ],
+            );
         }
 
-        $this->writeFile();
-    }
-
-    /**
-     * @throws BadParameterTypeException|DecoratorException|ReflectionException|LoaderError|RuntimeError|SyntaxError
-     */
-    private function decorate(DecoratedMethod $decoratedMethod): void
-    {
-        $method = $this->class->addMethod($decoratedMethod->decoratedMethodName);
-        $method->setVisibility(ClassLike::VisibilityPublic);
-        $method->setReturnType(Response::class);
-        $method->setBody($this->generateCode($decoratedMethod));
-
-        $parameter = $method->addParameter('request');
-        $parameter->setType(Request::class);
+        $this->classWriter->writeFile($this->config->exportDirectory);
     }
 
     /**
@@ -223,21 +208,5 @@ class DecoratorWriter
         }
 
         return $parameters;
-    }
-
-    /**
-     * @throws RouterGeneratorException
-     */
-    private function writeFile(): void
-    {
-        $directory = $this->config->exportDirectory . '/Router';
-        if (!is_dir($directory) && !mkdir($directory, recursive: true) && !is_dir($directory)) {
-            throw new RouterGeneratorException("Directory {$directory} was not created");
-        }
-
-        file_put_contents(
-            $directory . '/Decorator.php',
-            (new KaaPrinter())->printFile($this->file),
-        );
     }
 }

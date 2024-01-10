@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Kaa\Bundle\Router;
 
-use Kaa\Component\GeneratorContract\PhpOnly;
-use Kaa\Component\GeneratorContract\SharedConfig;
+use Kaa\Component\Generator\Exception\WriterException;
+use Kaa\Component\Generator\PhpOnly;
+use Kaa\Component\Generator\SharedConfig;
+use Kaa\Component\Generator\Writer\ClassWriter;
+use Kaa\Component\Generator\Writer\Parameter;
+use Kaa\Component\Generator\Writer\TwigFactory;
+use Kaa\Component\Generator\Writer\Visibility;
 use Kaa\Component\HttpKernel\Event\FindActionEvent;
-use Kaa\Component\Router\Exception\RouterGeneratorException;
 use Kaa\Component\Router\RouterInterface;
-use Nette\PhpGenerator\ClassLike;
-use Nette\PhpGenerator\ClassType;
-use Nette\PhpGenerator\PhpFile;
-use Nette\PhpGenerator\PsrPrinter;
 use Twig;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -21,31 +21,22 @@ use Twig\Error\SyntaxError;
 #[PhpOnly]
 readonly class ListenerWriter
 {
-    private PhpFile $file;
-    private ClassType $class;
+    private ClassWriter $classWriter;
     private Twig\Environment $twig;
 
     public function __construct(
         private SharedConfig $config,
     ) {
-        $this->file = new PhpFile();
-        $this->file->setStrictTypes();
+        $this->classWriter = new ClassWriter(
+            namespaceName: 'Router',
+            className: 'FindActionListener',
+        );
 
-        $namespace = $this->file->addNamespace('Kaa\\Generated\\Router');
-        $this->class = $namespace->addClass('FindActionListener');
-
-        $this->twig = $this->createTwig();
-    }
-
-    private function createTwig(): Twig\Environment
-    {
-        $loader = new Twig\Loader\FilesystemLoader(__DIR__ . '/templates');
-
-        return new Twig\Environment($loader);
+        $this->twig = TwigFactory::create(__DIR__ . '/templates');
     }
 
     /**
-     * @throws RuntimeError|SyntaxError|LoaderError|RouterGeneratorException
+     * @throws RuntimeError|SyntaxError|LoaderError|WriterException
      */
     public function write(): void
     {
@@ -53,30 +44,16 @@ readonly class ListenerWriter
             'service' => $this->config->newInstanceGenerator->generate(RouterInterface::class, RouterInterface::class),
         ]);
 
-        $method = $this->class->addMethod('invoke');
-        $method->setVisibility(ClassLike::VisibilityPublic);
-        $method->setReturnType('void');
-        $method->setBody($code);
-
-        $parameter = $method->addParameter('event');
-        $parameter->setType(FindActionEvent::class);
-
-        $this->writeFile();
-    }
-
-    /**
-     * @throws RouterGeneratorException
-     */
-    private function writeFile(): void
-    {
-        $directory = $this->config->exportDirectory . '/Router';
-        if (!is_dir($directory) && !mkdir($directory, recursive: true) && !is_dir($directory)) {
-            throw new RouterGeneratorException("Directory {$directory} was not created");
-        }
-
-        file_put_contents(
-            $directory . '/FindActionListener.php',
-            (new PsrPrinter())->printFile($this->file),
+        $this->classWriter->addMethod(
+            visibility: Visibility::Public,
+            name: 'invoke',
+            returnType: 'void',
+            code: $code,
+            parameters: [
+                new Parameter(type: FindActionEvent::class, name: 'event'),
+            ],
         );
+
+        $this->classWriter->writeFile($this->config->exportDirectory);
     }
 }

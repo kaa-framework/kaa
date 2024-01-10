@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Kaa\Bundle\EventDispatcher\Attribute;
 
 use Attribute;
-use Kaa\Component\GeneratorContract\PhpOnly;
+use Kaa\Component\Generator\PhpOnly;
 
 #[
     PhpOnly,

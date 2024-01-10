@@ -2,8 +2,9 @@
 
 namespace Kaa\Component\RequestMapperDecorator;
 
-use Kaa\Component\GeneratorContract\NewInstanceGeneratorInterface;
-use Kaa\Component\GeneratorContract\PhpOnly;
+use Kaa\Component\Generator\NewInstanceGeneratorInterface;
+use Kaa\Component\Generator\PhpOnly;
+use Kaa\Component\Generator\Writer\TwigFactory;
 use Kaa\Component\HttpMessage\Request;
 use Kaa\Component\RequestMapperDecorator\Exception\DecoratorException;
 use Kaa\Component\Router\Decorator\DecoratorInterface;
@@ -31,14 +32,7 @@ abstract readonly class AbstractBagDecorator implements DecoratorInterface
     public function __construct(
         private bool $validate = true,
     ) {
-        $this->twig = $this->createTwig();
-    }
-
-    private function createTwig(): Twig\Environment
-    {
-        $loader = new Twig\Loader\FilesystemLoader(__DIR__ . '/templates');
-
-        return new Twig\Environment($loader);
+        $this->twig = TwigFactory::create(__DIR__ . '/templates');
     }
 
     public function getType(): DecoratorType

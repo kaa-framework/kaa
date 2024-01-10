@@ -3,7 +3,7 @@
 namespace Kaa\Component\RequestMapperDecorator;
 
 use Attribute;
-use Kaa\Component\GeneratorContract\PhpOnly;
+use Kaa\Component\Generator\PhpOnly;
 
 #[
     PhpOnly,

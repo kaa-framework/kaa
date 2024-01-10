@@ -1,4 +1,4 @@
-# GeneratorContract
+# Generator
 
 ### Содержание
 

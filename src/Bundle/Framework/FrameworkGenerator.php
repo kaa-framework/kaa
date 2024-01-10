@@ -2,9 +2,9 @@
 
 namespace Kaa\Bundle\Framework;
 
-use Kaa\Component\GeneratorContract\DefaultNewInstanceGenerator;
-use Kaa\Component\GeneratorContract\NewInstanceGeneratorInterface;
-use Kaa\Component\GeneratorContract\SharedConfig;
+use Kaa\Component\Generator\DefaultNewInstanceGenerator;
+use Kaa\Component\Generator\NewInstanceGeneratorInterface;
+use Kaa\Component\Generator\SharedConfig;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;

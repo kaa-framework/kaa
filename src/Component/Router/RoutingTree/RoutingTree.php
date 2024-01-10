@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Kaa\Component\Router\RoutingTree;
 
-use Kaa\Component\GeneratorContract\PhpOnly;
+use Kaa\Component\Generator\PhpOnly;
 use Kaa\Component\Router\Dto\RouteDto;
 use Kaa\Component\Router\Exception\EmptyPathException;
 use Kaa\Component\Router\Exception\PathAlreadyExistsException;

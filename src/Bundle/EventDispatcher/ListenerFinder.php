@@ -7,7 +7,7 @@ namespace Kaa\Bundle\EventDispatcher;
 use Exception;
 use HaydenPierce\ClassFinder\ClassFinder;
 use Kaa\Bundle\EventDispatcher\Attribute\EventListener;
-use Kaa\Component\GeneratorContract\PhpOnly;
+use Kaa\Component\Generator\PhpOnly;
 use ReflectionClass;
 
 #[PhpOnly]

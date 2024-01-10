@@ -9,7 +9,7 @@ use IteratorAggregate;
 use Kaa\Component\DependencyInjection\Exception\ServiceAlreadyExistsException;
 use Kaa\Component\DependencyInjection\Exception\ServiceDoesNotExistException;
 use Kaa\Component\DependencyInjection\KaaReflection;
-use Kaa\Component\GeneratorContract\PhpOnly;
+use Kaa\Component\Generator\PhpOnly;
 use Traversable;
 
 #[PhpOnly]

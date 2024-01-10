@@ -2,7 +2,7 @@
 
 namespace Kaa\Util;
 
-use Kaa\Component\GeneratorContract\PhpOnly;
+use Kaa\Component\Generator\PhpOnly;
 use Kaa\Util\Exception\BadParameterTypeException;
 use ReflectionNamedType;
 use ReflectionType;

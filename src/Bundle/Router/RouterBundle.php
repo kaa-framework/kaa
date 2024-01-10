@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Kaa\Bundle\Router;
 
 use Kaa\Bundle\Framework\BundleGeneratorInterface;
-use Kaa\Component\GeneratorContract\PhpOnly;
-use Kaa\Component\GeneratorContract\SharedConfig;
+use Kaa\Component\Generator\PhpOnly;
+use Kaa\Component\Generator\SharedConfig;
 use Kaa\Component\HttpKernel\HttpKernelEvents;
 use Kaa\Component\Router\RouterGenerator;
 use Kaa\Component\Router\RouterInterface;

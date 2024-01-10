@@ -6,7 +6,7 @@ namespace Kaa\Component\Router\RoutesLocator;
 
 use Exception;
 use HaydenPierce\ClassFinder\ClassFinder;
-use Kaa\Component\GeneratorContract\PhpOnly;
+use Kaa\Component\Generator\PhpOnly;
 use Kaa\Component\Router\Attribute\Route;
 use Kaa\Component\Router\Exception\RouterGeneratorException;
 use ReflectionAttribute;

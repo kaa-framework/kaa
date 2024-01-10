@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Kaa\Component\Validator\Test;
 
 use Exception;
-use Kaa\Component\GeneratorContract\SharedConfig;
+use Kaa\Component\Generator\SharedConfig;
 use Kaa\Component\Validator\Assert\Blank;
 use Kaa\Component\Validator\Assert\Email;
 use Kaa\Component\Validator\Assert\GreaterThan;

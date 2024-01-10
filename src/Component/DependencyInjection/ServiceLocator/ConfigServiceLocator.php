@@ -14,7 +14,7 @@ use Kaa\Component\DependencyInjection\Dto\Service\Service;
 use Kaa\Component\DependencyInjection\Dto\Service\ServiceCollection;
 use Kaa\Component\DependencyInjection\Exception\InvalidServiceDefinitionException;
 use Kaa\Component\DependencyInjection\Exception\ServiceAlreadyExistsException;
-use Kaa\Component\GeneratorContract\PhpOnly;
+use Kaa\Component\Generator\PhpOnly;
 use ReflectionClass;
 use ReflectionNamedType;
 

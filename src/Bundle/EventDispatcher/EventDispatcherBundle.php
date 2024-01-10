@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Kaa\Bundle\EventDispatcher;
 
 use Exception;
-use Kaa\Bundle\EventDispatcher\Writer\BootstrapWriter;
+use Kaa\Bundle\EventDispatcher\Writer\ListenerBootstrapWriter;
 use Kaa\Bundle\EventDispatcher\Writer\ListenerWriter;
 use Kaa\Bundle\Framework\BundleGeneratorInterface;
 use Kaa\Component\EventDispatcher\EventDispatcher;
 use Kaa\Component\EventDispatcher\EventDispatcherInterface;
-use Kaa\Component\GeneratorContract\PhpOnly;
-use Kaa\Component\GeneratorContract\SharedConfig;
+use Kaa\Component\Generator\PhpOnly;
+use Kaa\Component\Generator\SharedConfig;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 
 #[PhpOnly]
@@ -28,7 +28,7 @@ class EventDispatcherBundle implements BundleGeneratorInterface
     {
         $listeners = (new ListenerFinder($config))->getListeners();
         (new ListenerWriter($sharedConfig, $listeners))->write();
-        (new BootstrapWriter($sharedConfig, $listeners))->write();
+        (new ListenerBootstrapWriter($sharedConfig, $listeners))->write();
 
         $this->listeners = $listeners;
     }

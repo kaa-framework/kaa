@@ -9,14 +9,13 @@ use Kaa\Component\DependencyInjection\Dto\ParameterCollection;
 use Kaa\Component\DependencyInjection\Dto\Service\Service;
 use Kaa\Component\DependencyInjection\Dto\Service\ServiceCollection;
 use Kaa\Component\DependencyInjection\Dto\Services;
-use Kaa\Component\DependencyInjection\Exception\DependencyInjectionGeneratorException;
-use Kaa\Component\GeneratorContract\PhpOnly;
-use Kaa\Component\GeneratorContract\SharedConfig;
-use Nette\PhpGenerator\ClassLike;
-use Nette\PhpGenerator\ClassType;
-use Nette\PhpGenerator\Method;
-use Nette\PhpGenerator\PhpFile;
-use Nette\PhpGenerator\PsrPrinter;
+use Kaa\Component\Generator\Exception\WriterException;
+use Kaa\Component\Generator\PhpOnly;
+use Kaa\Component\Generator\SharedConfig;
+use Kaa\Component\Generator\Writer\ClassWriter;
+use Kaa\Component\Generator\Writer\Parameter;
+use Kaa\Component\Generator\Writer\TwigFactory;
+use Kaa\Component\Generator\Writer\Visibility;
 use Twig;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -25,11 +24,8 @@ use Twig\Error\SyntaxError;
 #[PhpOnly]
 readonly class ContainerWriter
 {
-    private PhpFile $file;
-    private ClassType $class;
-
+    private ClassWriter $classWriter;
     private Twig\Environment $twig;
-
     private Services $services;
 
     public function __construct(
@@ -40,46 +36,39 @@ readonly class ContainerWriter
     ) {
         $this->services = new Services($this->serviceCollection, $this->aliasCollection);
 
-        $this->file = new PhpFile();
-        $this->file->setStrictTypes();
+        $this->classWriter = new ClassWriter(
+            namespaceName: 'DependencyInjection',
+            className: 'Container',
+        );
 
-        $namespace = $this->file->addNamespace('Kaa\\Generated\\DependencyInjection');
-        $this->class = $namespace->addClass('Container');
-
-        $this->twig = $this->createTwig();
+        $this->twig = TwigFactory::create(__DIR__ . '/templates', $this->getTwigFilters());
     }
 
-    private function createTwig(): Twig\Environment
+    /**
+     * @return Twig\TwigFilter[]
+     */
+    private function getTwigFilters(): array
     {
-        $loader = new Twig\Loader\FilesystemLoader(__DIR__ . '/templates');
-        $twig = new Twig\Environment($loader);
-
-        $twig->addFilter(
+        return [
             new Twig\TwigFilter(
                 'literal',
                 static fn (mixed $value) => is_string($value) ? "'" . $value . "'" : $value,
             ),
-        );
 
-        $twig->addFilter(
             new Twig\TwigFilter(
                 'methodName',
                 $this->serviceNameToMethodName(...),
             ),
-        );
 
-        $twig->addFilter(
             new Twig\TwigFilter(
                 'varName',
                 $this->serviceNameToVariableName(...),
             ),
-        );
-
-        return $twig;
+        ];
     }
 
     /**
-     * @throws RuntimeError|SyntaxError|LoaderError|DependencyInjectionGeneratorException
+     * @throws RuntimeError|SyntaxError|LoaderError|WriterException
      */
     public function write(): void
     {
@@ -88,8 +77,7 @@ readonly class ContainerWriter
         }
 
         $this->addGetMethod();
-
-        $this->writeFile();
+        $this->classWriter->writeFile($this->config->exportDirectory);
     }
 
     /**
@@ -98,20 +86,52 @@ readonly class ContainerWriter
     private function addServiceMethod(Service $service): void
     {
         if ($service->isSingleton) {
-            $this->addVar(
-                '\\' . $service->class->getName(),
-                $this->serviceNameToVariableName($service->name),
+            $this->classWriter->addVariable(
+                visibility: Visibility::Private,
+                type: '\\' . $service->class->getName(),
+                name: $this->serviceNameToVariableName($service->name),
+                nullable: true,
+                value: null,
+                isStatic: true,
             );
         }
 
-        $this->addMethod(
-            $this->serviceNameToMethodName($service->name),
-            '\\' . $service->class->getName(),
-            $this->twig->render('body.php.twig', [
-                'service' => $service,
-                'services' => $this->services,
-                'parameters' => $this->parameterCollection,
-            ]),
+        $code = $this->twig->render('body.php.twig', [
+            'service' => $service,
+            'services' => $this->services,
+            'parameters' => $this->parameterCollection,
+        ]);
+
+        $this->classWriter->addMethod(
+            visibility: Visibility::Private,
+            name: $this->serviceNameToMethodName($service->name),
+            returnType: '\\' . $service->class->getName(),
+            code: $code,
+            isStatic: true,
+        );
+    }
+
+    /**
+     * @throws RuntimeError|SyntaxError|LoaderError
+     */
+    private function addGetMethod(): void
+    {
+        $code = $this->twig->render('switch.php.twig', [
+            'classesToServices' => $this->serviceCollection->getClassesToServices(),
+            'aliases' => $this->aliasCollection,
+        ]);
+
+        $this->classWriter->addMethod(
+            visibility: Visibility::Public,
+            name: 'get',
+            returnType: 'object',
+            code: $code,
+            parameters: [
+                new Parameter(type: 'string', name: 'nameOrAlias'),
+                new Parameter(type: 'string', name: 'class'),
+            ],
+            isStatic: true,
+            comment: $this->twig->render('comment.php.twig'),
         );
     }
 
@@ -123,68 +143,5 @@ readonly class ContainerWriter
     private function serviceNameToVariableName(string $serviceName): string
     {
         return str_replace(['\\', '.'], '_', $serviceName);
-    }
-
-    private function addVar(string $type, string $name): void
-    {
-        $var = $this->class->addProperty($name, null);
-        $var->setNullable();
-
-        $var->setType($type);
-        $var->setStatic();
-        $var->setValue(null);
-        $var->setVisibility(ClassLike::VisibilityPrivate);
-    }
-
-    /**
-     * @throws RuntimeError|SyntaxError|LoaderError
-     */
-    private function addGetMethod(): void
-    {
-        $method = $this->addMethod(
-            'get',
-            'object',
-            $this->twig->render('switch.php.twig', [
-                'classesToServices' => $this->serviceCollection->getClassesToServices(),
-                'aliases' => $this->aliasCollection,
-            ]),
-            ClassLike::VisibilityPublic,
-        );
-
-        $method->addParameter('nameOrAlias')->setType('string');
-        $method->addParameter('class')->setType('string');
-        $method->addComment($this->twig->render('comment.php.twig'));
-    }
-
-    private function addMethod(
-        string $name,
-        string $type,
-        string $code,
-        string $visibility = ClassLike::VisibilityPrivate,
-    ): Method {
-        $method = $this->class->addMethod($name);
-        $method->setReturnType($type);
-        $method->setStatic();
-        $method->setVisibility($visibility);
-        $method->setBody($code);
-
-        return $method;
-    }
-
-    /**
-     * @throws DependencyInjectionGeneratorException
-     */
-    private function writeFile(): void
-    {
-        $directory = $this->config->exportDirectory . '/DependencyInjection';
-
-        if (!is_dir($directory) && !mkdir($directory, recursive: true) && !is_dir($directory)) {
-            throw new DependencyInjectionGeneratorException("Directory {$directory} was not created");
-        }
-
-        file_put_contents(
-            $directory . '/Container.php',
-            (new PsrPrinter())->printFile($this->file),
-        );
     }
 }

@@ -6,7 +6,7 @@ namespace Kaa\Component\Router\Dto;
 
 use ArrayIterator;
 use IteratorAggregate;
-use Kaa\Component\GeneratorContract\PhpOnly;
+use Kaa\Component\Generator\PhpOnly;
 use Kaa\Component\Router\Decorator\DecoratorWriter;
 use Traversable;
 

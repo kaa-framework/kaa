@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Kaa\Component\Validator\Generator;
 
-use Kaa\Component\GeneratorContract\PhpOnly;
+use Kaa\Component\Generator\PhpOnly;
 use Kaa\Component\Validator\Assert\AssertInterface;
 use Kaa\Component\Validator\Assert\NotBlank;
 use Kaa\Component\Validator\Exception\ValidatorGeneratorException;

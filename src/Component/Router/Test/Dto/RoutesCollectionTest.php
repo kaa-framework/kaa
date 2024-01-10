@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Kaa\Component\Router\Test\Dto;
 
-use Kaa\Component\GeneratorContract\PhpOnly;
+use Kaa\Component\Generator\PhpOnly;
 use Kaa\Component\Router\Dto\RoutesCollection;
 use PHPUnit\Framework\TestCase;
 use function PHPUnit\Framework\assertFalse;

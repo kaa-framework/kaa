@@ -11,7 +11,7 @@ use Kaa\Component\DependencyInjection\Attribute\Factory as FactoryAttribute;
 use Kaa\Component\DependencyInjection\Attribute\Service as ServiceAttribute;
 use Kaa\Component\DependencyInjection\Exception\DependencyInjectionGeneratorException;
 use Kaa\Component\DependencyInjection\Exception\InvalidServiceDefinitionException;
-use Kaa\Component\GeneratorContract\PhpOnly;
+use Kaa\Component\Generator\PhpOnly;
 use ReflectionAttribute;
 use ReflectionClass;
 

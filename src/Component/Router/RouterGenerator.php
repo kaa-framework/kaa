@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Kaa\Component\Router;
 
 use Exception;
-use Kaa\Component\GeneratorContract\GeneratorInterface;
-use Kaa\Component\GeneratorContract\PhpOnly;
-use Kaa\Component\GeneratorContract\SharedConfig;
+use Kaa\Component\Generator\GeneratorInterface;
+use Kaa\Component\Generator\PhpOnly;
+use Kaa\Component\Generator\SharedConfig;
 use Kaa\Component\Router\Decorator\DecoratorWriter;
 use Kaa\Component\Router\Dto\RoutesCollection;
 use Kaa\Component\Router\Exception\RouterGeneratorException;

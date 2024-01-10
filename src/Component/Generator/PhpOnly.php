@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Kaa\Component\GeneratorContract;
+namespace Kaa\Component\Generator;
 
 use Attribute;
 

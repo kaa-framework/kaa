@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace Kaa\Component\Router;
 
-use Kaa\Component\GeneratorContract\PhpOnly;
-use Kaa\Component\GeneratorContract\SharedConfig;
+use Kaa\Component\Generator\Exception\WriterException;
+use Kaa\Component\Generator\PhpOnly;
+use Kaa\Component\Generator\SharedConfig;
+use Kaa\Component\Generator\Writer\ClassWriter;
+use Kaa\Component\Generator\Writer\Parameter;
+use Kaa\Component\Generator\Writer\TwigFactory;
+use Kaa\Component\Generator\Writer\Visibility;
 use Kaa\Component\HttpMessage\Request;
-use Kaa\Component\Router\Exception\RouterGeneratorException;
 use Kaa\Component\Router\RoutingTree\RoutingTree;
-use Nette\PhpGenerator\ClassLike;
-use Nette\PhpGenerator\ClassType;
-use Nette\PhpGenerator\Method;
-use Nette\PhpGenerator\PhpFile;
-use Nette\PhpGenerator\PsrPrinter;
 use Twig;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -22,43 +21,46 @@ use Twig\Error\SyntaxError;
 #[PhpOnly]
 final class RouterWriter
 {
-    private PhpFile $file;
-    private ClassType $class;
+    private ClassWriter $classWriter;
     private Twig\Environment $twig;
 
     public function __construct(
         private readonly SharedConfig $config,
         private readonly RoutingTree $tree,
     ) {
-        $this->file = new PhpFile();
-        $this->file->setStrictTypes();
+        $this->classWriter = new ClassWriter(
+            namespaceName: 'Router',
+            className: 'Router',
+        );
 
-        $namespace = $this->file->addNamespace('Kaa\\Generated\\Router');
-        $this->class = $namespace->addClass('Router')->addImplement(RouterInterface::class);
-
-        $this->twig = $this->createTwig();
-    }
-
-    private function createTwig(): Twig\Environment
-    {
-        $loader = new Twig\Loader\FilesystemLoader(__DIR__ . '/templates');
-
-        return new Twig\Environment($loader);
+        $this->twig = TwigFactory::create(__DIR__ . '/templates');
     }
 
     /**
-     * @throws RouterGeneratorException
+     * @throws LoaderError|WriterException|RuntimeError|SyntaxError
      */
     public function write(): void
     {
-        $this->addFindMethod();
-        $this->writeFile();
+        $code = $this->generateCode();
+
+        $this->classWriter->addMethod(
+            visibility: Visibility::Public,
+            name: 'findAction',
+            returnType: 'callable|null',
+            code: $code,
+            parameters: [
+                new Parameter(type: Request::class, name: 'request'),
+            ],
+            comment: '@return (callable(\Kaa\Component\HttpMessage\Request): \Kaa\Component\HttpMessage\Response\Response)|null',
+        );
+
+        $this->classWriter->writeFile($this->config->exportDirectory);
     }
 
     /**
      * @throws RuntimeError|SyntaxError|LoaderError
      */
-    private function addFindMethod(): void
+    private function generateCode(): string
     {
         $code = [];
         $indexes = [];
@@ -117,39 +119,7 @@ final class RouterWriter
         }
 
         $code[] = "return null;\n";
-        $method = $this->addMethod(
-            implode("\n", $code),
-            ClassLike::VisibilityPublic,
-        );
-        $method->addParameter('request')->setType(Request::class);
-    }
 
-    private function addMethod(
-        string $code,
-        string $visibility = ClassLike::VisibilityPrivate,
-    ): Method {
-        $method = $this->class->addMethod('findAction');
-        $method->setComment('@return (callable(\Kaa\Component\HttpMessage\Request): \Kaa\Component\HttpMessage\Response\Response)|null');
-        $method->setReturnType('callable|null');
-        $method->setVisibility($visibility);
-        $method->setBody($code);
-
-        return $method;
-    }
-
-    /**
-     * @throws RouterGeneratorException
-     */
-    private function writeFile(): void
-    {
-        $directory = $this->config->exportDirectory . '/Router';
-        if (!is_dir($directory) && !mkdir($directory, recursive: true) && !is_dir($directory)) {
-            throw new RouterGeneratorException("Directory {$directory} was not created");
-        }
-
-        file_put_contents(
-            $directory . '/Router.php',
-            (new PsrPrinter())->printFile($this->file),
-        );
+        return implode("\n", $code);
     }
 }

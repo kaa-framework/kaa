@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Kaa\Component\Validator\Assert;
 
 use Attribute;
-use Kaa\Component\GeneratorContract\PhpOnly;
+use Kaa\Component\Generator\PhpOnly;
 use Kaa\Component\Validator\Generator\IsFalseGenerator;
 
 #[

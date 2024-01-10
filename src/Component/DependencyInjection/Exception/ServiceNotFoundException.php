@@ -3,7 +3,7 @@
 namespace Kaa\Component\DependencyInjection\Exception;
 
 use Exception;
-use Kaa\Component\GeneratorContract\PhpOnly;
+use Kaa\Component\Generator\PhpOnly;
 
 #[PhpOnly]
 class ServiceNotFoundException extends Exception

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Kaa\Component\Validator;
 
 use Exception;
-use Kaa\Component\GeneratorContract\GeneratorInterface;
-use Kaa\Component\GeneratorContract\PhpOnly;
-use Kaa\Component\GeneratorContract\SharedConfig;
+use Kaa\Component\Generator\GeneratorInterface;
+use Kaa\Component\Generator\PhpOnly;
+use Kaa\Component\Generator\SharedConfig;
 use Kaa\Component\Validator\ValidatorLocator\AttributesParser;
 use Kaa\Component\Validator\ValidatorLocator\ModelLocator;
 
