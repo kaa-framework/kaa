@@ -54,6 +54,7 @@ class ClassFinder
     }
 
     /**
+     * @param string[] $ignoreArray
      * @throws FinderException
      */
     private static function notInIgnoredNamespace(ReflectionClass $class, array $ignoreArray): bool
