@@ -31,6 +31,7 @@ final class RouterWriter
         $this->classWriter = new ClassWriter(
             namespaceName: 'Router',
             className: 'Router',
+            implements: [RouterInterface::class],
         );
 
         $this->twig = TwigFactory::create(__DIR__ . '/templates');
