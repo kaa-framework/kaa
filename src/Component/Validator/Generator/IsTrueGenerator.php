@@ -10,17 +10,15 @@ use Kaa\Component\Validator\Assert\IsTrue;
 use Kaa\Component\Validator\Exception\ValidatorGeneratorException;
 use ReflectionProperty;
 use Twig;
-use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
 #[PhpOnly]
-class IsTrueGenerator extends BaseGenerator
+class IsTrueGenerator extends AbstractGenerator
 {
     /**
      * @param IsTrue $assert
-     * @param Environment $twig
      * @throws LoaderError|RuntimeError|SyntaxError|ValidatorGeneratorException
      */
     public function generateAssert(

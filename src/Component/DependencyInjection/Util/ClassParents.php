@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Kaa\Component\DependencyInjection;
+namespace Kaa\Component\DependencyInjection\Util;
 
 use Kaa\Component\Generator\PhpOnly;
 use ReflectionClass;
 
 #[PhpOnly]
-final class KaaReflection
+final class ClassParents
 {
     /**
      * @return string[]

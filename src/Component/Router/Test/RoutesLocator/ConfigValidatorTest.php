@@ -6,7 +6,7 @@ namespace Kaa\Component\Router\Test\RoutesLocator;
 
 use Kaa\Component\Generator\PhpOnly;
 use Kaa\Component\Router\Exception\ValidationException;
-use Kaa\Component\Router\RoutesLocator\ConfigValidator;
+use Kaa\Component\Router\Router\RouteLocator\ConfigValidator;
 use PHPUnit\Framework\TestCase;
 use function PHPUnit\Framework\assertEquals;
 use function PHPUnit\Framework\assertTrue;

@@ -10,17 +10,15 @@ use Kaa\Component\Validator\Assert\Range;
 use Kaa\Component\Validator\Exception\ValidatorGeneratorException;
 use ReflectionProperty;
 use Twig;
-use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
 #[PhpOnly]
-class RangeGenerator extends BaseGenerator
+class RangeGenerator extends AbstractGenerator
 {
     /**
      * @param Range $assert
-     * @param Environment $twig
      * @throws LoaderError|RuntimeError|SyntaxError|ValidatorGeneratorException
      */
     public function generateAssert(
@@ -35,9 +33,7 @@ class RangeGenerator extends BaseGenerator
 
         return $twig->render(
             'Range.php.twig', [
-                'getMethod' => $this->getAccessMethod(
-                    $reflectionProperty,
-                ),
+                'getMethod' => $this->getAccessMethod($reflectionProperty),
                 'min' => $assert->min,
                 'max' => $assert->max,
                 'class' => $className,

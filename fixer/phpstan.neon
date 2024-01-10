@@ -67,7 +67,7 @@ parameters:
           path: ../src/Component/Validator/ValidatorLocator/AttributesParser.php
 
         - message: '#.*#'
-          path: ../src/Component/Validator/ValidatorWriter.php
+          path: ../src/Component/Validator/Writer/ValidatorWriter.php
 
         - message: '#Call to an undefined method Symfony\\Component\\Config\\Definition\\Builder\\NodeDefinition::children\(\)\.#'
 

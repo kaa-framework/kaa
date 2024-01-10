@@ -9,11 +9,12 @@ use Kaa\Component\Generator\GeneratorInterface;
 use Kaa\Component\Generator\PhpOnly;
 use Kaa\Component\Generator\SharedConfig;
 use Kaa\Component\Router\Decorator\DecoratorWriter;
-use Kaa\Component\Router\Dto\RoutesCollection;
 use Kaa\Component\Router\Exception\RouterGeneratorException;
-use Kaa\Component\Router\RoutesLocator\AttributesToConfigParser;
-use Kaa\Component\Router\RoutesLocator\ConfigValidator;
-use Kaa\Component\Router\RoutingTree\RoutingTree;
+use Kaa\Component\Router\Router\Dto\RoutesCollection;
+use Kaa\Component\Router\Router\RouteLocator\AttributesToConfigParser;
+use Kaa\Component\Router\Router\RouteLocator\ConfigValidator;
+use Kaa\Component\Router\Router\RouterWriter;
+use Kaa\Component\Router\Router\RoutingTree\RoutingTree;
 use ReflectionException;
 
 #[PhpOnly]

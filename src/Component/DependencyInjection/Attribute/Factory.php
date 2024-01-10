@@ -5,8 +5,12 @@ declare(strict_types=1);
 namespace Kaa\Component\DependencyInjection\Attribute;
 
 use Attribute;
+use Kaa\Component\Generator\PhpOnly;
 
-#[Attribute(Attribute::TARGET_CLASS)]
+#[
+    PhpOnly,
+    Attribute(Attribute::TARGET_CLASS),
+]
 readonly class Factory
 {
     public function __construct(

@@ -10,17 +10,15 @@ use Kaa\Component\Validator\Assert\GreaterThan;
 use Kaa\Component\Validator\Exception\ValidatorGeneratorException;
 use ReflectionProperty;
 use Twig;
-use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
 #[PhpOnly]
-class GreaterThanGenerator extends BaseGenerator
+class GreaterThanGenerator extends AbstractGenerator
 {
     /**
      * @param GreaterThan $assert
-     * @param Environment $twig
      * @throws LoaderError|RuntimeError|SyntaxError|ValidatorGeneratorException
      */
     public function generateAssert(

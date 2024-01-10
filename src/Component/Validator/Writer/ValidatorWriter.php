@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Kaa\Component\Validator;
+namespace Kaa\Component\Validator\Writer;
 
 use Kaa\Component\Generator\Exception\WriterException;
 use Kaa\Component\Generator\PhpOnly;
@@ -14,6 +14,7 @@ use Kaa\Component\Generator\Writer\Visibility;
 use Kaa\Component\Validator\Assert\AssertInterface;
 use Kaa\Component\Validator\Exception\UnsupportedAssertException;
 use Kaa\Component\Validator\Exception\ValidatorGeneratorException;
+use Kaa\Component\Validator\ValidatorInterface;
 use ReflectionProperty;
 use Twig;
 use Twig\Error\LoaderError;
@@ -37,7 +38,7 @@ readonly class ValidatorWriter
             implements: [ValidatorInterface::class],
         );
 
-        $this->twig = TwigFactory::create(__DIR__ . '/templates');
+        $this->twig = TwigFactory::create(__DIR__ . '/../templates');
     }
 
     /**

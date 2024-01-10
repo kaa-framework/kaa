@@ -2,8 +2,10 @@
 
 namespace Kaa\Component\Router\Decorator;
 
+use Kaa\Component\Generator\PhpOnly;
 use ReflectionParameter;
 
+#[PhpOnly]
 readonly class DecoratorAndParameter
 {
     public function __construct(

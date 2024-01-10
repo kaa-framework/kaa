@@ -10,6 +10,7 @@ use Kaa\Component\Generator\PhpOnly;
 use Kaa\Component\Generator\SharedConfig;
 use Kaa\Component\Validator\ValidatorLocator\AttributesParser;
 use Kaa\Component\Validator\ValidatorLocator\ModelLocator;
+use Kaa\Component\Validator\Writer\ValidatorWriter;
 
 #[PhpOnly]
 readonly class ValidatorGenerator implements GeneratorInterface

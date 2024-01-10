@@ -10,13 +10,12 @@ use Kaa\Component\Validator\Assert\Url;
 use Kaa\Component\Validator\Exception\ValidatorGeneratorException;
 use ReflectionProperty;
 use Twig;
-use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
 #[PhpOnly]
-class UrlGenerator extends BaseGenerator
+class UrlGenerator extends AbstractGenerator
 {
     public const PATTERN = '~^
             (%s)://                                 # protocol
@@ -44,7 +43,6 @@ class UrlGenerator extends BaseGenerator
 
     /**
      * @param Url $assert
-     * @param Environment $twig
      * @throws LoaderError|RuntimeError|SyntaxError|ValidatorGeneratorException
      */
     public function generateAssert(
@@ -58,9 +56,7 @@ class UrlGenerator extends BaseGenerator
 
         return $twig->render(
             'Url.php.twig', [
-                'getMethod' => $this->getAccessMethod(
-                    $reflectionProperty,
-                ),
+                'getMethod' => $this->getAccessMethod($reflectionProperty),
                 'pattern' => $pattern,
                 'class' => $className,
                 'property' => $reflectionProperty->name,

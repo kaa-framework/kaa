@@ -3,9 +3,11 @@
 namespace Kaa\Component\Router\Decorator;
 
 use Kaa\Component\Generator\NewInstanceGeneratorInterface;
+use Kaa\Component\Generator\PhpOnly;
 use ReflectionMethod;
 use ReflectionParameter;
 
+#[PhpOnly]
 interface DecoratorInterface
 {
     public function getType(): DecoratorType;

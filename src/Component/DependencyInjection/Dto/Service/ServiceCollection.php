@@ -8,7 +8,7 @@ use ArrayIterator;
 use IteratorAggregate;
 use Kaa\Component\DependencyInjection\Exception\ServiceAlreadyExistsException;
 use Kaa\Component\DependencyInjection\Exception\ServiceDoesNotExistException;
-use Kaa\Component\DependencyInjection\KaaReflection;
+use Kaa\Component\DependencyInjection\Util\ClassParents;
 use Kaa\Component\Generator\PhpOnly;
 use Traversable;
 
@@ -59,7 +59,7 @@ class ServiceCollection implements IteratorAggregate
 
         $this->services[$service->name] = $service;
 
-        foreach (KaaReflection::getClassParents($service->class) as $class) {
+        foreach (ClassParents::getClassParents($service->class) as $class) {
             if (!array_key_exists($class, $this->classesToServices)) {
                 $this->classesToServices[$class] = [];
             }

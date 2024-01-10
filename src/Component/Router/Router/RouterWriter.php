@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Kaa\Component\Router;
+namespace Kaa\Component\Router\Router;
 
 use Kaa\Component\Generator\Exception\WriterException;
 use Kaa\Component\Generator\PhpOnly;
@@ -12,7 +12,8 @@ use Kaa\Component\Generator\Writer\Parameter;
 use Kaa\Component\Generator\Writer\TwigFactory;
 use Kaa\Component\Generator\Writer\Visibility;
 use Kaa\Component\HttpMessage\Request;
-use Kaa\Component\Router\RoutingTree\RoutingTree;
+use Kaa\Component\Router\Router\RoutingTree\RoutingTree;
+use Kaa\Component\Router\RouterInterface;
 use Twig;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;

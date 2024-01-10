@@ -11,17 +11,15 @@ use Kaa\Component\Validator\Assert\PositiveOrZero;
 use Kaa\Component\Validator\Exception\ValidatorGeneratorException;
 use ReflectionProperty;
 use Twig;
-use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
 #[PhpOnly]
-class PositiveOrZeroGenerator extends BaseGenerator
+class PositiveOrZeroGenerator extends AbstractGenerator
 {
     /**
      * @param PositiveOrZero $assert
-     * @param Environment $twig
      * @throws LoaderError|RuntimeError|SyntaxError|ValidatorGeneratorException
      */
     public function generateAssert(

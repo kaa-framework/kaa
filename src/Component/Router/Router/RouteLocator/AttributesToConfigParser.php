@@ -2,16 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Kaa\Component\Router\RoutesLocator;
+namespace Kaa\Component\Router\Router\RouteLocator;
 
-use Exception;
-use HaydenPierce\ClassFinder\ClassFinder;
 use Kaa\Component\Generator\PhpOnly;
+use Kaa\Component\Generator\Util\ClassFinder;
 use Kaa\Component\Router\Attribute\Route;
 use Kaa\Component\Router\Exception\RouterGeneratorException;
 use ReflectionAttribute;
 use ReflectionClass;
-use ReflectionException;
 use ReflectionMethod;
 
 #[PhpOnly]
@@ -25,45 +23,20 @@ class AttributesToConfigParser
 
     /**
      * @return mixed[]
-     * @throws ReflectionException|RouterGeneratorException
+     * @throws RouterGeneratorException
      */
     public function getConfig(): array
     {
-        $handlerClasses = $this->findHandlerClasses();
+        $handlerClasses = ClassFinder::find(
+            scan: $this->config['scan'],
+            predicate: static fn (ReflectionClass $c) => $c->isInstantiable() !== false,
+        );
+
         foreach ($handlerClasses as $handlerClass) {
             $this->parseHandler($handlerClass);
         }
 
         return $this->config;
-    }
-
-    /**
-     * @return ReflectionClass[]
-     * @throws ReflectionException|Exception
-     */
-    private function findHandlerClasses(): array
-    {
-        ClassFinder::disablePSR4Vendors();
-
-        $classes = [];
-        foreach ($this->config['scan'] as $namespaceOrClass) {
-            $namespaceOrClass = trim($namespaceOrClass, '\\');
-            if (class_exists($namespaceOrClass)) {
-                $classes[] = [$namespaceOrClass];
-            }
-
-            $classes[] = ClassFinder::getClassesInNamespace($namespaceOrClass, ClassFinder::RECURSIVE_MODE);
-        }
-        $classes = array_merge(...$classes);
-        $reflectionClasses = array_map(
-            static fn (string $class) => new ReflectionClass($class),
-            $classes,
-        );
-
-        return array_filter(
-            $reflectionClasses,
-            static fn (ReflectionClass $c) => $c->isInstantiable() !== false,
-        );
     }
 
     /**
@@ -77,6 +50,7 @@ class AttributesToConfigParser
                 "{$handlerClass->getName()} should have only one 'Route' attribute",
             );
         }
+
         foreach ($routeAttributes as $handlerAttribute) {
             if ($handlerAttribute->newInstance()->method !== null) {
                 throw new RouterGeneratorException(
@@ -84,6 +58,7 @@ class AttributesToConfigParser
                 );
             }
         }
+
         if ($routeAttributes !== []) {
             if ($this->config['prefixes'][$handlerClass->getName()] === []) {
                 $this->config['prefixes'][$handlerClass->getName()] = $routeAttributes[0]->newInstance()->route;
@@ -91,6 +66,7 @@ class AttributesToConfigParser
                 $this->config['prefixes'][$handlerClass->getName()] .= $routeAttributes[0]->newInstance()->route;
             }
         }
+
         $handlerMethods = $handlerClass->getMethods(ReflectionMethod::IS_PUBLIC);
         foreach ($handlerMethods as $handlerMethod) {
             $this->addHandlerToConfig($handlerClass, $handlerMethod);

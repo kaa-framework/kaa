@@ -10,17 +10,15 @@ use Kaa\Component\Validator\Assert\LessThanOrEqual;
 use Kaa\Component\Validator\Exception\ValidatorGeneratorException;
 use ReflectionProperty;
 use Twig;
-use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
 #[PhpOnly]
-class LessThanOrEqualGenerator extends BaseGenerator
+class LessThanOrEqualGenerator extends AbstractGenerator
 {
     /**
      * @param LessThanOrEqual $assert
-     * @param Environment $twig
      * @throws LoaderError|RuntimeError|SyntaxError|ValidatorGeneratorException
      */
     public function generateAssert(

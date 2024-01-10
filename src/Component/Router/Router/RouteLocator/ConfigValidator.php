@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Kaa\Component\Router\RoutesLocator;
+namespace Kaa\Component\Router\Router\RouteLocator;
 
 use Kaa\Component\Generator\PhpOnly;
 use Kaa\Component\Router\Exception\ValidationException;
@@ -29,10 +29,7 @@ class ConfigValidator
         $troubleRoutes = array_filter($troubleRoutes, static fn ($v) => $v > 1);
         $listTroubles = implode(' ', array_keys($troubleRoutes));
         if ($troubleRoutes !== []) {
-            throw new ValidationException(
-                "Some route duplications in {$listTroubles}",
-
-            );
+            throw new ValidationException("Duplicate routes: {$listTroubles}");
         }
     }
 }

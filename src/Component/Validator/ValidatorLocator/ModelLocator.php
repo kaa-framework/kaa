@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Kaa\Component\Validator\ValidatorLocator;
 
 use Exception;
-use HaydenPierce\ClassFinder\ClassFinder;
 use Kaa\Component\Generator\PhpOnly;
+use Kaa\Component\Generator\Util\ClassFinder;
 use Kaa\Component\Validator\Assert\AssertInterface;
 use ReflectionAttribute;
 use ReflectionClass;
@@ -27,34 +27,9 @@ readonly class ModelLocator
      */
     public function locate(): array
     {
-        $validatedClasses = $this->findValidatedClasses();
-
-        return array_values(array_filter($validatedClasses, $this->doesClassNeedValidation(...)));
-    }
-
-    /**
-     * @return ReflectionClass[]
-     * @throws Exception
-     */
-    private function findValidatedClasses(): array
-    {
-        ClassFinder::disablePSR4Vendors();
-
-        $classes = [];
-        foreach ($this->config['scan'] as $namespaceOrClass) {
-            $namespaceOrClass = trim($namespaceOrClass, '\\');
-            if (class_exists($namespaceOrClass)) {
-                $classes[] = [$namespaceOrClass];
-            }
-
-            $classes[] = ClassFinder::getClassesInNamespace($namespaceOrClass, ClassFinder::RECURSIVE_MODE);
-        }
-
-        $classes = array_merge(...$classes);
-
-        return array_map(
-            static fn (string $class) => new ReflectionClass($class),
-            $classes,
+        return ClassFinder::find(
+            scan: $this->config['scan'],
+            predicate: $this->doesClassNeedValidation(...),
         );
     }
 
@@ -63,7 +38,7 @@ readonly class ModelLocator
         foreach ($class->getProperties() as $reflectionProperty) {
             $assertAttributes = $reflectionProperty->getAttributes(
                 AssertInterface::class,
-                ReflectionAttribute::IS_INSTANCEOF
+                ReflectionAttribute::IS_INSTANCEOF,
             );
 
             if ($assertAttributes !== []) {

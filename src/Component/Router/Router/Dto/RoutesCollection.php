@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Kaa\Component\Router\Dto;
+namespace Kaa\Component\Router\Router\Dto;
 
 use ArrayIterator;
 use IteratorAggregate;

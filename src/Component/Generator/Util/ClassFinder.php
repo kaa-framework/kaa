@@ -50,7 +50,7 @@ class ClassFinder
             $reflectionClasses = array_filter($reflectionClasses, $predicate);
         }
 
-        return $reflectionClasses;
+        return array_values($reflectionClasses);
     }
 
     /**

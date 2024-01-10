@@ -10,17 +10,15 @@ use Kaa\Component\Validator\Assert\NotNull;
 use Kaa\Component\Validator\Exception\ValidatorGeneratorException;
 use ReflectionProperty;
 use Twig;
-use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
 #[PhpOnly]
-class NotNullGenerator extends BaseGenerator
+class NotNullGenerator extends AbstractGenerator
 {
     /**
      * @param NotNull $assert
-     * @param Environment $twig
      * @throws LoaderError|RuntimeError|SyntaxError|ValidatorGeneratorException
      */
     public function generateAssert(
@@ -31,9 +29,7 @@ class NotNullGenerator extends BaseGenerator
     ): string {
         return $twig->render(
             'NotNull.php.twig', [
-                'getMethod' => $this->getAccessMethod(
-                    $reflectionProperty,
-                ),
+                'getMethod' => $this->getAccessMethod($reflectionProperty),
                 'class' => $className,
                 'property' => $reflectionProperty->name,
                 'message' => $assert->message,

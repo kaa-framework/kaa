@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Kaa\Component\DependencyInjection;
+namespace Kaa\Component\DependencyInjection\Writer;
 
 use Kaa\Component\DependencyInjection\Dto\AliasCollection;
 use Kaa\Component\DependencyInjection\Dto\ParameterCollection;
@@ -41,7 +41,7 @@ readonly class ContainerWriter
             className: 'Container',
         );
 
-        $this->twig = TwigFactory::create(__DIR__ . '/templates', $this->getTwigFilters());
+        $this->twig = TwigFactory::create(__DIR__ . '/../templates', $this->getTwigFilters());
     }
 
     /**

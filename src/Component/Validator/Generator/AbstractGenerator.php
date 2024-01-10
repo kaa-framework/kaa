@@ -8,13 +8,9 @@ use Kaa\Component\Validator\Assert\AssertInterface;
 use Kaa\Component\Validator\Exception\ValidatorGeneratorException;
 use ReflectionProperty;
 use Twig;
-use Twig\Environment;
 
-abstract class BaseGenerator implements AssertGeneratorInterface
+abstract class AbstractGenerator implements AssertGeneratorInterface
 {
-    /**
-     * @param Environment $twig
-     */
     abstract public function generateAssert(
         AssertInterface $assert,
         ReflectionProperty $reflectionProperty,
@@ -35,7 +31,9 @@ abstract class BaseGenerator implements AssertGeneratorInterface
         foreach ($reflectionClass->getMethods() as $reflectionMethod) {
             if (strcasecmp($reflectionMethod->name, 'get' . $reflectionProperty->name) === 0) {
                 return $reflectionMethod->name . '()';
-            } elseif (strcasecmp($reflectionMethod->name, 'is' . $reflectionProperty->name) === 0) {
+            }
+
+            if (strcasecmp($reflectionMethod->name, 'is' . $reflectionProperty->name) === 0) {
                 return $reflectionMethod->name . '()';
             }
         }

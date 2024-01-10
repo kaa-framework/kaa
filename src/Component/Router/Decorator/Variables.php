@@ -2,6 +2,9 @@
 
 namespace Kaa\Component\Router\Decorator;
 
+use Kaa\Component\Generator\PhpOnly;
+
+#[PhpOnly]
 class Variables
 {
     /** @var array<string, string> */

@@ -12,6 +12,7 @@ use Kaa\Component\DependencyInjection\Exception\InvalidServiceDefinitionExceptio
 use Kaa\Component\DependencyInjection\Exception\ServiceAlreadyExistsException;
 use Kaa\Component\DependencyInjection\ServiceLocator\AttributesToConfigParser;
 use Kaa\Component\DependencyInjection\ServiceLocator\ConfigServiceLocator;
+use Kaa\Component\DependencyInjection\Writer\ContainerWriter;
 use Kaa\Component\Generator\GeneratorInterface;
 use Kaa\Component\Generator\PhpOnly;
 use Kaa\Component\Generator\SharedConfig;

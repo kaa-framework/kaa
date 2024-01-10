@@ -6,9 +6,9 @@ namespace Kaa\Component\Router\Test\RoutesLocator;
 
 use Exception;
 use Kaa\Component\Generator\PhpOnly;
-use Kaa\Component\Router\Dto\RoutesCollection;
 use Kaa\Component\Router\Exception\RouterGeneratorException;
-use Kaa\Component\Router\RoutesLocator\AttributesToConfigParser;
+use Kaa\Component\Router\Router\Dto\RoutesCollection;
+use Kaa\Component\Router\Router\RouteLocator\AttributesToConfigParser;
 use PHPUnit\Framework\TestCase;
 use ReflectionException;
 use function PHPUnit\Framework\assertFalse;
