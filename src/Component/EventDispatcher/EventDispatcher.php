@@ -6,7 +6,7 @@ namespace Kaa\Component\EventDispatcher;
 
 class EventDispatcher implements EventDispatcherInterface
 {
-    /** @var shape(listener: (callable(EventInterface): void), priority: int)[][] */
+    /** @var (shape(listener: (callable(EventInterface): void), priority: int))[][] */
     private array $listeners = [];
 
     /** @var (callable(EventInterface): void)[][] */
@@ -14,11 +14,11 @@ class EventDispatcher implements EventDispatcherInterface
 
     public function dispatch(EventInterface $event, string $eventName): self
     {
-        if (!array_key_exists($eventName, $this->listeners) || $this->listeners[$eventName] === []) {
+        if (empty($this->listeners[$eventName])) {
             return $this;
         }
 
-        if (!array_key_exists($eventName, $this->sortedListeners) || $this->sortedListeners[$eventName] === []) {
+        if (empty($this->sortedListeners[$eventName])) {
             $this->sortListeners($eventName);
         }
 
@@ -82,7 +82,7 @@ class EventDispatcher implements EventDispatcherInterface
     public function hasListeners(?string $eventName = null): bool
     {
         if ($eventName !== null) {
-            return array_key_exists($eventName, $this->listeners) && $this->listeners[$eventName] !== [];
+            return !empty($this->listeners[$eventName]);
         }
 
         foreach ($this->listeners as $eventListeners) {
@@ -99,11 +99,11 @@ class EventDispatcher implements EventDispatcherInterface
      */
     public function getListeners(string $eventName): array
     {
-        if (!array_key_exists($eventName, $this->listeners) || $this->listeners[$eventName] === []) {
+        if (empty($this->listeners[$eventName])) {
             return [];
         }
 
-        if (!array_key_exists($eventName, $this->sortedListeners) || $this->sortedListeners[$eventName] === []) {
+        if (empty($this->sortedListeners[$eventName])) {
             $this->sortListeners($eventName);
         }
 
@@ -115,7 +115,7 @@ class EventDispatcher implements EventDispatcherInterface
      */
     public function getListenerPriority(string $eventName, callable $listener): ?int
     {
-        if (!array_key_exists($eventName, $this->listeners) || $this->listeners[$eventName] === []) {
+        if (empty($this->listeners[$eventName])) {
             return null;
         }
 

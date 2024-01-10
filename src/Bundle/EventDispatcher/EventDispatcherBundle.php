@@ -40,13 +40,13 @@ class EventDispatcherBundle implements BundleGeneratorInterface
 
     public function getConfiguration(): TreeBuilder
     {
-        $treeBuilder = new TreeBuilder('router');
+        $treeBuilder = new TreeBuilder('dispatcher');
         $treeBuilder
             ->getRootNode()
             ->children()
             ->arrayNode('scan')
             ->isRequired()
-            ->prototype('scalar')
+            ->prototype('scalar')->end()
             ->end()
             ->arrayNode('listeners')
             ->arrayPrototype()
@@ -93,10 +93,8 @@ class EventDispatcherBundle implements BundleGeneratorInterface
 
         $services = [];
         foreach ($dispatchers as $dispatcher) {
-            $services[] = [
-                $dispatcher => [
-                    'class' => EventDispatcher::class,
-                ]
+            $services[$dispatcher] = [
+                'class' => EventDispatcher::class,
             ];
         }
 

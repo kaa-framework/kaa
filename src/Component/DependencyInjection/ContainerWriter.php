@@ -178,7 +178,7 @@ readonly class ContainerWriter
     {
         $directory = $this->config->exportDirectory . '/DependencyInjection';
 
-        if (!is_dir($directory) && !mkdir($directory) && !is_dir($directory)) {
+        if (!is_dir($directory) && !mkdir($directory, recursive: true) && !is_dir($directory)) {
             throw new DependencyInjectionGeneratorException("Directory {$directory} was not created");
         }
 

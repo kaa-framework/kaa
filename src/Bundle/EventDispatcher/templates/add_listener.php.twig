@@ -1,2 +1,2 @@
-({{ dispatcher }})
-    ->addListener('{{ event }}', ['\Kaa\Generated\EventDispatcherListener', '{{ method }}'], {{ priority }});
+({{ dispatcher|raw }})
+    ->addListener('{{ event }}', [$kaaEventDispatcherListener, '{{ method }}'], {{ priority }});

@@ -8,12 +8,12 @@ use Kaa\Component\HttpMessage\Request;
 use Kaa\Component\HttpMessage\Response\Response;
 use Kaa\Component\Router\Exception\DecoratorException;
 use Kaa\Component\Router\Exception\RouterGeneratorException;
+use Kaa\Tmp\KaaPrinter;
 use Kaa\Util\Exception\BadParameterTypeException;
 use Kaa\Util\Reflection;
 use Nette\PhpGenerator\ClassLike;
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\PhpFile;
-use Nette\PhpGenerator\PsrPrinter;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionException;
@@ -105,7 +105,7 @@ class DecoratorWriter
         [$preDecorators, $postDecorators] = $this->getDecorators($method);
 
         $variables = new Variables();
-        $variables->addVariable(Request::class, 'kaaRequest');
+        $variables->addVariable(Request::class, 'request');
 
         $code = [];
         foreach ($preDecorators as $decoratorAndParameter) {
@@ -133,7 +133,6 @@ class DecoratorWriter
             $variables->getActualReturnValueName()
         );
 
-        $code = [];
         foreach ($postDecorators as $decoratorAndParameter) {
             $code[] = $decoratorAndParameter->decorator->decorate(
                 $method,
@@ -190,26 +189,10 @@ class DecoratorWriter
 
         $postDecorators = array_filter(
             $decorators,
-            static fn (DecoratorAndParameter $d) => $d->decorator->getType() === DecoratorType::Pre,
+            static fn (DecoratorAndParameter $d) => $d->decorator->getType() === DecoratorType::Post,
         );
 
         return [$preDecorators, $postDecorators];
-    }
-
-    /**
-     * @throws RouterGeneratorException
-     */
-    private function writeFile(): void
-    {
-        $directory = $this->config->exportDirectory . '/Router';
-        if (!is_dir($directory) && !mkdir($directory) && !is_dir($directory)) {
-            throw new RouterGeneratorException("Directory {$directory} was not created");
-        }
-
-        file_put_contents(
-            $directory . '/Decorator.php',
-            (new PsrPrinter())->printFile($this->file),
-        );
     }
 
     /**
@@ -240,5 +223,21 @@ class DecoratorWriter
         }
 
         return $parameters;
+    }
+
+    /**
+     * @throws RouterGeneratorException
+     */
+    private function writeFile(): void
+    {
+        $directory = $this->config->exportDirectory . '/Router';
+        if (!is_dir($directory) && !mkdir($directory, recursive: true) && !is_dir($directory)) {
+            throw new RouterGeneratorException("Directory {$directory} was not created");
+        }
+
+        file_put_contents(
+            $directory . '/Decorator.php',
+            (new KaaPrinter())->printFile($this->file),
+        );
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Kaa\Bundle\EventDispatcher\Writer;
 
+use Kaa\Bundle\EventDispatcher\Exception\WriteFileException;
 use Kaa\Bundle\EventDispatcher\ListenerMethodName;
 use Kaa\Component\EventDispatcher\EventDispatcherInterface;
 use Kaa\Component\GeneratorContract\PhpOnly;
@@ -30,20 +31,29 @@ readonly class BootstrapWriter
 
     private function createTwig(): Twig\Environment
     {
-        $loader = new Twig\Loader\FilesystemLoader(__DIR__ . '/templates');
+        $loader = new Twig\Loader\FilesystemLoader(__DIR__ . '/../templates');
 
         return new Twig\Environment($loader);
     }
 
     /**
-     * @throws RuntimeError|SyntaxError|LoaderError
+     * @throws RuntimeError|SyntaxError|LoaderError|WriteFileException
      */
     public function write(): void
     {
-        $file = fopen($this->config->exportDirectory . '/bootstrap.php', 'ab');
-        if ($file === false) {
-            return;
+        $fileName = $this->config->exportDirectory . '/bootstrap.php';
+        if (!file_exists($fileName)) {
+            $file = fopen($fileName, 'wb');
+            fwrite($file, "<?php \n");
+        } else {
+            $file = fopen($fileName, 'ab');
         }
+
+        if ($file === false) {
+            throw new WriteFileException("Could not write to file {$fileName}");
+        }
+
+        fwrite($file, "\$kaaEventDispatcherListener = new \Kaa\Generated\EventDispatcher\Listener();\n");
 
         try {
             foreach ($this->listeners as $listener) {

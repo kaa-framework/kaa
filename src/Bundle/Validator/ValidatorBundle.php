@@ -20,7 +20,7 @@ readonly class ValidatorBundle extends ValidatorGenerator implements BundleGener
 
     public function getConfiguration(): TreeBuilder
     {
-        $treeBuilder = new TreeBuilder('router');
+        $treeBuilder = new TreeBuilder('validator');
         $treeBuilder
             ->getRootNode()
             ->children()

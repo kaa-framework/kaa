@@ -145,7 +145,7 @@ readonly class ValidatorWriter
     {
         $directory = $this->config->exportDirectory . '/Validator';
 
-        if (!is_dir($directory) && !mkdir($directory) && !is_dir($directory)) {
+        if (!is_dir($directory) && !mkdir($directory, recursive: true) && !is_dir($directory)) {
             throw new ValidatorGeneratorException("Directory {$directory} was not created");
         }
 

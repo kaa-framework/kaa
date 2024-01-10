@@ -4,4 +4,4 @@ if ($castedEvent === null) {
     return;
 }
 
-({{ service }})->{{ method }}($castedEvent);
+({{ service|raw }})->{{ method }}($castedEvent);

@@ -96,7 +96,7 @@ composer.lock
 <?php
 // generate.php
 
-(new FrameworkGenerator)->generate(__DIR__ . '/config', __DIR__ . '/generated');
+(new FrameworkGenerator())->generate(__DIR__ . '/config', __DIR__ . '/generated');
 ```
 
 ```php

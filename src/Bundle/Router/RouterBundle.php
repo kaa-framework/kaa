@@ -7,9 +7,9 @@ namespace Kaa\Bundle\Router;
 use Kaa\Bundle\Framework\BundleGeneratorInterface;
 use Kaa\Component\GeneratorContract\PhpOnly;
 use Kaa\Component\GeneratorContract\SharedConfig;
+use Kaa\Component\HttpKernel\HttpKernelEvents;
 use Kaa\Component\Router\RouterGenerator;
 use Kaa\Component\Router\RouterInterface;
-use Kaa\HttpKernel\HttpKernelEvents;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 
 #[PhpOnly]
@@ -34,10 +34,10 @@ readonly class RouterBundle extends RouterGenerator implements BundleGeneratorIn
             ->getRootNode()
             ->children()
             ->arrayNode('scan')
-            ->prototype('scalar')
+            ->prototype('scalar')->end()
             ->end()
             ->arrayNode('prefixes')
-            ->prototype('scalar')
+            ->prototype('scalar')->end()
             ->end()
             ->arrayNode('routes')
             ->arrayPrototype()
@@ -66,13 +66,19 @@ readonly class RouterBundle extends RouterGenerator implements BundleGeneratorIn
                     RouterInterface::class => [
                         'class' => 'Kaa\Generated\Router\Router',
                     ],
+
+                    '\Kaa\Generated\Router\FindActionListener' => [
+                        'class' => '\Kaa\Generated\Router\FindActionListener',
+                    ],
                 ],
             ],
 
             'dispatcher' => [
                 'listeners' => [
-                    'service' => '\Kaa\Generated\Router\FindActionListener',
-                    'event' => HttpKernelEvents::FIND_ACTION,
+                    [
+                        'service' => '\Kaa\Generated\Router\FindActionListener',
+                        'event' => HttpKernelEvents::FIND_ACTION,
+                    ],
                 ],
             ],
         ];

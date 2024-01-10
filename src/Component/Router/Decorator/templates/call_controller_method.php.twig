@@ -1,0 +1,5 @@
+${{ retValName }} = ({{ service|raw }})->{{ method }}(
+    {% for parameter in parameters %}
+        ${{ parameter }}{{ not loop.last ? ',' }}
+    {% endfor %}
+);

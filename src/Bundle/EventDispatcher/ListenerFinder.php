@@ -34,9 +34,9 @@ readonly class ListenerFinder
      */
     public function getListeners(): array
     {
-        $listeners = $this->getListeners();
         $classes = $this->findListenerClasses();
 
+        $listeners = $this->listeners;
         foreach ($classes as $class) {
             foreach ($class->getAttributes(EventListener::class) as $attr) {
                 /** @var EventListener $attribute */
@@ -46,6 +46,7 @@ readonly class ListenerFinder
                     'service' => $class->getName(),
                     'method' => $attribute->method,
                     'event' => $attribute->event,
+                    'priority' => $attribute->priority,
                     'dispatcher' => $attribute->dispatcher,
                 ];
             }

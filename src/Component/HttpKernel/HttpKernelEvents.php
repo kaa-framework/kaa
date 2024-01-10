@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Kaa\HttpKernel;
+namespace Kaa\Component\HttpKernel;
 
 class HttpKernelEvents
 {

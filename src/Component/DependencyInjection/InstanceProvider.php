@@ -10,6 +10,6 @@ class InstanceProvider implements NewInstanceGeneratorInterface
 {
     public function generate(string $nameOrAlias, string $class): string
     {
-        return "\Kaa\Generated\DependencyInjection\Container::get('{$nameOrAlias}', {$class})";
+        return "\Kaa\Generated\DependencyInjection\Container::get('{$nameOrAlias}', \\{$class}::class)";
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Kaa\Component\HttpMessage;
 
 use Kaa\Component\HttpMessage\Exception\BadRequestException;
+use Kaa\Component\HttpMessage\Exception\NoContentException;
 use Kaa\Component\HttpMessage\Exception\SuspiciousOperationException;
 
 class Request
@@ -50,11 +51,11 @@ class Request
     private ?string $method = null;
 
     /**
-     * @param string[]             $query      The GET parameters
-     * @param string[]             $request    The POST parameters
-     * @param string[]             $attributes The request attributes (parameters parsed from the PATH_INFO, ...)
-     * @param string[]             $server     The SERVER parameters
-     * @param string|false         $content    The raw body data
+     * @param string[] $query The GET parameters
+     * @param string[] $request The POST parameters
+     * @param string[] $attributes The request attributes (parameters parsed from the PATH_INFO, ...)
+     * @param string[] $server The SERVER parameters
+     * @param string|false $content The raw body data
      */
     public function __construct(
         $query = [],
@@ -71,11 +72,11 @@ class Request
      *
      * This method also re-initializes all properties.
      *
-     * @param string[]             $query      The GET parameters
-     * @param string[]             $request    The POST parameters
-     * @param string[]             $attributes The request attributes (parameters parsed from the PATH_INFO, ...)
-     * @param string[]             $server     The SERVER parameters
-     * @param string|false         $content    The raw body data
+     * @param string[] $query The GET parameters
+     * @param string[] $request The POST parameters
+     * @param string[] $attributes The request attributes (parameters parsed from the PATH_INFO, ...)
+     * @param string[] $server The SERVER parameters
+     * @param string|false $content The raw body data
      */
     public function initialize($query = [], $request = [], $attributes = [], $server = [], $content = false): void
     {
@@ -93,11 +94,11 @@ class Request
      * The information contained in the URI always take precedence
      * over the other information (server and parameters).
      *
-     * @param string               $uri        The URI
-     * @param string               $method     The HTTP method
-     * @param string[]             $parameters The query (GET) or request (POST) parameters
-     * @param string[]             $server     The server parameters ($_SERVER)
-     * @param string|false         $content    The raw body data
+     * @param string $uri The URI
+     * @param string $method The HTTP method
+     * @param string[] $parameters The query (GET) or request (POST) parameters
+     * @param string[] $server The server parameters ($_SERVER)
+     * @param string|false $content The raw body data
      */
     public static function create(
         $uri,
@@ -217,10 +218,51 @@ class Request
     }
 
     /**
-     * Returns the request body content.
-     * @return string|false
+     * Creates a new request with values from PHP's super globals.
      */
-    public function getContent()
+    public static function createFromGlobals(): static
+    {
+        /** @var string[] $getArray */
+        $getArray = array_map('strval', $_GET);
+
+        /** @var string[] $postArray */
+        $postArray = array_map('strval', $_POST);
+
+        /** @var string[] $cookiesArray */
+        $cookiesArray = array_map('strval', $_COOKIE);
+
+        /** @var mixed $serverStringValues */
+        $serverStringValues = array_filter($_SERVER, static function ($value) {
+            return !\is_array($value);
+        });
+
+        /** @var string[] $serverArray */
+        $serverArray = array_map('strval', $serverStringValues);
+
+        $request = new static($getArray, $postArray, [], $serverArray, not_false(file_get_contents('php://input')));
+
+        $headerString = $request->headers->get('CONTENT_TYPE', '');
+
+        if (
+            isset($headerString) && str_starts_with($headerString, 'application/x-www-form-urlencoded')
+            && \in_array(
+                strtoupper((string) $request->server->get('REQUEST_METHOD', 'GET')),
+                ['PUT', 'DELETE', 'PATCH'],
+                true
+            )
+        ) {
+            parse_str((string) $request->getContent(), $data);
+            $request->request = new InputBag($data);
+        }
+
+        return $request;
+    }
+
+    /**
+     * Returns the request body content.
+     * @throws NoContentException
+     */
+    public function getContent(): string
     {
         if (!isset($this->content)) {
             $fileGetContents = file_get_contents('php://input');
@@ -229,7 +271,11 @@ class Request
             }
         }
 
-        return $this->content;
+        if ($this->content === false) {
+            throw new NoContentException('The request does not have content');
+        }
+
+        return not_false($this->content);
     }
 
     /*
@@ -337,7 +383,7 @@ class Request
         $len = \strlen($prefix);
 
         if ((bool) preg_match(sprintf('#^(%%[[:xdigit:]]{2}|.){%d}#', $len), $string, $match)) {
-            return $match[0];
+            return (string) $match[0];
         }
 
         return null;
@@ -430,7 +476,11 @@ class Request
      */
     private function getBaseUrlReal(): string
     {
-        return $this->baseUrl ??= $this->prepareBaseUrl();
+        if ($this->baseUrl === null) {
+            $this->baseUrl = $this->prepareBaseUrl();
+        }
+
+        return not_null($this->baseUrl);
     }
 
     /**
@@ -515,10 +565,18 @@ class Request
         if (
             in_array(
                 $method,
-                ['GET', 'HEAD', 'POST',
-                    'PUT', 'DELETE', 'CONNECT',
-                    'OPTIONS', 'PATCH', 'PURGE',
-                    'TRACE'],
+                [
+                    'GET',
+                    'HEAD',
+                    'POST',
+                    'PUT',
+                    'DELETE',
+                    'CONNECT',
+                    'OPTIONS',
+                    'PATCH',
+                    'PURGE',
+                    'TRACE'
+                ],
                 true,
             )
         ) {

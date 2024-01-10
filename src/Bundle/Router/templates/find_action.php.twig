@@ -1,2 +1,2 @@
-$event->setAction(({{ service }}->findAction($event->getRequest()));
+$event->setAction(({{ service|raw }}->findAction($event->getRequest())));
 $event->stopPropagation();

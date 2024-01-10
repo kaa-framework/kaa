@@ -130,8 +130,7 @@ final class RouterWriter
     ): Method {
         $method = $this->class->addMethod('findAction');
         $method->setComment('@return (callable(\Kaa\Component\HttpMessage\Request): \Kaa\Component\HttpMessage\Response\Response)|null');
-        $method->setReturnType('callable');
-        $method->setStatic();
+        $method->setReturnType('callable|null');
         $method->setVisibility($visibility);
         $method->setBody($code);
 
@@ -144,7 +143,7 @@ final class RouterWriter
     private function writeFile(): void
     {
         $directory = $this->config->exportDirectory . '/Router';
-        if (!is_dir($directory) && !mkdir($directory) && !is_dir($directory)) {
+        if (!is_dir($directory) && !mkdir($directory, recursive: true) && !is_dir($directory)) {
             throw new RouterGeneratorException("Directory {$directory} was not created");
         }
 

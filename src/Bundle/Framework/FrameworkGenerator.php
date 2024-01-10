@@ -14,7 +14,7 @@ class FrameworkGenerator
     {
         $newInstanceGenerator = new DefaultNewInstanceGenerator();
 
-        $generatorsConfig = require $pathToConfig . '/Bundles.php';
+        $generatorsConfig = require $pathToConfig . '/bundles.php';
 
         $newInstanceGenerator = array_key_exists('instanceGenerator', $generatorsConfig)
             ? new $generatorsConfig['instanceGenerator']()
@@ -41,7 +41,7 @@ class FrameworkGenerator
             if ($generator->getConfiguration() !== null) {
                 $generatorConfig = $processor->process(
                     $generator->getConfiguration()->buildTree(),
-                    $config[$generator->getRootConfigurationKey()] ?? [],
+                    [$generator->getRootConfigurationKey() => $config[$generator->getRootConfigurationKey()] ?? []],
                 );
             }
 
@@ -81,7 +81,7 @@ class FrameworkGenerator
             ->name(['*.yaml', '*.yml']);
 
         foreach ($finder as $file) {
-            $config[] = Yaml::parse($file->getRealPath());
+            $config[] = Yaml::parseFile($file->getRealPath());
         }
 
         return array_merge_recursive(...$config);

@@ -62,12 +62,16 @@ readonly class ConfigServiceLocator
             throw new InvalidServiceDefinitionException("Invalid class {$class} for service {$serviceName}");
         }
 
-        if (array_key_exists('arguments', $serviceData) && array_key_exists('factory', $serviceData)) {
+        $bothArgumentsAndFactoryAreDefined =
+            array_key_exists('arguments', $serviceData) && $serviceData['arguments'] !== []
+            && array_key_exists('factory', $serviceData) && $serviceData['factory'] !== [];
+
+        if ($bothArgumentsAndFactoryAreDefined) {
             throw new InvalidServiceDefinitionException("You cannot set both arguments and factory for service {$serviceName}");
         }
 
         $reflectionClass = new ReflectionClass($class);
-        if (array_key_exists('factory', $serviceData)) {
+        if (array_key_exists('factory', $serviceData) && $serviceData['factory'] !== []) {
             $arguments = null;
 
             $factoryData = $serviceData['factory'];

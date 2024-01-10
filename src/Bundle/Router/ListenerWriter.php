@@ -70,7 +70,7 @@ readonly class ListenerWriter
     private function writeFile(): void
     {
         $directory = $this->config->exportDirectory . '/Router';
-        if (!is_dir($directory) && !mkdir($directory) && !is_dir($directory)) {
+        if (!is_dir($directory) && !mkdir($directory, recursive: true) && !is_dir($directory)) {
             throw new RouterGeneratorException("Directory {$directory} was not created");
         }
 

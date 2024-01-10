@@ -6,13 +6,13 @@
 
 Пример конфигурации:
 ```yaml
-scan:
-    - App\Model
-    - App\Entity
-
-prefixes:
-    Kaa\SampleProject\Controller\BlogApiController: /api/
-
-routes:
-    - { route: /external-api, method: callExternalApi, service: AppControllerExternalController }
+router:
+    scan:
+        - App\Controller
+    
+    prefixes:
+        Kaa\SampleProject\Controller\BlogApiController: /api/
+    
+    routes:
+        - { route: /external-api, method: callExternalApi, service: AppControllerExternalController }
 ```

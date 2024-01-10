@@ -8,7 +8,7 @@ use Kaa\Bundle\Framework\BundleGeneratorInterface;
 use Kaa\Component\DependencyInjection\ContainerGenerator;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 
-readonly class DependencyInjection extends ContainerGenerator implements BundleGeneratorInterface
+readonly class DependencyInjectionBundle extends ContainerGenerator implements BundleGeneratorInterface
 {
     public function getRootConfigurationKey(): string
     {
@@ -17,21 +17,20 @@ readonly class DependencyInjection extends ContainerGenerator implements BundleG
 
     public function getConfiguration(): TreeBuilder
     {
-        $treeBuilder = new TreeBuilder('router');
+        $treeBuilder = new TreeBuilder('di');
         $treeBuilder
             ->getRootNode()
             ->children()
             ->arrayNode('scan')
             ->isRequired()
-            ->prototype('scalar')
+            ->prototype('scalar')->end()
             ->end()
             ->arrayNode('ignore')
-            ->isRequired()
-            ->prototype('scalar')
+            ->prototype('scalar')->end()
             ->end()
             ->arrayNode('parameters')
             ->useAttributeAsKey('name')
-            ->scalarPrototype()
+            ->scalarPrototype()->end()
             ->end()
             ->arrayNode('services')
             ->useAttributeAsKey('name')
@@ -40,7 +39,7 @@ readonly class DependencyInjection extends ContainerGenerator implements BundleG
             ->scalarNode('class')->end()
             ->arrayNode('arguments')
             ->useAttributeAsKey('name')
-            ->scalarPrototype()
+            ->scalarPrototype()->end()
             ->end()
             ->booleanNode('singleton')->end()
             ->arrayNode('factory')
@@ -57,7 +56,7 @@ readonly class DependencyInjection extends ContainerGenerator implements BundleG
             ->end()
             ->arrayNode('aliases')
             ->useAttributeAsKey('name')
-            ->scalarPrototype()
+            ->scalarPrototype()->end()
             ->end()
             ->end()
             ->end();

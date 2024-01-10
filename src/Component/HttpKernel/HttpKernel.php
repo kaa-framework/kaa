@@ -9,11 +9,10 @@ use Kaa\Component\HttpKernel\Event\FindActionEvent;
 use Kaa\Component\HttpKernel\Event\RequestEvent;
 use Kaa\Component\HttpKernel\Event\ResponseEvent;
 use Kaa\Component\HttpKernel\Event\ThrowableEvent;
+use Kaa\Component\HttpKernel\Exception\ActionNotFoundException;
+use Kaa\Component\HttpKernel\Exception\ResponseNotReachedException;
 use Kaa\Component\HttpMessage\Request;
 use Kaa\Component\HttpMessage\Response\Response;
-use Kaa\HttpKernel\Exception\ActionNotFoundException;
-use Kaa\HttpKernel\Exception\ResponseNotReachedException;
-use Kaa\HttpKernel\HttpKernelEvents;
 use Throwable;
 
 class HttpKernel

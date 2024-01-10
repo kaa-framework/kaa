@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Kaa\HttpKernel\Exception;
+namespace Kaa\Component\HttpKernel\Exception;
 
 use Exception;
 

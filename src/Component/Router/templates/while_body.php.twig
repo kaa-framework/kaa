@@ -1,8 +1,8 @@
 {% if current.getHandler is not null %}
     {% if not current.isVariable %}
-        if(($nodes[{{ count }}] === '{{ current.getData }}') && ($count_nodes === {{ count }})){
+        if(($nodes[{{ count - 1 }}] === '{{ current.getData }}') && ($count_nodes === {{ count }})){
     {% else %}
-        if($count_nodes === {{ count }}){
+        if($count_nodes === {{ count - 1 }}){
     {% endif %}
 
     {% if current.getKeys is not null %}

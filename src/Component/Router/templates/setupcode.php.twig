@@ -1,7 +1,7 @@
 $route = $request->getPathInfo();
 $method = $request->getMethod();
 $nodes = explode("/", $route);
-if ($nodes[0] === "") {
+if ($nodes[0] == "") {
     unset($nodes[0]);
     $nodes = array_values($nodes);
 }

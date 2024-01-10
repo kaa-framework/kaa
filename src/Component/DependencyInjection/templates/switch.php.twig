@@ -16,3 +16,5 @@ switch($class) {
                 break;
     {% endfor %}
 }
+
+throw new \Kaa\Component\DependencyInjection\Exception\ServiceNotFoundException($nameOrAlias, $class);

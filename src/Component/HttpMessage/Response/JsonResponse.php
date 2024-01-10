@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Kaa\Component\HttpMessage\Response;
 
 use JsonEncoder;
-use JsonException;
+use Kaa\Component\HttpMessage\Exception\JsonException;
 use Kaa\Component\HttpMessage\HttpCode;
 
 class JsonResponse extends Response
