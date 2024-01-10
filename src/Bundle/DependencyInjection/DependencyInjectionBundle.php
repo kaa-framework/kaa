@@ -6,8 +6,10 @@ namespace Kaa\Bundle\DependencyInjection;
 
 use Kaa\Bundle\Framework\BundleGeneratorInterface;
 use Kaa\Component\DependencyInjection\ContainerGenerator;
+use Kaa\Component\Generator\PhpOnly;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 
+#[PhpOnly]
 readonly class DependencyInjectionBundle extends ContainerGenerator implements BundleGeneratorInterface
 {
     public function getRootConfigurationKey(): string

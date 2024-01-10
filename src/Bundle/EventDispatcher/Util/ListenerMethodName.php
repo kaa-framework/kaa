@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Kaa\Bundle\EventDispatcher;
+namespace Kaa\Bundle\EventDispatcher\Util;
 
 use Kaa\Component\Generator\PhpOnly;
 

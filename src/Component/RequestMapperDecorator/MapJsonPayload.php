@@ -3,8 +3,10 @@
 namespace Kaa\Component\RequestMapperDecorator;
 
 use Attribute;
+use Kaa\Component\Generator\Exception\BadTypeException;
 use Kaa\Component\Generator\NewInstanceGeneratorInterface;
 use Kaa\Component\Generator\PhpOnly;
+use Kaa\Component\Generator\Util\Reflection;
 use Kaa\Component\Generator\Writer\TwigFactory;
 use Kaa\Component\HttpMessage\Request;
 use Kaa\Component\RequestMapperDecorator\Exception\DecoratorException;
@@ -12,8 +14,6 @@ use Kaa\Component\Router\Decorator\DecoratorInterface;
 use Kaa\Component\Router\Decorator\DecoratorType;
 use Kaa\Component\Router\Decorator\Variables;
 use Kaa\Component\Validator\ValidatorInterface;
-use Kaa\Util\Exception\BadParameterTypeException;
-use Kaa\Util\Reflection;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
@@ -48,7 +48,7 @@ readonly class MapJsonPayload implements DecoratorInterface
     }
 
     /**
-     * @throws BadParameterTypeException|DecoratorException|ReflectionException|LoaderError|RuntimeError|SyntaxError
+     * @throws BadTypeException|DecoratorException|ReflectionException|LoaderError|RuntimeError|SyntaxError
      */
     public function decorate(
         ReflectionMethod $decoratedMethod,

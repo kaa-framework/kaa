@@ -3,15 +3,15 @@
 namespace Kaa\Component\RequestMapperDecorator;
 
 use Attribute;
+use Kaa\Component\Generator\Exception\BadTypeException;
 use Kaa\Component\Generator\NewInstanceGeneratorInterface;
 use Kaa\Component\Generator\PhpOnly;
+use Kaa\Component\Generator\Util\Reflection;
 use Kaa\Component\HttpMessage\Request;
 use Kaa\Component\RequestMapperDecorator\Exception\DecoratorException;
 use Kaa\Component\Router\Decorator\DecoratorInterface;
 use Kaa\Component\Router\Decorator\DecoratorType;
 use Kaa\Component\Router\Decorator\Variables;
-use Kaa\Util\Exception\BadParameterTypeException;
-use Kaa\Util\Reflection;
 use ReflectionMethod;
 use ReflectionParameter;
 
@@ -37,7 +37,7 @@ readonly class MapRouteParameter implements DecoratorInterface
     }
 
     /**
-     * @throws BadParameterTypeException|DecoratorException
+     * @throws BadTypeException|DecoratorException
      */
     public function decorate(
         ReflectionMethod $decoratedMethod,

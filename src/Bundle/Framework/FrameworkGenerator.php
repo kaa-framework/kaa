@@ -4,35 +4,20 @@ namespace Kaa\Bundle\Framework;
 
 use Kaa\Component\Generator\DefaultNewInstanceGenerator;
 use Kaa\Component\Generator\NewInstanceGeneratorInterface;
+use Kaa\Component\Generator\PhpOnly;
 use Kaa\Component\Generator\SharedConfig;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
 
+#[PhpOnly]
 class FrameworkGenerator
 {
     public function generate(string $pathToConfig, string $pathToGenerated): void
     {
-        $newInstanceGenerator = new DefaultNewInstanceGenerator();
-
         $generatorsConfig = require $pathToConfig . '/bundles.php';
-
-        /** @var NewInstanceGeneratorInterface $newInstanceGenerator */
-        $newInstanceGenerator = array_key_exists('instanceGenerator', $generatorsConfig)
-            ? new $generatorsConfig['instanceGenerator']()
-            : new DefaultNewInstanceGenerator();
-
-        /** @var BundleGeneratorInterface[] $generators */
-        $generators = [];
-        foreach ($generatorsConfig as $key => $generatorClass) {
-            if ($key === 'instanceGenerator') {
-                continue;
-            }
-
-            $generators[] = new $generatorClass();
-        }
-
-        $generators = $this->sortByPriority($generators);
+        $newInstanceGenerator = $this->getNewInstanceGenerator($generatorsConfig);
+        $generators = $this->getGenerators($generatorsConfig);
 
         $sharedConfig = new SharedConfig($pathToGenerated, $newInstanceGenerator);
         $config = $this->parseConfig($pathToConfig);
@@ -52,6 +37,37 @@ class FrameworkGenerator
             $configArray = $generator->getConfigArray();
             $config = array_merge_recursive($config, $configArray);
         }
+    }
+
+    /**
+     * @param mixed[] $generatorsConfig
+     */
+    private function getNewInstanceGenerator(array $generatorsConfig): NewInstanceGeneratorInterface
+    {
+        if (array_key_exists('instanceGenerator', $generatorsConfig)) {
+            return new $generatorsConfig['instanceGenerator']();
+        }
+
+        return new DefaultNewInstanceGenerator();
+    }
+
+    /**
+     * @param mixed[] $generatorsConfig
+     * @return BundleGeneratorInterface[]
+     */
+    private function getGenerators(array $generatorsConfig): array
+    {
+        /** @var BundleGeneratorInterface[] $generators */
+        $generators = [];
+        foreach ($generatorsConfig as $key => $generatorClass) {
+            if ($key === 'instanceGenerator') {
+                continue;
+            }
+
+            $generators[] = new $generatorClass();
+        }
+
+        return $this->sortByPriority($generators);
     }
 
     /**

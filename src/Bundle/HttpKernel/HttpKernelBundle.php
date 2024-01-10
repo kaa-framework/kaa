@@ -3,9 +3,11 @@
 namespace Kaa\Bundle\HttpKernel;
 
 use Kaa\Bundle\Framework\BundleGeneratorInterface;
+use Kaa\Component\Generator\PhpOnly;
 use Kaa\Component\Generator\SharedConfig;
 use Kaa\Component\HttpKernel\HttpKernel;
 
+#[PhpOnly]
 class HttpKernelBundle implements BundleGeneratorInterface
 {
     public function getRootConfigurationKey(): null

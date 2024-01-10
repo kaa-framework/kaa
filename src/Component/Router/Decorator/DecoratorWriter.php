@@ -2,9 +2,11 @@
 
 namespace Kaa\Component\Router\Decorator;
 
+use Kaa\Component\Generator\Exception\BadTypeException;
 use Kaa\Component\Generator\Exception\WriterException;
 use Kaa\Component\Generator\PhpOnly;
 use Kaa\Component\Generator\SharedConfig;
+use Kaa\Component\Generator\Util\Reflection;
 use Kaa\Component\Generator\Writer\ClassWriter;
 use Kaa\Component\Generator\Writer\Parameter;
 use Kaa\Component\Generator\Writer\TwigFactory;
@@ -12,8 +14,6 @@ use Kaa\Component\Generator\Writer\Visibility;
 use Kaa\Component\HttpMessage\Request;
 use Kaa\Component\HttpMessage\Response\Response;
 use Kaa\Component\Router\Exception\DecoratorException;
-use Kaa\Util\Exception\BadParameterTypeException;
-use Kaa\Util\Reflection;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionException;
@@ -61,7 +61,7 @@ class DecoratorWriter
     }
 
     /**
-     * @throws BadParameterTypeException|DecoratorException|LoaderError|ReflectionException|WriterException|RuntimeError|SyntaxError
+     * @throws BadTypeException|DecoratorException|LoaderError|ReflectionException|WriterException|RuntimeError|SyntaxError
      */
     public function write(): void
     {
@@ -81,7 +81,7 @@ class DecoratorWriter
     }
 
     /**
-     * @throws RuntimeError|LoaderError|DecoratorException|BadParameterTypeException|SyntaxError|ReflectionException
+     * @throws RuntimeError|LoaderError|DecoratorException|BadTypeException|SyntaxError|ReflectionException
      */
     public function generateCode(DecoratedMethod $decoratedMethod): string
     {
@@ -182,7 +182,7 @@ class DecoratorWriter
 
     /**
      * @return string[]
-     * @throws BadParameterTypeException|DecoratorException
+     * @throws BadTypeException|DecoratorException
      */
     private function getControllerParameterNames(ReflectionMethod $method, Variables $variables): array
     {

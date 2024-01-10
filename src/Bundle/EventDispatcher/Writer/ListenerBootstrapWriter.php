@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Kaa\Bundle\EventDispatcher\Writer;
 
-use Kaa\Bundle\EventDispatcher\ListenerMethodName;
+use Kaa\Bundle\EventDispatcher\Util\ListenerMethodName;
 use Kaa\Component\EventDispatcher\EventDispatcherInterface;
 use Kaa\Component\Generator\Exception\WriterException;
 use Kaa\Component\Generator\PhpOnly;

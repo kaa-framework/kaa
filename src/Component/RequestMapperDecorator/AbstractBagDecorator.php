@@ -2,8 +2,10 @@
 
 namespace Kaa\Component\RequestMapperDecorator;
 
+use Kaa\Component\Generator\Exception\BadTypeException;
 use Kaa\Component\Generator\NewInstanceGeneratorInterface;
 use Kaa\Component\Generator\PhpOnly;
+use Kaa\Component\Generator\Util\Reflection;
 use Kaa\Component\Generator\Writer\TwigFactory;
 use Kaa\Component\HttpMessage\Request;
 use Kaa\Component\RequestMapperDecorator\Exception\DecoratorException;
@@ -11,8 +13,6 @@ use Kaa\Component\Router\Decorator\DecoratorInterface;
 use Kaa\Component\Router\Decorator\DecoratorType;
 use Kaa\Component\Router\Decorator\Variables;
 use Kaa\Component\Validator\ValidatorInterface;
-use Kaa\Util\Exception\BadParameterTypeException;
-use Kaa\Util\Reflection;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
@@ -46,7 +46,7 @@ abstract readonly class AbstractBagDecorator implements DecoratorInterface
     }
 
     /**
-     * @throws BadParameterTypeException|DecoratorException|ReflectionException|LoaderError|RuntimeError|SyntaxError
+     * @throws BadTypeException|DecoratorException|ReflectionException|LoaderError|RuntimeError|SyntaxError
      */
     public function decorate(
         ReflectionMethod $decoratedMethod,
@@ -122,7 +122,7 @@ abstract readonly class AbstractBagDecorator implements DecoratorInterface
 
     /**
      * @return array<string, string> [Имя параметра => код для установки параметра]
-     * @throws BadParameterTypeException
+     * @throws BadTypeException
      */
     private function getConstructorParameters(string $requestVarName, ReflectionClass $modelClass): array
     {
@@ -144,7 +144,7 @@ abstract readonly class AbstractBagDecorator implements DecoratorInterface
     }
 
     /**
-     * @throws BadParameterTypeException
+     * @throws BadTypeException
      */
     private function generateGetFromBagCode(?ReflectionType $type, string $paramName, string $requestVarName): string
     {

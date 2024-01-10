@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace Kaa\Bundle\EventDispatcher\Writer;
 
-use Kaa\Bundle\EventDispatcher\ListenerMethodName;
+use Kaa\Bundle\EventDispatcher\Util\ListenerMethodName;
 use Kaa\Component\EventDispatcher\EventInterface;
+use Kaa\Component\Generator\Exception\BadTypeException;
 use Kaa\Component\Generator\Exception\WriterException;
 use Kaa\Component\Generator\PhpOnly;
 use Kaa\Component\Generator\SharedConfig;
+use Kaa\Component\Generator\Util\Reflection;
 use Kaa\Component\Generator\Writer\ClassWriter;
 use Kaa\Component\Generator\Writer\Parameter;
 use Kaa\Component\Generator\Writer\TwigFactory;
 use Kaa\Component\Generator\Writer\Visibility;
-use Kaa\Util\Exception\BadParameterTypeException;
-use Kaa\Util\Reflection;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionNamedType;
@@ -45,7 +45,7 @@ readonly class ListenerWriter
     }
 
     /**
-     * @throws WriterException|SyntaxError|ReflectionException|RuntimeError|LoaderError|BadParameterTypeException
+     * @throws WriterException|SyntaxError|ReflectionException|RuntimeError|LoaderError|BadTypeException
      */
     public function write(): void
     {
@@ -58,7 +58,7 @@ readonly class ListenerWriter
 
     /**
      * @param mixed[] $listener
-     * @throws ReflectionException|LoaderError|RuntimeError|SyntaxError|BadParameterTypeException
+     * @throws ReflectionException|LoaderError|RuntimeError|SyntaxError|BadTypeException
      */
     private function addMethod(array $listener): void
     {

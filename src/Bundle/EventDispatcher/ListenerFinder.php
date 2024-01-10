@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Kaa\Bundle\EventDispatcher;
 
 use Exception;
-use HaydenPierce\ClassFinder\ClassFinder;
 use Kaa\Bundle\EventDispatcher\Attribute\EventListener;
 use Kaa\Component\Generator\PhpOnly;
+use Kaa\Component\Generator\Util\ClassFinder;
 use ReflectionClass;
 
 #[PhpOnly]
@@ -34,7 +34,11 @@ readonly class ListenerFinder
      */
     public function getListeners(): array
     {
-        $classes = $this->findListenerClasses();
+        $classes = ClassFinder::find(
+            $this->scanFiles,
+            predicate: static fn (ReflectionClass $c) => $c->isInstantiable()
+                && $c->getAttributes(EventListener::class) !== [],
+        );
 
         $listeners = $this->listeners;
         foreach ($classes as $class) {
@@ -53,35 +57,5 @@ readonly class ListenerFinder
         }
 
         return $listeners;
-    }
-
-    /**
-     * @return ReflectionClass[]
-     * @throws Exception
-     */
-    private function findListenerClasses(): array
-    {
-        ClassFinder::disablePSR4Vendors();
-
-        $classes = [];
-        foreach ($this->scanFiles as $namespaceOrClass) {
-            $namespaceOrClass = trim($namespaceOrClass, '\\');
-            if (class_exists($namespaceOrClass)) {
-                $classes[] = [$namespaceOrClass];
-            }
-
-            $classes[] = ClassFinder::getClassesInNamespace($namespaceOrClass, ClassFinder::RECURSIVE_MODE);
-        }
-
-        $classes = array_merge(...$classes);
-        $reflectionClasses = array_map(
-            static fn (string $class) => new ReflectionClass($class),
-            $classes,
-        );
-
-        return array_filter(
-            $reflectionClasses,
-            static fn (ReflectionClass $c) => $c->isInstantiable() && $c->getAttributes(EventListener::class) !== [],
-        );
     }
 }

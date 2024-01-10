@@ -1,9 +1,9 @@
 <?php
 
-namespace Kaa\Util;
+namespace Kaa\Component\Generator\Util;
 
+use Kaa\Component\Generator\Exception\BadTypeException;
 use Kaa\Component\Generator\PhpOnly;
-use Kaa\Util\Exception\BadParameterTypeException;
 use ReflectionNamedType;
 use ReflectionType;
 
@@ -11,13 +11,13 @@ use ReflectionType;
 final class Reflection
 {
     /**
-     * @throws BadParameterTypeException
+     * @throws BadTypeException
      */
     public static function namedType(
         ?ReflectionType $type
     ): ReflectionNamedType {
         if (!$type instanceof ReflectionNamedType) {
-            throw new BadParameterTypeException('Parameter must not be a union or an intersection');
+            throw new BadTypeException('Type must not be a union or an intersection');
         }
 
         return $type;
