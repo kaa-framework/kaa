@@ -53,8 +53,6 @@ parameters:
     checkGenericClassInNonGenericObjectType: false
 
     ignoreErrors:
-        - '#.*\\shape.*#'
-
         - message: '#Property Kaa\\Component\\EventDispatcher\\EventDispatcher::\$listeners type has no value type specified in iterable type array\.#'
           path: ../src/Component/EventDispatcher/EventDispatcher.php
 
@@ -78,3 +76,11 @@ parameters:
 
         - message: '#.*#'
           path: ../src/Component/HttpMessage
+
+        - message: '#.*#'
+          path: ../src/Tmp/KaaPrinter.php
+
+        - message: '#.*#'
+          path: ../src/Component/EventDispatcher/EventDispatcher.php
+
+        - message: '#Parameter \#1 \$generators of method Kaa\\Bundle\\Framework\\FrameworkGenerator::sortByPriority\(\) expects array<Kaa\\Bundle\\Framework\\BundleGeneratorInterface>, array<object> given\.#'

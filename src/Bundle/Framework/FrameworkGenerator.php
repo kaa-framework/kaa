@@ -3,6 +3,7 @@
 namespace Kaa\Bundle\Framework;
 
 use Kaa\Component\GeneratorContract\DefaultNewInstanceGenerator;
+use Kaa\Component\GeneratorContract\NewInstanceGeneratorInterface;
 use Kaa\Component\GeneratorContract\SharedConfig;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Finder\Finder;
@@ -16,6 +17,7 @@ class FrameworkGenerator
 
         $generatorsConfig = require $pathToConfig . '/bundles.php';
 
+        /** @var NewInstanceGeneratorInterface $newInstanceGenerator */
         $newInstanceGenerator = array_key_exists('instanceGenerator', $generatorsConfig)
             ? new $generatorsConfig['instanceGenerator']()
             : new DefaultNewInstanceGenerator();

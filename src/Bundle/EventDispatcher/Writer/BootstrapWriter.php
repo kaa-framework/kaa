@@ -44,13 +44,18 @@ readonly class BootstrapWriter
         $fileName = $this->config->exportDirectory . '/bootstrap.php';
         if (!file_exists($fileName)) {
             $file = fopen($fileName, 'wb');
+
+            if ($file === false) {
+                throw new WriteFileException("Could not write to file {$fileName}");
+            }
+
             fwrite($file, "<?php \n");
         } else {
             $file = fopen($fileName, 'ab');
-        }
 
-        if ($file === false) {
-            throw new WriteFileException("Could not write to file {$fileName}");
+            if ($file === false) {
+                throw new WriteFileException("Could not write to file {$fileName}");
+            }
         }
 
         fwrite($file, "\$kaaEventDispatcherListener = new \Kaa\Generated\EventDispatcher\Listener();\n");
