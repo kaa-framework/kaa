@@ -55,7 +55,7 @@ class UrlGenerator extends AbstractGenerator
         $pattern = sprintf($pattern, implode('|', $assert->protocols));
 
         return $twig->render(
-            'Url.php.twig', [
+            'url.php.twig', [
                 'getMethod' => $this->getAccessMethod($reflectionProperty),
                 'pattern' => $pattern,
                 'class' => $className,

@@ -28,7 +28,7 @@ class NotNullGenerator extends AbstractGenerator
         Twig\Environment $twig,
     ): string {
         return $twig->render(
-            'NotNull.php.twig', [
+            'not_null.php.twig', [
                 'getMethod' => $this->getAccessMethod($reflectionProperty),
                 'class' => $className,
                 'property' => $reflectionProperty->name,

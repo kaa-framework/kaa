@@ -28,7 +28,7 @@ class IsTrueGenerator extends AbstractGenerator
         Twig\Environment $twig,
     ): string {
         return $twig->render(
-            'IsTrue.php.twig', [
+            'is_true.php.twig', [
                 'getMethod' => $this->getAccessMethod(
                     $reflectionProperty,
                 ),

@@ -30,7 +30,7 @@ class GreaterThanGenerator extends AbstractGenerator
         $message = preg_replace('/{{ compared_value }}/', (string) $assert->value, $assert->message);
 
         return $twig->render(
-            'GreaterThan.php.twig', [
+            'greater_than.php.twig', [
                 'getMethod' => $this->getAccessMethod(
                     $reflectionProperty,
                 ),

@@ -28,7 +28,7 @@ class NotBlankGenerator extends AbstractGenerator
         Twig\Environment $twig,
     ): string {
         return $twig->render(
-            'NotBlank.php.twig', [
+            'not_blank.php.twig', [
                 'allowNull' => $assert->allowNull,
                 'getMethod' => $this->getAccessMethod($reflectionProperty),
                 'class' => $className,

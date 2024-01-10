@@ -35,7 +35,7 @@ final class RouterWriter
             implements: [RouterInterface::class],
         );
 
-        $this->twig = TwigFactory::create(__DIR__ . '/templates');
+        $this->twig = TwigFactory::create(__DIR__ . '/../templates');
     }
 
     /**

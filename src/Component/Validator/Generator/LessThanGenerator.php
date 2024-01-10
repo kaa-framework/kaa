@@ -30,7 +30,7 @@ class LessThanGenerator extends AbstractGenerator
         $message = preg_replace('/{{ compared_value }}/', (string) $assert->value, $assert->message);
 
         return $twig->render(
-            'LessThan.php.twig', [
+            'less_than.php.twig', [
                 'getMethod' => $this->getAccessMethod(
                     $reflectionProperty,
                 ),

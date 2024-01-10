@@ -48,7 +48,7 @@ class EmailGenerator extends AbstractGenerator
         }
 
         return $twig->render(
-            'Email.php.twig', [
+            'email.php.twig', [
                 'getMethod' => $this->getAccessMethod(
                     $reflectionProperty,
                 ),

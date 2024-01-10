@@ -30,7 +30,7 @@ class GreaterThanOrEqualGenerator extends AbstractGenerator
         $message = preg_replace('/{{ compared_value }}/', (string) $assert->value, $assert->message);
 
         return $twig->render(
-            'GreaterThanOrEqual.php.twig', [
+            'greater_than_or_equal.php.twig', [
                 'getMethod' => $this->getAccessMethod(
                     $reflectionProperty,
                 ),

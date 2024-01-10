@@ -32,7 +32,7 @@ class RangeGenerator extends AbstractGenerator
         $message = preg_replace('/{{ max }}/', (string) $assert->max, $message);
 
         return $twig->render(
-            'Range.php.twig', [
+            'range.php.twig', [
                 'getMethod' => $this->getAccessMethod($reflectionProperty),
                 'min' => $assert->min,
                 'max' => $assert->max,
