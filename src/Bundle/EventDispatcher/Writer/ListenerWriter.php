@@ -17,7 +17,6 @@ use Kaa\Component\Generator\Writer\TwigFactory;
 use Kaa\Component\Generator\Writer\Visibility;
 use ReflectionClass;
 use ReflectionException;
-use ReflectionNamedType;
 use Twig;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -63,7 +62,6 @@ readonly class ListenerWriter
     private function addMethod(array $listener): void
     {
         $listenerClass = (new ReflectionClass($listener['service_class'] ?? $listener['service']));
-        /** @var ReflectionNamedType $eventType */
         $eventType = $listenerClass->getMethod($listener['method'])->getParameters()[0]->getType();
 
         $code = $this->twig->render('listener_method.php.twig', [

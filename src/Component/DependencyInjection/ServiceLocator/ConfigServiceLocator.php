@@ -14,9 +14,10 @@ use Kaa\Component\DependencyInjection\Dto\Service\Service;
 use Kaa\Component\DependencyInjection\Dto\Service\ServiceCollection;
 use Kaa\Component\DependencyInjection\Exception\InvalidServiceDefinitionException;
 use Kaa\Component\DependencyInjection\Exception\ServiceAlreadyExistsException;
+use Kaa\Component\Generator\Exception\BadTypeException;
 use Kaa\Component\Generator\PhpOnly;
+use Kaa\Component\Generator\Util\Reflection;
 use ReflectionClass;
-use ReflectionNamedType;
 
 #[PhpOnly]
 readonly class ConfigServiceLocator
@@ -49,7 +50,7 @@ readonly class ConfigServiceLocator
     }
 
     /**
-     * @throws InvalidServiceDefinitionException|ServiceAlreadyExistsException
+     * @throws InvalidServiceDefinitionException|ServiceAlreadyExistsException|BadTypeException
      */
     private function parseService(string $serviceName, mixed $serviceData): void
     {
@@ -67,7 +68,9 @@ readonly class ConfigServiceLocator
             && array_key_exists('factory', $serviceData) && $serviceData['factory'] !== [];
 
         if ($bothArgumentsAndFactoryAreDefined) {
-            throw new InvalidServiceDefinitionException("You cannot set both arguments and factory for service {$serviceName}");
+            throw new InvalidServiceDefinitionException(
+                "You cannot set both arguments and factory for service {$serviceName}"
+            );
         }
 
         $reflectionClass = new ReflectionClass($class);
@@ -76,7 +79,9 @@ readonly class ConfigServiceLocator
 
             $factoryData = $serviceData['factory'];
             $factory = new Factory(
-                $factoryData['service'] ?? throw new InvalidServiceDefinitionException("Service must be specified in factory for service {$serviceName}"),
+                $factoryData['service'] ?? throw new InvalidServiceDefinitionException(
+                    "Service must be specified in factory for service {$serviceName}"
+                ),
                 $factoryData['method'] ?? 'invoke',
                 $factoryData['static'] ?? false,
             );
@@ -99,7 +104,7 @@ readonly class ConfigServiceLocator
 
     /**
      * @return Argument[]
-     * @throws InvalidServiceDefinitionException
+     * @throws InvalidServiceDefinitionException|BadTypeException
      */
     private function getArguments(ReflectionClass $reflectionClass, mixed $argumentsData): array
     {
@@ -114,20 +119,23 @@ readonly class ConfigServiceLocator
                 $argumentValue = $argumentsData[$argument->getName()];
 
                 $arguments[] = match (true) {
-                    str_starts_with($argumentValue, '@') => new Argument(ArgumentType::Service, substr($argumentValue, 1)),
-                    str_starts_with($argumentValue, '%') => new Argument(ArgumentType::Parameter, substr($argumentValue, 1)),
-                    default => throw new InvalidServiceDefinitionException("{$argument->getName()} of class {$reflectionClass->getName()} must be either a service or parameter, {$argumentValue} given"),
+                    str_starts_with($argumentValue, '@') => new Argument(
+                        ArgumentType::Service,
+                        substr($argumentValue, 1)
+                    ),
+                    str_starts_with($argumentValue, '%') => new Argument(
+                        ArgumentType::Parameter,
+                        substr($argumentValue, 1)
+                    ),
+                    default => throw new InvalidServiceDefinitionException(
+                        "{$argument->getName()} of class {$reflectionClass->getName()} must be either a service or parameter, {$argumentValue} given"
+                    ),
                 };
 
                 continue;
             }
 
-            $type = $argument->getType();
-            if (!$type instanceof ReflectionNamedType) {
-                throw new InvalidServiceDefinitionException("Parameter {$argument->getName()} of class {$reflectionClass->getName()} must not be a union or an intersection");
-            }
-
-            $arguments[] = new Argument(ArgumentType::Service, $type->getName());
+            $arguments[] = new Argument(ArgumentType::Service, Reflection::namedType($argument->getType())->getName());
         }
 
         return $arguments;
