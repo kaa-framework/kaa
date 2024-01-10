@@ -102,10 +102,12 @@ abstract readonly class AbstractBagDecorator implements DecoratorInterface
 
         $variables->addVariable($modelClass->getName(), $modelName);
 
-        if (class_exists(ValidatorInterface::class) && $this->validate) {
+        if (interface_exists(ValidatorInterface::class) && $this->validate) {
             $validatorService = $newInstanceGenerator->generate(ValidatorInterface::class, ValidatorInterface::class);
 
             $violationListName = 'kaaDecoratorViolationList' . $modelName;
+
+            $code[] = "\n";
             $code[] = $this->twig->render('validate.php.twig', [
                 'violationList' => $violationListName,
                 'service' => $validatorService,
