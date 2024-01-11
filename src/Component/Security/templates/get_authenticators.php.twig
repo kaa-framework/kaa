@@ -1,0 +1,11 @@
+{% for firewall in firewalls %}
+    if (preg_match('#' . '{{ firewall.path }}' . '#', $request->getPathInfo()) === 1) {
+        return [
+            {% for authenticator in firewall.authenticators %}
+                {{ instanceProvider->generate(authenticator.service, authenticator.serviceClass ?? authenticator.service) }}{{ not loop.last ? ',' }}
+            {% endfor %}
+        ];
+    %}
+{% endfor %}
+
+return [];

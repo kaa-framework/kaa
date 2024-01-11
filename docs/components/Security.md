@@ -20,15 +20,15 @@
 ```php
 interface SecurityInterface
 {
-    public function run(Request $request): void;
+    public function run(Request $request): ?Response;
     
     /**
      * Возвращает пользователя. Если до этого не был вызван метод run(), то выкинет исключение
      */
-    public function getUser(): UserInterface;
+    public function getUser(): ?UserInterface;
     
     /**
-     * Вызывает воутеры, чей аттрибут совпадает с переданным и возвращает true, если доступ разрешён
+     * Вызывает воутер, чей аттрибут совпадает с переданным и возвращает true, если доступ разрешён
      */
     public function isGranted(string $attribute, string[] $subject = []): bool;
 }
@@ -64,24 +64,24 @@ $config = [
     'firewalls' => [
         'login' => [
             'path' => '^/login$',
-            'authenticator' => MyLoginAuthenticator::class,
+            'authenticators' => [
+                ['service' => MyLoginAuthenticator::class],
+            ],
         ],
         
         'main' => [
             'path' => '.*',
-            'authenticator' => [
-                'session',
-                MyFallbackAuthenticator::class,
+            'authenticators' => [
+                ['service' => 'kernel.session'],
+                ['service' => MyFallbackAuthenticator::class],
             ]    
         ]
     ],
     
     'voters' => [
-        'EDIT_POSTS' => PostVoter::class,
-        'VIEW_USERS' => UserVoter::class,
+        'EDIT_POSTS' => ['service' => 'app.post_voter', 'serviceClass', PostVoter::class],
+        'VIEW_USERS' => ['service' => UserVoter::class],
     ],
-    
-    'voter_strategy' => 'all',
     
     'access_control' => [
         '/api' => ['ROLE_API']
@@ -95,7 +95,7 @@ $securityGenerator->generate($sharedConfig, $config);
 
 /** @var SecurityInterface */
 $security = new \Kaa\Generated\Security\Security();
-$response = $security->run(Request::initFromGlobals());
+$response = $security->run(Request::createFromGlobals());
 if ($response !== null) {
     $response->send();
     exit;
@@ -113,7 +113,7 @@ $currentUser = $security->getUser();
   * `user_provider` - имя класса/сервиса, реализующего `UserProviderInterface`
 * `firewalls` - список фаерволов. Фаерволы матчатся сверху вниз до первого совпадаения пути.
   * `authenticator` - список аутентификаторов. Будет вызван первый анутентификатор, чей метод `supports` вернёт `true`.
-* `voters` - ключ - имя аттрибута, значение - имя сервиса вутера
+* `voters` - ключ - имя аттрибута, значение - имя сервиса воутера
 * `access_control` - ограничивает доступ к путям по ролям.
 
 ### Аутентификаторы
@@ -129,7 +129,7 @@ interface AuthenticatorInterface
     
     /**
      * Проводит аутентификацию и возвращает функцию, которую нужно вызвать, чтобы получить пользователя
-     * @return callable(): UserInterface;
+     * @return callable(): (UserInterface|null);
      */
     public function authenticate(Request $request): callable;
     
@@ -143,15 +143,26 @@ interface AuthenticatorInterface
      * Будет вызвана, если authenticate выбросила исключение.
      * Может вернуть Response 
      */
-    public function onAuthenticationFailure(Request $request, callable $getUser): ?Response;
+    public function onAuthenticationFailure(Request $request, Throwable $throwable): ?Response;
 }
 ```
 ### Voter
 
+```php
+interface VoterInterface
+{
+    /**
+     * @param string[] $subject
+     */
+    public function vote(array $subject): bool;
+}
+
+```
+
 Воутеры также могут быть заданы через аттрибуты:
 ```php
 
-#[Voter('EDIT_POSTS', serviceName='app.post_voter')]
+#[Voter('EDIT_POSTS')]
 class PostVoter implements VoterInterface
 {
 
