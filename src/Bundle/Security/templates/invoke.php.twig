@@ -1,0 +1,6 @@
+$response = ({{ service }})->run($event->getRequest());
+
+if ($response !== null) {
+    $event->setResponse($response);
+    $event->stopPropagation();
+}

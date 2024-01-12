@@ -1,8 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Kaa\Bundle\Router;
+namespace Kaa\Bundle\Security\Writer;
 
 use Kaa\Component\Generator\Exception\WriterException;
 use Kaa\Component\Generator\PhpOnly;
@@ -11,8 +9,8 @@ use Kaa\Component\Generator\Writer\ClassWriter;
 use Kaa\Component\Generator\Writer\Parameter;
 use Kaa\Component\Generator\Writer\TwigFactory;
 use Kaa\Component\Generator\Writer\Visibility;
-use Kaa\Component\HttpKernel\Event\FindActionEvent;
-use Kaa\Component\Router\RouterInterface;
+use Kaa\Component\HttpKernel\Event\RequestEvent;
+use Kaa\Component\Security\SecurityInterface;
 use Twig;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -28,11 +26,11 @@ readonly class ListenerWriter
         private SharedConfig $config,
     ) {
         $this->classWriter = new ClassWriter(
-            namespaceName: 'Router',
-            className: 'FindActionListener',
+            namespaceName: 'Security',
+            className: 'RequestListener',
         );
 
-        $this->twig = TwigFactory::create(__DIR__ . '/templates');
+        $this->twig = TwigFactory::create(__DIR__ . '/../templates');
     }
 
     /**
@@ -40,8 +38,8 @@ readonly class ListenerWriter
      */
     public function write(): void
     {
-        $code = $this->twig->render('find_action.php.twig', [
-            'service' => $this->config->newInstanceGenerator->generate(RouterInterface::class, RouterInterface::class),
+        $code = $this->twig->render('invoke.php.twig', [
+            'service' => $this->config->newInstanceGenerator->generate(SecurityInterface::class, SecurityInterface::class),
         ]);
 
         $this->classWriter->addMethod(
@@ -50,7 +48,7 @@ readonly class ListenerWriter
             returnType: 'void',
             code: $code,
             parameters: [
-                new Parameter(type: FindActionEvent::class, name: 'event'),
+                new Parameter(type: RequestEvent::class, name: 'event'),
             ],
         );
 
