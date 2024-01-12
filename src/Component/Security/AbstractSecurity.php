@@ -13,6 +13,9 @@ abstract class AbstractSecurity implements SecurityInterface
 
     private ?UserInterface $user = null;
 
+    /**
+     * @throws Throwable
+     */
     public function run(Request $request): ?Response
     {
         $response = null;
@@ -28,6 +31,10 @@ abstract class AbstractSecurity implements SecurityInterface
                 $response = $authenticator->onAuthenticationSuccess($request, $this->getUserCallable);
             } catch (Throwable $e) {
                 $response = $authenticator->onAuthenticationFailure($request, $e);
+
+                if ($response === null) {
+                    throw $e;
+                }
             }
 
             break;

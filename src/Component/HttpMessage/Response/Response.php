@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Kaa\Component\HttpMessage\Response;
 
 use InvalidArgumentException;
+use Kaa\Component\HttpMessage\Cookie;
 use Kaa\Component\HttpMessage\HttpCode;
 
 class Response
@@ -20,6 +21,9 @@ class Response
 
     protected string $statusText = '';
 
+    /** @var Cookie[] */
+    protected array $cookies = [];
+
     /**
      * @param string[] $headers
      * @throws InvalidArgumentException When the HTTP status code is not valid
@@ -30,6 +34,13 @@ class Response
         $this->setContent($content);
         $this->setStatusCode($status);
         $this->setProtocolVersion('1.0');
+    }
+
+    public function addCookie(Cookie $cookie): self
+    {
+        $this->cookies[] = $cookie;
+
+        return $this;
     }
 
     /**
@@ -105,6 +116,10 @@ class Response
     {
         foreach ($this->headers as $header) {
             header($header, false, $this->statusCode);
+        }
+
+        foreach ($this->cookies as $cookie) {
+            header('Set-Cookie: ' . $cookie, false, $this->statusCode);
         }
 
         header(sprintf('HTTP/%s %s %s', $this->version, $this->statusCode, $this->statusText), true, $this->statusCode);

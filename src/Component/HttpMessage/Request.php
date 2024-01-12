@@ -23,6 +23,8 @@ class Request
      */
     public InputBag $request;
 
+    public InputBag $cookie;
+
     private static bool $httpMethodParameterOverride = false;
 
     /**
@@ -53,6 +55,7 @@ class Request
     /**
      * @param string[] $query The GET parameters
      * @param string[] $request The POST parameters
+     * @param string[] $cookie The POST parameters
      * @param string[] $attributes The request attributes (parameters parsed from the PATH_INFO, ...)
      * @param string[] $server The SERVER parameters
      * @param string|false $content The raw body data
@@ -60,6 +63,7 @@ class Request
     public function __construct(
         $query = [],
         $request = [],
+        $cookie = [],
         $attributes = [],
         $server = [],
         $content = false
@@ -74,14 +78,22 @@ class Request
      *
      * @param string[] $query The GET parameters
      * @param string[] $request The POST parameters
+     * @param string[] $cookie The COOKIE parameters
      * @param string[] $attributes The request attributes (parameters parsed from the PATH_INFO, ...)
      * @param string[] $server The SERVER parameters
      * @param string|false $content The raw body data
      */
-    public function initialize($query = [], $request = [], $attributes = [], $server = [], $content = false): void
-    {
+    public function initialize(
+        array $query = [],
+        array $request = [],
+        array $cookie = [],
+        array $attributes = [],
+        array $server = [],
+        string|false $content = false
+    ): void {
         $this->query = new InputBag($query);
         $this->request = new InputBag($request);
+        $this->cookie = new InputBag($cookie);
         $this->attributes = new ParameterBag($attributes);
         $this->server = new ServerBag($server);
         $this->headers = new HeaderBag($this->server->getHeaders());
@@ -239,7 +251,7 @@ class Request
         /** @var string[] $serverArray */
         $serverArray = array_map('strval', $serverStringValues);
 
-        $request = new static($getArray, $postArray, [], $serverArray, not_false(file_get_contents('php://input')));
+        $request = new static($getArray, $postArray, $cookiesArray, [], $serverArray, not_false(file_get_contents('php://input')));
 
         $headerString = $request->headers->get('CONTENT_TYPE', '');
 

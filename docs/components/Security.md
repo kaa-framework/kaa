@@ -34,17 +34,7 @@ interface SecurityInterface
 }
 ```
 
-Также, если указана конфигурация сессии, `Kaa` сгенерирует аутентификатор `Kaa\Generated\Security\SessionAuthenticator`, который получает пользователя из сессии.
-И `Kaa\Generated\Security\SessionService`, реализующий `SessionServiceInterace`.
-
-```php
-interface SessionServiceInterface
-{
-    public function writeSession(UserInterface $user): Cookie;
-    
-    public function getUserFromCookie(Cookie $cookie): UserInterface;
-}
-```
+Поддерживается базовая работа с сессиями через `SessionAuthenticator` и `SessionService`
 
 Пример генерации `Security`:
 
@@ -53,12 +43,6 @@ $sharedConfig = new SharedConfig('./generated');
 $config = [
     'scan' => [
         'App\\Voter'
-    ],
-
-    'session' => [
-        'cookie_name' => 'x-session',
-        'lifetime' => '13 days',
-        'user_provider' => MyUserProvider::class,
     ],
     
     'firewalls' => [
@@ -72,7 +56,6 @@ $config = [
         'main' => [
             'path' => '.*',
             'authenticators' => [
-                ['service' => 'kernel.session'],
                 ['service' => MyFallbackAuthenticator::class],
             ]    
         ]
