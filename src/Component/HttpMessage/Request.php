@@ -360,11 +360,13 @@ class Request
      *  * http://localhost/mysite/enco%20ded   returns '/enco%20ded'
      *  * http://localhost/mysite/about?var=1  returns '/about'
      *
-     * @return ?string The raw path (i.e. not urldecoded)
+     * @return string The raw path (i.e. not urldecoded)
      */
-    public function getPathInfo(): ?string
+    public function getPathInfo(): string
     {
-        return $this->pathInfo ??= $this->preparePathInfo();
+        $this->pathInfo ??= $this->preparePathInfo();
+
+        return not_null($this->pathInfo);
     }
 
     /**

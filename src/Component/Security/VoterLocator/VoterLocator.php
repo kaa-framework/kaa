@@ -28,7 +28,7 @@ readonly class VoterLocator
         $voters = ClassFinder::find(
             scan: $this->config['scan'],
             predicate: static fn (ReflectionClass $c) => $c->isInstantiable()
-                && $c->getAttributes(Voter::class),
+                && $c->getAttributes(Voter::class) !== [],
         );
 
         $votersArray = $this->config['voters'];

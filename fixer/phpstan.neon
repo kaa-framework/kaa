@@ -86,3 +86,5 @@ parameters:
         - message: '#Parameter \#1 \$generators of method Kaa\\Bundle\\Framework\\FrameworkGenerator::sortByPriority\(\) expects array<Kaa\\Bundle\\Framework\\BundleGeneratorInterface>, array<object> given\.#'
 
         - message: '#Method Kaa\\Bundle\\Framework\\FrameworkGenerator::getNewInstanceGenerator\(\) should return Kaa\\Component\\Generator\\NewInstanceGeneratorInterface but returns object\.#'
+
+        - message: '#In method "Kaa\\Component\\Security\\AbstractSecurity::run", caught "Throwable" must be rethrown.#'
