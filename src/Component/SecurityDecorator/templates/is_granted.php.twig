@@ -1,0 +1,8 @@
+$kaaSecurityDecoratorIsGranted = ({{ service }})->isGranted('{{ attribute }}', [
+    {% for key, value in subject %}
+        '{{ key }}' => '{{ value }}{{ not loop.last or subjectVars is not empty ? ',' }}
+    {% endfor %}
+    {% for key, var in subjectVars %}
+        '{{ key }}' => ${{ var }}{{ not loop.last ? ',' }}
+    {% endfor %}
+]);
