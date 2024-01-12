@@ -72,9 +72,8 @@ class Cookie
         $parts = HeaderUtils::split($cookie, ';=');
         $part = array_shift($parts);
 
-        /** @phpstan-ignore-next-line */
         $name = $decode ? urldecode($part[0]) : (string) $part[0];
-        /** @phpstan-ignore-next-line */
+
         $value = array_key_exists(1, $part) ? ($decode ? urldecode($part[1]) : (string) $part[1]) : null;
 
         $data = HeaderUtils::combine($parts) + $data;
@@ -84,7 +83,6 @@ class Cookie
             $data['expires'] = time() + (int) $data['max-age'];
         }
 
-        /** @phpstan-ignore-next-line */
         return new static(
             $name,
             $value,

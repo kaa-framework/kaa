@@ -28,7 +28,7 @@ class SessionAuthenticator implements AuthenticatorInterface
      */
     public function authenticate(Request $request): callable
     {
-        return [$this->sessionService, 'getUserFromRequest'];
+        return fn () => $this->sessionService->getUserFromRequest($request);
     }
 
     public function onAuthenticationSuccess(Request $request, callable $getUser): ?Response

@@ -33,15 +33,15 @@ class SessionService
      */
     public function writeSession(UserInterface $user): Cookie
     {
-        $sessionId = md5(getmypid() . microtime() . random_int(1, PHP_INT_MAX));
+        $sessionId = hash('sha256', getmypid() . microtime() . random_int(1, PHP_INT_MAX));
         $fileName = $this->sessionsDirectory . '/' . $sessionId;
 
         while (file_exists($fileName)) {
-            $sessionId = md5(getmypid() . microtime() . random_int(1, PHP_INT_MAX));
+            $sessionId = hash('sha256', getmypid() . microtime() . random_int(1, PHP_INT_MAX));
             $fileName = $this->sessionsDirectory . '/' . $sessionId;
         }
 
-        file_put_contents($fileName, $user->getIdentifier() . '###' . time() + $this->lifetimeSeconds);
+        file_put_contents($fileName, $user->getIdentifier() . '###' . (time() + $this->lifetimeSeconds));
 
         return Cookie::create(
             $this->cookieName,
@@ -65,13 +65,18 @@ class SessionService
             return null;
         }
 
-        $content = explode('###', file_get_contents($fileName));
-        if (time() > (int) $content[1]) {
+        $content = file_get_contents($fileName);
+        if ($content === false) {
+            return null;
+        }
+
+        $parts = explode('###', $content);
+        if (time() > (int) $parts[1]) {
             unlink($fileName);
 
             return null;
         }
 
-        return $this->userProvider->getUser($content[0]);
+        return $this->userProvider->getUser($parts[0]);
     }
 }
