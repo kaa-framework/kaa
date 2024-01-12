@@ -21,14 +21,15 @@ readonly class ValidatorBundle extends ValidatorGenerator implements BundleGener
     public function getConfiguration(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder('validator');
+        // @formatter:off
         $treeBuilder
             ->getRootNode()
-            ->children()
-            ->arrayNode('scan')
-            ->prototype('scalar')
-            ->end()
-            ->end()
-            ->end();
+                ->children()
+                    ->arrayNode('scan')
+                        ->scalarPrototype()->end()
+                    ->end()
+                ->end();
+        // @formatter:on
 
         return $treeBuilder;
     }
@@ -38,7 +39,7 @@ readonly class ValidatorBundle extends ValidatorGenerator implements BundleGener
         return 50;
     }
 
-    public function getConfigArray(): array
+    public function getConfigArray(array $config): array
     {
         return [
             'di' => [

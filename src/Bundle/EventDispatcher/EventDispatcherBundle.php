@@ -40,37 +40,39 @@ class EventDispatcherBundle implements BundleGeneratorInterface
 
     public function getConfiguration(): TreeBuilder
     {
+        // @formatter:off
         $treeBuilder = new TreeBuilder('dispatcher');
         $treeBuilder
             ->getRootNode()
-            ->children()
-            ->arrayNode('scan')
-            ->isRequired()
-            ->prototype('scalar')->end()
-            ->end()
-            ->arrayNode('listeners')
-            ->arrayPrototype()
-            ->children()
-            ->scalarNode('service')
-            ->isRequired()
-            ->end()
-            ->scalarNode('service_class')->end()
-            ->scalarNode('method')
-            ->defaultValue('invoke')
-            ->end()
-            ->scalarNode('event')
-            ->isRequired()
-            ->end()
-            ->scalarNode('dispatcher')
-            ->defaultValue('kernel')
-            ->end()
-            ->integerNode('priority')
-            ->defaultValue(0)
-            ->end()
-            ->end()
-            ->end()
-            ->end()
-            ->end();
+                ->children()
+                    ->arrayNode('scan')
+                        ->isRequired()
+                        ->prototype('scalar')->end()
+                    ->end()
+                    ->arrayNode('listeners')
+                        ->arrayPrototype()
+                            ->children()
+                                ->scalarNode('service')
+                                    ->isRequired()
+                                ->end()
+                                ->scalarNode('service_class')->end()
+                                ->scalarNode('method')
+                                    ->defaultValue('invoke')
+                                ->end()
+                                ->scalarNode('event')
+                                    ->isRequired()
+                                ->end()
+                                ->scalarNode('dispatcher')
+                                    ->defaultValue('kernel')
+                                ->end()
+                                ->integerNode('priority')
+                                    ->defaultValue(0)
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end();
+        // @formatter:on
 
         return $treeBuilder;
     }
@@ -80,7 +82,7 @@ class EventDispatcherBundle implements BundleGeneratorInterface
         return 20;
     }
 
-    public function getConfigArray(): array
+    public function getConfigArray(array $config): array
     {
         $dispatchers = array_column($this->listeners, 'dispatcher');
         $dispatchers[] = 'kernel';

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Kaa\Bundle\Router;
 
 use Kaa\Bundle\Framework\BundleGeneratorInterface;
+use Kaa\Bundle\Router\Writer\ListenerWriter;
 use Kaa\Component\Generator\PhpOnly;
 use Kaa\Component\Generator\SharedConfig;
 use Kaa\Component\HttpKernel\HttpKernelEvents;
@@ -29,26 +30,28 @@ readonly class RouterBundle extends RouterGenerator implements BundleGeneratorIn
 
     public function getConfiguration(): TreeBuilder
     {
+        // @formatter:off
         $treeBuilder = new TreeBuilder('router');
         $treeBuilder
             ->getRootNode()
-            ->children()
-            ->arrayNode('scan')
-            ->prototype('scalar')->end()
-            ->end()
-            ->arrayNode('prefixes')
-            ->prototype('scalar')->end()
-            ->end()
-            ->arrayNode('routes')
-            ->arrayPrototype()
-            ->children()
-            ->scalarNode('route')->end()
-            ->scalarNode('method')->end()
-            ->scalarNode('service')->end()
-            ->end()
-            ->end()
-            ->end()
-            ->end();
+                ->children()
+                    ->arrayNode('scan')
+                        ->scalarPrototype()->end()
+                    ->end()
+                    ->arrayNode('prefixes')
+                        ->scalarPrototype()->end()
+                    ->end()
+                    ->arrayNode('routes')
+                        ->arrayPrototype()
+                            ->children()
+                                ->scalarNode('route')->end()
+                                ->scalarNode('method')->end()
+                                ->scalarNode('service')->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end();
+        // @formatter:on
 
         return $treeBuilder;
     }
@@ -58,7 +61,7 @@ readonly class RouterBundle extends RouterGenerator implements BundleGeneratorIn
         return 50;
     }
 
-    public function getConfigArray(): array
+    public function getConfigArray(array $config): array
     {
         return [
             'di' => [

@@ -19,49 +19,51 @@ readonly class DependencyInjectionBundle extends ContainerGenerator implements B
 
     public function getConfiguration(): TreeBuilder
     {
+        // @formatter:off
         $treeBuilder = new TreeBuilder('di');
         $treeBuilder
             ->getRootNode()
             ->children()
-            ->arrayNode('scan')
-            ->isRequired()
-            ->prototype('scalar')->end()
+                ->arrayNode('scan')
+                    ->isRequired()
+                    ->prototype('scalar')->end()
+                ->end()
+                ->arrayNode('ignore')
+                    ->prototype('scalar')->end()
+                ->end()
+                ->arrayNode('parameters')
+                    ->useAttributeAsKey('name')
+                    ->scalarPrototype()->end()
+                ->end()
+                ->arrayNode('services')
+                    ->useAttributeAsKey('name')
+                    ->arrayPrototype()
+                        ->children()
+                            ->scalarNode('class')->end()
+                            ->arrayNode('arguments')
+                                ->useAttributeAsKey('name')
+                                ->scalarPrototype()->end()
+                            ->end()
+                            ->booleanNode('singleton')->end()
+                            ->arrayNode('factory')
+                                ->arrayPrototype()
+                                    ->children()
+                                        ->scalarNode('service')->end()
+                                        ->scalarNode('method')->end()
+                                        ->booleanNode('static')->end()
+                                    ->end()
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end()
+                ->arrayNode('aliases')
+                    ->useAttributeAsKey('name')
+                    ->scalarPrototype()->end()
+                ->end()
             ->end()
-            ->arrayNode('ignore')
-            ->prototype('scalar')->end()
-            ->end()
-            ->arrayNode('parameters')
-            ->useAttributeAsKey('name')
-            ->scalarPrototype()->end()
-            ->end()
-            ->arrayNode('services')
-            ->useAttributeAsKey('name')
-            ->arrayPrototype()
-            ->children()
-            ->scalarNode('class')->end()
-            ->arrayNode('arguments')
-            ->useAttributeAsKey('name')
-            ->scalarPrototype()->end()
-            ->end()
-            ->booleanNode('singleton')->end()
-            ->arrayNode('factory')
-            ->arrayPrototype()
-            ->children()
-            ->scalarNode('service')->end()
-            ->scalarNode('method')->end()
-            ->booleanNode('static')->end()
-            ->end()
-            ->end()
-            ->end()
-            ->end()
-            ->end()
-            ->end()
-            ->arrayNode('aliases')
-            ->useAttributeAsKey('name')
-            ->scalarPrototype()->end()
-            ->end()
-            ->end()
-            ->end();
+        ->end();
+        // @formatter:on
 
         return $treeBuilder;
     }
@@ -71,7 +73,7 @@ readonly class DependencyInjectionBundle extends ContainerGenerator implements B
         return 0;
     }
 
-    public function getConfigArray(): array
+    public function getConfigArray(array $config): array
     {
         return [];
     }

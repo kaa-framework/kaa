@@ -34,7 +34,7 @@ class FrameworkGenerator
 
             $generator->generate($sharedConfig, $generatorConfig);
 
-            $configArray = $generator->getConfigArray();
+            $configArray = $generator->getConfigArray($generatorConfig);
             $config = array_merge_recursive($config, $configArray);
         }
     }

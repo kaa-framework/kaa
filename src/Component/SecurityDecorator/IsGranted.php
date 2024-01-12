@@ -55,7 +55,7 @@ readonly class IsGranted implements DecoratorInterface
         $twig = TwigFactory::create(__DIR__ . '/templates');
         $service = $newInstanceGenerator->generate(
             SecurityInterface::class,
-            SecurityInterface::class,
+            'Kaa\Generated\Security\Security',
         );
 
         return $twig->render('is_granted.php.twig', [

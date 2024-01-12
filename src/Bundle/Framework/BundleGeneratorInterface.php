@@ -18,7 +18,8 @@ interface BundleGeneratorInterface extends GeneratorInterface
     public function getPriority(): int;
 
     /**
+     * @param mixed[] $config
      * @return mixed[]
      */
-    public function getConfigArray(): array;
+    public function getConfigArray(array $config): array;
 }

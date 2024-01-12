@@ -11,26 +11,25 @@ scan:
 
 session:
     cookie_name: x-session
-    lifetime: '13 days'
-    user_provider: App\Service\MyUserProvider
+    lifetime: 3600
+    user_provider: @App\CustomUserProvider
 
 firewalls:
     login: 
         path: '^/login$'
-        authenticator: App\Authenticator\MyLoginAuthenticator
+        authenticator:
+            - { service: App\Authenticator\MyLoginAuthenticator }
         
     main: 
         path: '.*'
         authenticator: 
-            - session
-            - App\Authenticator\MyFallbackAuthenticator
+            - { service: Kaa\Security\Authenticator\SessionAuthenticator }
+            - { service: App\Authenticator\MyFallbackAuthenticator }
 
 voters:
-    EDIT_POSTS: App\Voter\PostVoter
-    VIEW_USERS: App\Voter\UserVoter
-    
-voter_strategy: all
+    EDIT_POSTS: { service: App\Voter\PostVoter }
+    VIEW_USERS: { service: App\Voter\UserVoter }
 
 access_control:
-    /api: [ROLE_API]
+    ^/api: [ROLE_API]
 ```

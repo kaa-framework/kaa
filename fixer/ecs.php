@@ -57,6 +57,7 @@ use PhpCsFixer\Fixer\Semicolon\NoSinglelineWhitespaceBeforeSemicolonsFixer;
 use PhpCsFixer\Fixer\StringNotation\NoBinaryStringFixer;
 use PhpCsFixer\Fixer\StringNotation\SingleQuoteFixer;
 use PhpCsFixer\Fixer\Whitespace\BlankLineBeforeStatementFixer;
+use PhpCsFixer\Fixer\Whitespace\MethodChainingIndentationFixer;
 use PhpCsFixer\Fixer\Whitespace\NoSpacesAroundOffsetFixer;
 use PhpCsFixer\Fixer\Whitespace\TypeDeclarationSpacesFixer;
 use PhpCsFixer\Fixer\Whitespace\TypesSpacesFixer;
@@ -209,5 +210,13 @@ return static function (ECSConfig $ecsConfig): void {
         MethodArgumentSpaceFixer::class,
         OrderedClassElementsFixer::class,
         TrailingCommaInMultilineFixer::class,
+        MethodChainingIndentationFixer::class => [
+            __DIR__ . '/../src/Bundle/Security/SecurityBundle.php',
+            __DIR__ . '/../src/Bundle/DependencyInjection/DependencyInjectionBundle.php',
+            __DIR__ . '/../src/Bundle/EventDispatcher/EventDispatcherBundle.php',
+            __DIR__ . '/../src/Bundle/HttpKernel/HttpKernelBundle.php',
+            __DIR__ . '/../src/Bundle/Router/RouterBundle.php',
+            __DIR__ . '/../src/Bundle/Validator/ValidatorBundle.php',
+        ],
     ]);
 };

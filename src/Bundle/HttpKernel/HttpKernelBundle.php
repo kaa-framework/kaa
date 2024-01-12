@@ -25,7 +25,7 @@ class HttpKernelBundle implements BundleGeneratorInterface
         return 100;
     }
 
-    public function getConfigArray(): array
+    public function getConfigArray(array $config): array
     {
         return [
             'di' => [
