@@ -17,12 +17,12 @@ session:
 firewalls:
     login: 
         path: '^/login$'
-        authenticator:
+        authenticators:
             - { service: App\Authenticator\MyLoginAuthenticator }
         
     main: 
         path: '.*'
-        authenticator: 
+        authenticators: 
             - { service: Kaa\Security\Authenticator\SessionAuthenticator }
             - { service: App\Authenticator\MyFallbackAuthenticator }
 

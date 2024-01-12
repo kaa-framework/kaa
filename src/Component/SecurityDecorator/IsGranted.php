@@ -26,10 +26,10 @@ readonly class IsGranted implements DecoratorInterface
         private string $attribute,
 
         /** @var string[] */
-        private array $subject,
+        private array $subject = [],
 
         /** @var string[] */
-        private array $subjectVars,
+        private array $subjectVars = [],
     ) {
     }
 

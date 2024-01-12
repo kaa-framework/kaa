@@ -68,7 +68,7 @@ class Request
         $server = [],
         $content = false
     ) {
-        $this->initialize($query, $request, $attributes, $server, $content);
+        $this->initialize($query, $request, $cookie, $attributes, $server, $content);
     }
 
     /**

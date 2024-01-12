@@ -11,6 +11,7 @@ use Kaa\Component\Security\SecurityGenerator;
 use Kaa\Component\Security\SecurityInterface;
 use Kaa\Component\Security\Session\SessionAuthenticator;
 use Kaa\Component\Security\Session\SessionService;
+use Kaa\Component\Security\Voter\RoleVoter;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 
 #[PhpOnly]
@@ -31,38 +32,27 @@ class SecurityBundle extends SecurityGenerator implements BundleGeneratorInterfa
     public function getConfiguration(): ?TreeBuilder
     {
         // @formatter:off
-        $treeBuilder = new TreeBuilder('di');
+        $treeBuilder = new TreeBuilder('security');
         $treeBuilder
             ->getRootNode()
                 ->children()
                     ->arrayNode('scan')
-                        ->scalarPrototype()->end()
-                        ->defaultValue([])
+                        ->scalarPrototype()
+                            ->defaultValue([])
+                        ->end()
                     ->end()
                     ->arrayNode('session')
-                        ->arrayPrototype()
-                            ->children()
-                                ->scalarNode('cookie_name')
-                                    ->defaultValue('PHP_SESSION_ID')
-                                ->end()
-                                ->integerNode('lifetime_seconds')
-                                    ->defaultValue(3600)
-                                ->end()
-                                ->scalarNode('sessions_directory')
-                                    ->defaultValue('/tmp/kaa_session')
-                                ->end()
-                                ->arrayNode('userProvider')
-                                    ->isRequired()
-                                    ->arrayPrototype()
-                                        ->children()
-                                            ->scalarNode('service')
-                                                ->isRequired()
-                                            ->end()
-                                            ->scalarNode('serviceClass')->end()
-                                        ->end()
-                                    ->end()
-                                ->end()
+                        ->children()
+                            ->scalarNode('cookie_name')
+                                ->defaultValue('PHP_SESSION_ID')
                             ->end()
+                            ->integerNode('lifetime')
+                                ->defaultValue(3600)
+                            ->end()
+                            ->scalarNode('sessions_directory')
+                                ->defaultValue('/tmp/kaa_session')
+                            ->end()
+                            ->scalarNode('user_provider')->end()
                         ->end()
                     ->end()
                     ->arrayNode('firewalls')
@@ -83,21 +73,22 @@ class SecurityBundle extends SecurityGenerator implements BundleGeneratorInterfa
                             ->end()
                         ->end()
                     ->end()
-                ->arrayNode('voters')
-                    ->useAttributeAsKey('name')
-                    ->arrayPrototype()
-                        ->children()
-                            ->scalarNode('service')
-                                ->isRequired()
+                    ->arrayNode('voters')
+                        ->useAttributeAsKey('name')
+                        ->arrayPrototype()
+                            ->children()
+                                ->scalarNode('service')
+                                    ->isRequired()
+                                ->end()
+                                ->scalarNode('serviceClass')->end()
                             ->end()
-                            ->scalarNode('serviceClass')->end()
                         ->end()
                     ->end()
-                ->end()
-                ->arrayNode('access_control')
-                    ->useAttributeAsKey('name')
-                    ->arrayPrototype()
-                        ->scalarPrototype()->end()
+                    ->arrayNode('access_control')
+                        ->useAttributeAsKey('name')
+                        ->arrayPrototype()
+                            ->scalarPrototype()->end()
+                        ->scalarPrototype()
                     ->end()
                 ->end()
             ->end();
@@ -120,6 +111,10 @@ class SecurityBundle extends SecurityGenerator implements BundleGeneratorInterfa
 
             SecurityInterface::class => [
                 'class' => '\Kaa\Generated\Security\Security',
+            ],
+
+            RoleVoter::class => [
+                'class' => RoleVoter::class,
             ],
         ];
 

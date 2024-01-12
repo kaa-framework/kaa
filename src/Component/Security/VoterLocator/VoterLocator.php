@@ -6,6 +6,7 @@ use Exception;
 use Kaa\Component\Generator\PhpOnly;
 use Kaa\Component\Generator\Util\ClassFinder;
 use Kaa\Component\Security\Attribute\Voter;
+use Kaa\Component\Security\Voter\RoleVoter;
 use ReflectionClass;
 
 #[PhpOnly]
@@ -32,6 +33,7 @@ readonly class VoterLocator
         );
 
         $votersArray = $this->config['voters'];
+        $votersArray['ROLE'] = ['service' => RoleVoter::class];
 
         foreach ($voters as $voterClass) {
             /** @var Voter $voter */

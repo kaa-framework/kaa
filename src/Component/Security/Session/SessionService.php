@@ -5,6 +5,7 @@ namespace Kaa\Component\Security\Session;
 use Kaa\Component\HttpMessage\Cookie;
 use Kaa\Component\HttpMessage\Exception\BadRequestException;
 use Kaa\Component\HttpMessage\Request;
+use Kaa\Component\Security\Exception\SessionException;
 use Kaa\Component\Security\UserInterface;
 use Kaa\Component\Security\UserProviderInterface;
 use Random\RandomException;
@@ -29,16 +30,24 @@ class SessionService
     }
 
     /**
-     * @throws RandomException
+     * @throws RandomException|SessionException
      */
     public function writeSession(UserInterface $user): Cookie
     {
-        $sessionId = hash('sha256', getmypid() . microtime() . random_int(1, PHP_INT_MAX));
+        $sessionId = hash('sha256', json_encode($user->getRoles()) . microtime() . mt_rand());
         $fileName = $this->sessionsDirectory . '/' . $sessionId;
 
         while (file_exists($fileName)) {
-            $sessionId = hash('sha256', getmypid() . microtime() . random_int(1, PHP_INT_MAX));
+            $sessionId = hash('sha256', json_encode($user->getRoles()) . microtime() . mt_rand());
             $fileName = $this->sessionsDirectory . '/' . $sessionId;
+        }
+
+        if (
+            !is_dir($this->sessionsDirectory)
+            && !mkdir($this->sessionsDirectory, 077, true)
+            && !is_dir($this->sessionsDirectory)
+        ) {
+            throw new SessionException("Directory {$this->sessionsDirectory} was not created");
         }
 
         file_put_contents($fileName, $user->getIdentifier() . '###' . (time() + $this->lifetimeSeconds));
@@ -46,7 +55,7 @@ class SessionService
         return Cookie::create(
             $this->cookieName,
             $sessionId,
-            $this->lifetimeSeconds,
+            time() + $this->lifetimeSeconds,
         );
     }
 

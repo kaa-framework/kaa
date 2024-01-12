@@ -1,7 +1,7 @@
 {% for attribute, voter in voters %}
     if ($attribute === '{{ attribute }}') {
-        return ({{ instanceProvider->generate(voter.service, voter.serviceClass ?? voter.service) }})->vote($subject);
-    }}
+        return ({{ instanceProvider.generate(voter.service, voter.serviceClass ?? voter.service) }})->vote($subject, $this->getUser());
+    }
 
 
 {% endfor %}

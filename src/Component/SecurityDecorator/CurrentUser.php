@@ -58,7 +58,7 @@ class CurrentUser implements DecoratorInterface
         );
 
         return sprintf(
-            '$%s = instance_cast((%s)->getUser(), \%s);',
+            '$%s = instance_cast((%s)->getUser(), \%s::class);',
             $parameter->getName(),
             $service,
             $type,

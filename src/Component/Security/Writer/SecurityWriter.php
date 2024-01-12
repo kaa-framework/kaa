@@ -108,7 +108,7 @@ readonly class SecurityWriter
             code: $code,
             parameters: [
                 new Parameter(type: 'string', name: 'attribute'),
-                new Parameter(type: 'array', name: 'subject', defaultValue: '[]'),
+                new Parameter(type: 'array', name: 'subject', defaultValue: []),
             ],
             comment: '@param string[] $subject',
         );

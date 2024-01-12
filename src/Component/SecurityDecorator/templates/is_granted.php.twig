@@ -1,8 +1,12 @@
 $kaaSecurityDecoratorIsGranted = ({{ service }})->isGranted('{{ attribute }}', [
     {% for key, value in subject %}
-        '{{ key }}' => '{{ value }}{{ not loop.last or subjectVars is not empty ? ',' }}
+        '{{ key }}' => '{{ value }}{{ not loop.last or subjectVars is not empty ? ',' }}'
     {% endfor %}
     {% for key, var in subjectVars %}
         '{{ key }}' => ${{ var }}{{ not loop.last ? ',' }}
     {% endfor %}
 ]);
+
+if (!$kaaSecurityDecoratorIsGranted) {
+    throw new \Kaa\Component\SecurityDecorator\Exception\AccessDeniedException('Access denied for subject = {{ attribute }}');
+}
