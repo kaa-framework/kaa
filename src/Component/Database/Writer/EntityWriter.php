@@ -34,6 +34,11 @@ readonly class EntityWriter
     {
         $this->addGetColumnNamesMethod();
         $this->addHydrateMethod();
+        $this->addGetValuesMethod();
+        $this->addGetId();
+        $this->addSetId();
+        $this->addGetIdColumnName();
+        $this->addGetTableName();
 
         $this->classWriter->writeFile($this->config->exportDirectory);
     }
@@ -42,6 +47,10 @@ readonly class EntityWriter
     {
         $columnNames = [];
         foreach ($this->entityMetadata->fields as $fieldMetadata) {
+            if ($fieldMetadata->isId) {
+                continue;
+            }
+
             $columnNames[] = $fieldMetadata->columnName;
         }
 
@@ -49,7 +58,7 @@ readonly class EntityWriter
 
         $this->classWriter->addMethod(
             visibility: Visibility::Public,
-            name: 'getColumnNames',
+            name: '_getColumnNames',
             returnType: 'array',
             code: $code,
             comment: '@return string[]',
@@ -71,10 +80,91 @@ readonly class EntityWriter
 
         $this->classWriter->addMethod(
             visibility: Visibility::Public,
-            name: 'hydrate',
+            name: '_hydrate',
             returnType: 'void',
             code: implode("\n\n", $code),
             parameters: [new Parameter(type: 'mixed', name: 'values')],
+        );
+    }
+
+    private function addGetValuesMethod(): void
+    {
+        $code = ['$values = [];'];
+
+        foreach ($this->entityMetadata->fields as $field) {
+            if ($field->isId) {
+                continue;
+            }
+
+            $valueCode = $field->type->getSerializer()->getSerializationCode(
+                fieldCode: '$this->' . $field->name,
+                phpType: $field->phpType,
+                isNullable: $field->isNullable,
+            );
+
+            $code[] = sprintf(
+                '$values["%s"] = %s;',
+                $field->columnName,
+                $valueCode,
+            );
+        }
+
+        $code[] = 'return $values;';
+
+        $this->classWriter->addMethod(
+            visibility: Visibility::Public,
+            name: '_getValues',
+            returnType: 'mixed',
+            code: implode("\n\n", $code),
+        );
+    }
+
+    private function addGetId(): void
+    {
+        $code = 'return $this->' . $this->entityMetadata->idFieldName . ';';
+
+        $this->classWriter->addMethod(
+            visibility: Visibility::Public,
+            name: '_getId',
+            returnType: 'int|null',
+            code: $code,
+        );
+    }
+
+    private function addSetId(): void
+    {
+        $code = '$this->' . $this->entityMetadata->idFieldName . ' = $id;';
+
+        $this->classWriter->addMethod(
+            visibility: Visibility::Public,
+            name: '_setId',
+            returnType: 'void',
+            code: $code,
+            parameters: [new Parameter(type: 'int', name: 'id')],
+        );
+    }
+
+    private function addGetIdColumnName(): void
+    {
+        $code = sprintf('return "%s";', $this->entityMetadata->idColumnName);
+
+        $this->classWriter->addMethod(
+            visibility: Visibility::Public,
+            name: '_getIdColumnName',
+            returnType: 'string',
+            code: $code,
+        );
+    }
+
+    private function addGetTableName(): void
+    {
+        $code = sprintf('return "%s";', $this->entityMetadata->tableName);
+
+        $this->classWriter->addMethod(
+            visibility: Visibility::Public,
+            name: '_getTableName',
+            returnType: 'string',
+            code: $code,
         );
     }
 }

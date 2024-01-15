@@ -1,6 +1,11 @@
 switch ($entityClass) {
 {% for entity in entities %}
     case \{{ entity.entityClass }}::class:
+        $uniqueId = '{{ entity.entityClass }}' . '#' . $id;
+        if (array_key_exists($uniqueId, $this->managedEntities)) {
+            return instance_cast($this->managedEntities[$uniqueId]->getEntity(), \{{ entity.entityClass }}::class);
+        }
+
         $query = '
             SELECT
             {% for field in entity.fields %}
@@ -22,7 +27,12 @@ switch ($entityClass) {
         }
 
         $entity = new \Kaa\Generated\Database\Entity\{{ connection }}\{{ entity.className }}();
-        $entity->hydrate($result);
+        $entity->_hydrate($result);
+
+        $this->managedEntities['{{ entity.entityClass }}' . '#' . $entity->_getId()] = new \Kaa\Component\Database\Dto\EntityWithValueSet(
+            $entity,
+            $entity->_getValues()
+        );
 
         return $entity;
 {% endfor %}

@@ -100,14 +100,19 @@ readonly class EntityFinder
             tableName: $entityAttribute->table ?? $this->namingStrategy->getTableName($class->getName()),
             fields: array_map($this->getFieldMetadata(...), $mappedFields),
             idColumnName: $idColumnName,
+            idFieldName: $idField->getName(),
         );
     }
 
     /**
-     * @throws BadTypeException
+     * @throws BadTypeException|DatabaseGeneratorException
      */
     private function getFieldMetadata(ReflectionProperty $property): FieldMetadata
     {
+        if ($property->isPrivate()) {
+            throw new DatabaseGeneratorException("Annotated property {$property->getDeclaringClass()->getName()}::{$property->getName()} must not be private");
+        }
+
         /** @var Column $columnAttribute */
         $columnAttribute = $property->getAttributes(Column::class)[0]->newInstance();
 
@@ -116,7 +121,8 @@ readonly class EntityFinder
             columnName: $columnAttribute->name ?? $this->namingStrategy->getColumnName($property->getName()),
             type: $columnAttribute->type,
             phpType: Reflection::namedType($property->getType())->getName(),
-            isNullable: $columnAttribute->nullable
+            isNullable: $columnAttribute->nullable,
+            isId: $property->getAttributes(Id::class) !== [],
         );
     }
 }

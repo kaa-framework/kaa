@@ -36,10 +36,19 @@ class AsJsonResponse implements DecoratorInterface
     ): string {
         $variables->addVariable(JsonResponse::class, 'kaaDecoratorResponse');
 
-        $code = sprintf(
-            '$kaaDecoratorResponse = \Kaa\Component\HttpMessage\Response\JsonResponse::fromObject($%s);',
-            $variables->getActualReturnValueName(),
-        );
+        $isReturnTypeBuiltin = $decoratedMethod->getReturnType()?->isBuiltin() ?? false;
+
+        if ($isReturnTypeBuiltin) {
+            $code = sprintf(
+                '$kaaDecoratorResponse = new \Kaa\Component\HttpMessage\Response\JsonResponse(not_false(json_encode($%s)));',
+                $variables->getActualReturnValueName(),
+            );
+        } else {
+            $code = sprintf(
+                '$kaaDecoratorResponse = \Kaa\Component\HttpMessage\Response\JsonResponse::fromObject($%s);',
+                $variables->getActualReturnValueName(),
+            );
+        }
 
         $variables->setActualReturnValueName('kaaDecoratorResponse');
 

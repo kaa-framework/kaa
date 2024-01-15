@@ -9,10 +9,20 @@ interface EntityInterface
      *
      * @return string[]
      */
-    public function getColumnNames(): array;
+    public function _getColumnNames(): array;
 
     /**
      * @internal
      */
-    public function hydrate(mixed $values): void;
+    public function _hydrate(mixed $values): void;
+
+    public function _getValues(): mixed;
+
+    public function _getId(): ?int;
+
+    public function _setId(int $id): void;
+
+    public function _getIdColumnName(): string;
+
+    public function _getTableName(): string;
 }

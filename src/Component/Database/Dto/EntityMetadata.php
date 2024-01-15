@@ -14,6 +14,7 @@ readonly class EntityMetadata
         /** @var FieldMetadata[] */
         public array $fields,
         public string $idColumnName,
+        public string $idFieldName,
     ) {
     }
 }

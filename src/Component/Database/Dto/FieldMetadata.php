@@ -14,6 +14,7 @@ readonly class FieldMetadata
         public Type $type,
         public string $phpType,
         public bool $isNullable,
+        public bool $isId,
     ) {
     }
 }

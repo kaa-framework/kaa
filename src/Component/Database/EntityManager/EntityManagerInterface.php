@@ -19,4 +19,15 @@ interface EntityManagerInterface
      * @return T|null
      */
     public function find(string $entityClass, int $id): ?object;
+
+    /**
+     * @template T
+     * @kphp-generic T
+     *
+     * @param class-string<T> $entityClass
+     * @return T
+     */
+    public function new(string $entityClass): object;
+
+    public function flush(): void;
 }

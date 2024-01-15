@@ -42,7 +42,8 @@ readonly class PdoMysqlEntityManagerWriter implements EntityManagerWriterInterfa
      */
     public function write(): void
     {
-        $this->addFind();
+        $this->addFindMethod();
+        $this->addNewMethod();
 
         $this->classWriter->writeFile($this->config->exportDirectory);
     }
@@ -50,7 +51,7 @@ readonly class PdoMysqlEntityManagerWriter implements EntityManagerWriterInterfa
     /**
      * @throws RuntimeError|SyntaxError|LoaderError
      */
-    private function addFind(): void
+    private function addFindMethod(): void
     {
         $code = $this->twig->render('pdo_mysql/find.php.twig', [
             'entities' => $this->entityMetadata,
@@ -72,6 +73,31 @@ readonly class PdoMysqlEntityManagerWriter implements EntityManagerWriterInterfa
             
                 @param class-string<T> $entityClass
                 @return T|null
+            ',
+        );
+    }
+
+    private function addNewMethod(): void
+    {
+        $code = $this->twig->render('new.php.twig', [
+            'entities' => $this->entityMetadata,
+            'connection' => $this->connectionName,
+        ]);
+
+        $this->classWriter->addMethod(
+            visibility: Visibility::Public,
+            name: 'new',
+            returnType: 'object',
+            code: $code,
+            parameters: [
+                new Parameter(type: 'string', name: 'entityClass'),
+            ],
+            comment: '
+                @template T
+                @kphp-generic T
+            
+                @param class-string<T> $entityClass
+                @return T
             ',
         );
     }
