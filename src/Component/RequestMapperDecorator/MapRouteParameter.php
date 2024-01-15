@@ -65,7 +65,7 @@ readonly class MapRouteParameter implements DecoratorInterface
         $variables->addVariable(Reflection::namedType($parameter->getType())->getName(), $parameter->getName());
 
         return sprintf(
-            '$%s = (%s) %s->attributes->get(%s)',
+            '$%s = (%s) $%s->attributes->get("%s");',
             $parameter->getName(),
             Reflection::namedType($parameter->getType())->getName(),
             $requestVarName,

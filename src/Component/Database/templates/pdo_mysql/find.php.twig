@@ -1,0 +1,31 @@
+switch ($entityClass) {
+{% for entity in entities %}
+    case \{{ entity.entityClass }}::class:
+        $query = '
+            SELECT
+            {% for field in entity.fields %}
+                {# @var field \Kaa\Component\Database\Dto\FieldMetadata #}
+                {{ field.columnName }}{{ not loop.last ? ',' }}
+            {% endfor %}
+
+            FROM {{ entity.tableName }}
+            WHERE {{ entity.idColumnName }} = %s
+        ';
+
+        $query = sprintf($query, $id);
+
+        $statement = $this->pdo->query($query);
+
+        $result = $statement->fetch();
+        if ($result === false) {
+            return null;
+        }
+
+        $entity = new \Kaa\Generated\Database\Entity\{{ connection }}\{{ entity.className }}();
+        $entity->hydrate($result);
+
+        return $entity;
+{% endfor %}
+}
+
+throw new \Kaa\Component\Database\Exception\DatabaseException("Entity {$entityClass} does not exist in connection {{ connection }}");

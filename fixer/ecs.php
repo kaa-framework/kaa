@@ -211,6 +211,7 @@ return static function (ECSConfig $ecsConfig): void {
         OrderedClassElementsFixer::class,
         TrailingCommaInMultilineFixer::class,
         MethodChainingIndentationFixer::class => [
+            __DIR__ . '/../src/Bundle/Database/DatabaseBundle.php',
             __DIR__ . '/../src/Bundle/Security/SecurityBundle.php',
             __DIR__ . '/../src/Bundle/DependencyInjection/DependencyInjectionBundle.php',
             __DIR__ . '/../src/Bundle/EventDispatcher/EventDispatcherBundle.php',

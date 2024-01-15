@@ -36,7 +36,7 @@ readonly class ValidatorBundle extends ValidatorGenerator implements BundleGener
 
     public function getPriority(): int
     {
-        return 50;
+        return 100;
     }
 
     public function getConfigArray(array $config): array

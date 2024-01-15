@@ -2,7 +2,7 @@
     {% if not current.isVariable %}
         if(($nodes[{{ count - 1 }}] === '{{ current.getData }}') && ($count_nodes === {{ count }})){
     {% else %}
-        if($count_nodes === {{ count - 1 }}){
+        if($count_nodes === {{ count }}){
     {% endif %}
 
     {% if current.getKeys is not null %}

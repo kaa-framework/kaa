@@ -2,11 +2,11 @@
 
 namespace Kaa\Component\Generator\Util;
 
-use Exception;
 use HaydenPierce\ClassFinder\ClassFinder as Finder;
 use Kaa\Component\Generator\Exception\FinderException;
 use Kaa\Component\Generator\PhpOnly;
 use ReflectionClass;
+use ReflectionException;
 
 #[PhpOnly]
 class ClassFinder
@@ -16,7 +16,7 @@ class ClassFinder
      * @param string[] $ignore
      * @param (callable(ReflectionClass): bool)|null $predicate
      * @return ReflectionClass[]
-     * @throws Exception
+     * @throws FinderException|ReflectionException
      */
     public static function find(
         array $scan,

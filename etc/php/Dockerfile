@@ -6,6 +6,7 @@ RUN chmod +x /usr/local/bin/install-php-extensions && \
     install-php-extensions \
     opcache \
     @composer \
+    pdo_mysql \
     xdebug-3.2.2
 
 WORKDIR /app
