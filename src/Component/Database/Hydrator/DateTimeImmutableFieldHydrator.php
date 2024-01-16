@@ -19,9 +19,9 @@ class DateTimeImmutableFieldHydrator implements FieldHydratorInterface
         }
 
         if ($isNullable) {
-            return "{$fieldCode} = {$valueCode} !== null ? DateTimeImmutable::createFromFormat('Y-m-d H:i:s', {$valueCode}) : null;";
+            return "{$fieldCode} = {$valueCode} !== null ? \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', (string) {$valueCode}) : null;";
         }
 
-        return "{$fieldCode} = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', {$valueCode});";
+        return "{$fieldCode} = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', (string) {$valueCode});";
     }
 }

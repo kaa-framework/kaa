@@ -40,7 +40,7 @@ class FrameworkGenerator
                 $config = array_merge_recursive($config, $configArray);
             }
         } catch (Throwable $throwable) {
-            echo "Generation error: {$throwable->getMessage()}\n\n";
+            echo "\nGeneration error: {$throwable->getMessage()}\n\n";
             echo get_class($throwable) . "\n\n";
             echo $throwable->getTraceAsString() . "\n\n";
             exit;

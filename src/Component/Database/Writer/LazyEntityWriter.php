@@ -4,6 +4,7 @@ namespace Kaa\Component\Database\Writer;
 
 use Kaa\Component\Database\Dto\EntityMetadata;
 use Kaa\Component\Database\EntityManager\EntityManagerInterface;
+use Kaa\Component\Database\Exception\DatabaseGeneratorException;
 use Kaa\Component\Generator\Exception\BadTypeException;
 use Kaa\Component\Generator\Exception\WriterException;
 use Kaa\Component\Generator\SharedConfig;
@@ -41,7 +42,7 @@ readonly class LazyEntityWriter
     }
 
     /**
-     * @throws BadTypeException|ReflectionException|LoaderError|RuntimeError|SyntaxError|WriterException
+     * @throws BadTypeException|ReflectionException|LoaderError|RuntimeError|SyntaxError|WriterException|DatabaseGeneratorException
      */
     public function write(): void
     {
@@ -71,7 +72,7 @@ readonly class LazyEntityWriter
     }
 
     /**
-     * @throws SyntaxError|ReflectionException|BadTypeException|RuntimeError|LoaderError
+     * @throws SyntaxError|ReflectionException|BadTypeException|RuntimeError|LoaderError|DatabaseGeneratorException
      */
     private function overrideMethods(): void
     {
@@ -103,7 +104,7 @@ readonly class LazyEntityWriter
 
             $returnType = Reflection::namedType($method->getReturnType())->getName();
             if ($returnType === 'self' || $returnType === 'static') {
-                $returnType = $this->entityMetadata->entityClass;
+                throw new DatabaseGeneratorException("You must not use self or static as a return type in {$method->getDeclaringClass()->getName()}::{$method->getName()}");
             }
 
             if (Reflection::namedType($method->getReturnType())->allowsNull()) {
