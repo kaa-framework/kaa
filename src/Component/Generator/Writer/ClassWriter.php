@@ -86,6 +86,8 @@ readonly class ClassWriter
             if ($parameter->defaultValue !== None::None) {
                 $param->setDefaultValue($parameter->defaultValue);
             }
+
+            $param->setNullable($parameter->nullable);
         }
 
         return $this;
@@ -113,6 +115,8 @@ readonly class ClassWriter
             if ($parameter->defaultValue !== None::None) {
                 $param->setDefaultValue($parameter->defaultValue);
             }
+
+            $param->setNullable($parameter->nullable);
         }
 
         return $this;

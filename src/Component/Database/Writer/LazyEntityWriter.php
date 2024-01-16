@@ -54,6 +54,22 @@ readonly class LazyEntityWriter
         $this->classWriter->writeFile($this->config->exportDirectory);
     }
 
+    private function addConstructor(): void
+    {
+        $code = "parent::__construct();\n";
+        $code .= '$this->' . $this->entityMetadata->idFieldName . ' = $id;' . "\n";
+        $code .= '$this->_entityManager = $entityManager;';
+
+        $this->classWriter->addConstructor(
+            visibility: Visibility::Public,
+            code: $code,
+            parameters: [
+                new Parameter(type: 'int', name: 'id'),
+                new Parameter(type: EntityManagerInterface::class, name: 'entityManager'),
+            ],
+        );
+    }
+
     /**
      * @throws SyntaxError|ReflectionException|BadTypeException|RuntimeError|LoaderError
      */
@@ -72,6 +88,7 @@ readonly class LazyEntityWriter
                 $parameters[] = new Parameter(
                     type: Reflection::namedType($parameter->getType())->getName(),
                     name: $parameter->getName(),
+                    nullable: $parameter->allowsNull(),
                     defaultValue: $parameter->isOptional() ? $parameter->getDefaultValue() : None::None,
                 );
 
@@ -84,10 +101,14 @@ readonly class LazyEntityWriter
                 'name' => $method->getName(),
             ]);
 
+            $returnType = Reflection::namedType($method->getReturnType())->getName();
+            if (Reflection::namedType($method->getReturnType())->allowsNull()) {
+                $returnType .= '|null';
+            }
             $this->classWriter->addMethod(
                 visibility: $this->getVisibility($method),
                 name: $method->getName(),
-                returnType: Reflection::namedType($method->getReturnType())->getName(),
+                returnType: $returnType,
                 code: $code,
                 parameters: $parameters,
                 comment: $method->getDocComment() !== false ? $method->getDocComment() : null,
@@ -102,38 +123,6 @@ readonly class LazyEntityWriter
             $method->isProtected() => Visibility::Protected,
             default => Visibility::Private,
         };
-    }
-
-    private function addConstructor(): void
-    {
-        $code = '$this->' . $this->entityMetadata->idFieldName . ' = $id;';
-        $code .= "\n";
-        $code .= '$this->entityManager = $entityManager;';
-
-        $this->classWriter->addConstructor(
-            visibility: Visibility::Public,
-            code: $code,
-            parameters: [
-                new Parameter(type: 'int', name: 'id'),
-                new Parameter(type: EntityManagerInterface::class, name: 'entityManager'),
-            ],
-        );
-    }
-
-    private function addVariables(): void
-    {
-        $this->classWriter->addVariable(
-            visibility: Visibility::Private,
-            type: 'bool',
-            name: 'initialized',
-            value: false,
-        );
-
-        $this->classWriter->addVariable(
-            visibility: Visibility::Private,
-            type: EntityManagerInterface::class,
-            name: 'entityManager',
-        );
     }
 
     private function addIsInitializedMethod(): void
@@ -153,6 +142,22 @@ readonly class LazyEntityWriter
             name: '_setInitialized',
             returnType: 'void',
             code: '$this->initialized = true;',
+        );
+    }
+
+    private function addVariables(): void
+    {
+        $this->classWriter->addVariable(
+            visibility: Visibility::Private,
+            type: 'bool',
+            name: 'initialized',
+            value: false,
+        );
+
+        $this->classWriter->addVariable(
+            visibility: Visibility::Private,
+            type: EntityManagerInterface::class,
+            name: '_entityManager',
         );
     }
 }

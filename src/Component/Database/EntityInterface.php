@@ -56,4 +56,16 @@ interface EntityInterface
      * @internal
      */
     public function _setInitialized(): void;
+
+    /**
+     * @internal
+     */
+    public function _getOid(): string;
+
+    /**
+     * @internal
+     *
+     * @return string[]
+     */
+    public function _getNotInsertedOids(): array;
 }

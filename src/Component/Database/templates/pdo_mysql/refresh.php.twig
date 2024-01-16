@@ -1,12 +1,18 @@
 switch (get_class($entity)) {
 {% for entity in entities %}
         case \{{ entity.entityClass }}::class:
+        case \Kaa\Generated\Database\Entity\{{connection}}\{{ entity.className }}::class:
+        case \Kaa\Generated\Database\LazyEntity\{{connection}}\{{ entity.className }}::class:
 
         $query = '
             SELECT
             {% for field in entity.fields %}
                 {# @var field \Kaa\Component\Database\Dto\FieldMetadata #}
                 {{ field.columnName }}{{ not loop.last ? ',' }}
+            {% endfor %}
+            {{ not entity.manyToOne is empty ? ',' }}
+            {% for mto in entity.manyToOne %}
+                {{ mto.columnName }}{{ not loop.last ? ',' }}
             {% endfor %}
 
             FROM {{ entity.tableName }}
@@ -26,7 +32,7 @@ switch (get_class($entity)) {
         foreach ($newManagedEntities as $newManagedEntity) {
             $this->managedEntities[get_class($newManagedEntity) . '#' . $newManagedEntity->_getId()] = new \Kaa\Component\Database\Dto\EntityWithValueSet(
                 $newManagedEntity,
-                $newManagedEntity->_getValues()
+                $newManagedEntity->_isInitialized() ? $newManagedEntity->_getValues() : []
             );
         }
 
@@ -36,4 +42,4 @@ switch (get_class($entity)) {
 {% endfor %}
 }
 
-throw new \Kaa\Component\Database\Exception\DatabaseException('Entity' . get_class($entity) . 'does not exist in connection {{ connection }}');
+throw new \Kaa\Component\Database\Exception\DatabaseException('Entity ' . get_class($entity) . ' does not exist in connection {{ connection }}');

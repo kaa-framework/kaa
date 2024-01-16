@@ -19,7 +19,18 @@ abstract class AbstractEntityManager implements EntityManagerInterface
      */
     public function flush(): void
     {
-        $this->insert();
+        $sort = new DnfSort();
+        foreach ($this->newEntities as $entity) {
+            $sort->addNode($entity);
+        }
+
+        foreach ($this->newEntities as $entity) {
+            foreach ($entity->_getNotInsertedOids() as $oid) {
+                $sort->addEdge($entity->_getOid(), $oid);
+            }
+        }
+
+        $this->insert($sort->sort());
         $this->update();
 
         foreach ($this->managedEntities as $managedEntity) {
@@ -49,7 +60,10 @@ abstract class AbstractEntityManager implements EntityManagerInterface
         return $changeset;
     }
 
-    abstract protected function insert(): void;
+    /**
+     * @param EntityInterface[] $newEntities
+     */
+    abstract protected function insert(array $newEntities): void;
 
     abstract protected function update(): void;
 }

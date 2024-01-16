@@ -2,6 +2,7 @@
 
 namespace Kaa\Component\Database\EntityManager;
 
+use Kaa\Component\Database\EntityInterface;
 use PDO;
 
 abstract class AbstractPdoMysqlEntityManager extends AbstractEntityManager
@@ -17,7 +18,10 @@ abstract class AbstractPdoMysqlEntityManager extends AbstractEntityManager
         $this->pdo = new PDO("mysql:host={$host};dbname={$database}", $user, $password);
     }
 
-    protected function insert(): void
+    /**
+     * @param EntityInterface[] $newEntities
+     */
+    protected function insert(array $newEntities): void
     {
         foreach ($this->newEntities as $entity) {
             if ($entity->_getId() === null) {
@@ -49,6 +53,10 @@ abstract class AbstractPdoMysqlEntityManager extends AbstractEntityManager
     {
         foreach ($this->managedEntities as $entityWithValueSet) {
             $entity = $entityWithValueSet->getEntity();
+            if (!$entity->_isInitialized()) {
+                continue;
+            }
+
             $changes = $this->getChangeset($entity->_getValues(), $entityWithValueSet->getValues());
             if ($changes === []) {
                 continue;

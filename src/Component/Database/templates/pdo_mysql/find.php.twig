@@ -20,6 +20,10 @@ switch ($entityClass) {
                 {# @var field \Kaa\Component\Database\Dto\FieldMetadata #}
                 {{ field.columnName }}{{ not loop.last ? ',' }}
             {% endfor %}
+            {{ not entity.manyToOne is empty ? ',' }}
+            {% for mto in entity.manyToOne %}
+                {{ mto.columnName }}{{ not loop.last ? ',' }}
+            {% endfor %}
 
             FROM {{ entity.tableName }}
             WHERE {{ entity.idColumnName }} = %s
@@ -39,7 +43,7 @@ switch ($entityClass) {
         foreach ($newManagedEntities as $newManagedEntity) {
             $this->managedEntities[get_class($newManagedEntity) . '#' . $newManagedEntity->_getId()] = new \Kaa\Component\Database\Dto\EntityWithValueSet(
                 $newManagedEntity,
-                $newManagedEntity->_getValues()
+                $newManagedEntity->_isInitialized() ? $newManagedEntity->_getValues() : []
             );
         }
 

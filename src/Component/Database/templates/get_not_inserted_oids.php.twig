@@ -1,0 +1,9 @@
+$oids = [];
+
+{% for mto in manyToOne %}
+if ($this->{{ mto.fieldName }}->_getId() === null) {
+    $oids[] = $this->{{ mto.fieldName }}->_getOid();
+}
+{% endfor %}
+
+return $oids;

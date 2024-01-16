@@ -41,6 +41,7 @@ readonly class EntityWriter
      */
     public function write(): void
     {
+        $this->addConstructor();
         $this->addGetColumnNamesMethod();
         $this->addHydrateMethod();
         $this->addGetValuesMethod();
@@ -50,8 +51,19 @@ readonly class EntityWriter
         $this->addGetTableName();
         $this->addIsInitializedMethod();
         $this->addSetInitializedMethod();
+        $this->addGetOidMethod();
+        $this->addOidVariable();
+        $this->addGetNotInsertedOidsMethod();
 
         $this->classWriter->writeFile($this->config->exportDirectory);
+    }
+
+    private function addConstructor(): void
+    {
+        $this->classWriter->addConstructor(
+            visibility: Visibility::Public,
+            code: '$this->_oid = microtime() . "#" . mt_rand();',
+        );
     }
 
     private function addGetColumnNamesMethod(): void
@@ -213,6 +225,40 @@ readonly class EntityWriter
             name: '_setInitialized',
             returnType: 'void',
             code: '',
+        );
+    }
+
+    private function addGetOidMethod(): void
+    {
+        $this->classWriter->addMethod(
+            visibility: Visibility::Public,
+            name: '_getOid',
+            returnType: 'string',
+            code: 'return $this->_oid;',
+        );
+    }
+
+    private function addOidVariable(): void
+    {
+        $this->classWriter->addVariable(
+            visibility: Visibility::Private,
+            type: 'string',
+            name: '_oid',
+        );
+    }
+
+    private function addGetNotInsertedOidsMethod(): void
+    {
+        $code = $this->twig->render('get_not_inserted_oids.php.twig', [
+            'manyToOne' => $this->entityMetadata->manyToOne,
+        ]);
+
+        $this->classWriter->addMethod(
+            visibility: Visibility::Public,
+            name: '_getNotInsertedOids',
+            returnType: 'array',
+            code: $code,
+            comment: '@return string[]',
         );
     }
 }
