@@ -6,6 +6,7 @@ use Exception;
 use Kaa\Component\Database\Finder\EntityFinder;
 use Kaa\Component\Database\Writer\DriverResolver;
 use Kaa\Component\Database\Writer\EntityWriter;
+use Kaa\Component\Database\Writer\LazyEntityWriter;
 use Kaa\Component\Generator\GeneratorInterface;
 use Kaa\Component\Generator\PhpOnly;
 use Kaa\Component\Generator\SharedConfig;
@@ -27,6 +28,7 @@ class DatabaseGenerator implements GeneratorInterface
             $entityMetadata = $entityFinder->getMetadata();
             foreach ($entityMetadata as $metadata) {
                 (new EntityWriter($name, $metadata, $sharedConfig))->write();
+                (new LazyEntityWriter($name, $metadata, $sharedConfig))->write();
             }
 
             $entityManagerWriter = DriverResolver::getEntityManagerWriter(

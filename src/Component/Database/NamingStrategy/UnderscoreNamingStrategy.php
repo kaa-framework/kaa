@@ -22,7 +22,7 @@ class UnderscoreNamingStrategy implements NamingStrategyInterface
     private function camelCaseToSnakeCase(string $string): string
     {
         return strtolower(
-            preg_replace(
+            (string) preg_replace(
                 '/(?<=\d)(?=[A-Za-z])|(?<=[A-Za-z])(?=\d)|(?<=[a-z])(?=[A-Z])/',
                 '_',
                 $string,

@@ -22,6 +22,10 @@ abstract class AbstractEntityManager implements EntityManagerInterface
         $this->insert();
         $this->update();
 
+        foreach ($this->managedEntities as $managedEntity) {
+            $managedEntity->setValues($managedEntity->getEntity()->_getValues());
+        }
+
         foreach ($this->newEntities as $entity) {
             $this->managedEntities[get_class($entity) . '#' . $entity->_getId()] = new EntityWithValueSet(
                 $entity,

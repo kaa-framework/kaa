@@ -11,10 +11,14 @@ readonly class EntityMetadata
         public string $entityClass,
         public string $className,
         public string $tableName,
-        /** @var FieldMetadata[] */
-        public array $fields,
         public string $idColumnName,
         public string $idFieldName,
+
+        /** @var FieldMetadata[] */
+        public array $fields,
+
+        /** @var ManyToOneMetadata[] */
+        public array $manyToOne,
     ) {
     }
 }

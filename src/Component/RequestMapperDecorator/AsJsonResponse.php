@@ -3,8 +3,10 @@
 namespace Kaa\Component\RequestMapperDecorator;
 
 use Attribute;
+use Kaa\Component\Generator\Exception\BadTypeException;
 use Kaa\Component\Generator\NewInstanceGeneratorInterface;
 use Kaa\Component\Generator\PhpOnly;
+use Kaa\Component\Generator\Util\Reflection;
 use Kaa\Component\HttpMessage\Response\JsonResponse;
 use Kaa\Component\Router\Decorator\DecoratorInterface;
 use Kaa\Component\Router\Decorator\DecoratorType;
@@ -28,6 +30,9 @@ class AsJsonResponse implements DecoratorInterface
         return 100;
     }
 
+    /**
+     * @throws BadTypeException
+     */
     public function decorate(
         ReflectionMethod $decoratedMethod,
         ?ReflectionParameter $parameter,
@@ -36,7 +41,7 @@ class AsJsonResponse implements DecoratorInterface
     ): string {
         $variables->addVariable(JsonResponse::class, 'kaaDecoratorResponse');
 
-        $isReturnTypeBuiltin = $decoratedMethod->getReturnType()?->isBuiltin() ?? false;
+        $isReturnTypeBuiltin = Reflection::namedType($decoratedMethod->getReturnType())->isBuiltin();
 
         if ($isReturnTypeBuiltin) {
             $code = sprintf(

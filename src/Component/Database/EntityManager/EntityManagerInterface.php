@@ -2,6 +2,8 @@
 
 namespace Kaa\Component\Database\EntityManager;
 
+use Kaa\Component\Database\EntityInterface;
+
 interface EntityManagerInterface
 {
     public function __construct(
@@ -12,7 +14,7 @@ interface EntityManagerInterface
     );
 
     /**
-     * @template T
+     * @template T of object
      * @kphp-generic T
      *
      * @param class-string<T> $entityClass
@@ -20,8 +22,10 @@ interface EntityManagerInterface
      */
     public function find(string $entityClass, int $id): ?object;
 
+    public function refresh(EntityInterface $entity): void;
+
     /**
-     * @template T
+     * @template T of object
      * @kphp-generic T
      *
      * @param class-string<T> $entityClass

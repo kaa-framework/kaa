@@ -1,0 +1,39 @@
+switch (get_class($entity)) {
+{% for entity in entities %}
+        case \{{ entity.entityClass }}::class:
+
+        $query = '
+            SELECT
+            {% for field in entity.fields %}
+                {# @var field \Kaa\Component\Database\Dto\FieldMetadata #}
+                {{ field.columnName }}{{ not loop.last ? ',' }}
+            {% endfor %}
+
+            FROM {{ entity.tableName }}
+            WHERE {{ entity.idColumnName }} = %s
+        ';
+
+        $query = sprintf($query, $entity->_getId());
+
+        $statement = $this->pdo->query($query);
+
+        $result = $statement->fetch();
+        if ($result === false) {
+            throw new \Kaa\Component\Database\Exception\DatabaseException("Entity {{ entity.entityClass}} with id = {$entity->_getId()} was not found in database to be refreshed");
+        }
+
+        $newManagedEntities = $entity->_hydrate($result, $this, $this->managedEntities);
+        foreach ($newManagedEntities as $newManagedEntity) {
+            $this->managedEntities[get_class($newManagedEntity) . '#' . $newManagedEntity->_getId()] = new \Kaa\Component\Database\Dto\EntityWithValueSet(
+                $newManagedEntity,
+                $newManagedEntity->_getValues()
+            );
+        }
+
+        $this->managedEntities[get_class($entity) . '#' . $entity->_getId()]->setValues($entity->_getValues());
+
+        return;
+{% endfor %}
+}
+
+throw new \Kaa\Component\Database\Exception\DatabaseException('Entity' . get_class($entity) . 'does not exist in connection {{ connection }}');

@@ -1,0 +1,26 @@
+{% for field in fields %}
+{{ field.type.hydrator.hydrationCode('$this->' ~ field.name, field.phpType, field.isNullable, '$values["' ~ field.columnName ~ '"]') }}
+{% endfor %}
+
+$newManagedEntities = [];
+
+{% for mto in manyToOne %}
+    {% if mto.isNullable %}
+        if ($values['{{ mto.columnName }}'] === null) {
+            $this->{{ mto.fieldName }} = null;
+        } else {
+    {% endif %}
+    $mtoId = '{{ mto.targetEntity }}' . '#' . $values['{{ mto.columnName }}'];
+    if (array_key_exists($mtoId, $managedEntities)) {
+        $this->{{ mto.fieldName }} = instance_cast($managedEntities[$mtoId]->getEntity(), \{{ mto.targetEntity }}::class);
+    } else {
+        $lazy{{ mto.fieldName }} = new \Kaa\Generated\Database\LazyEntity\{{ connection }}\{{ mto.targetEntityClasName }}($mtoId, $entityManager);
+        $newManagedEntities[] = $lazy{{ mto.fieldName }};
+        $this->{{ mto.fieldName }} = $lazy{{ mto.fieldName }};
+    }
+    {% if mto.isNullable %}
+        }
+    {% endif %}
+{% endfor %}
+
+return $newManagedEntities;

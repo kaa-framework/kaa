@@ -92,6 +92,33 @@ readonly class ClassWriter
     }
 
     /**
+     * @param Parameter[] $parameters
+     */
+    public function addConstructor(
+        Visibility $visibility,
+        string $code,
+        array $parameters = [],
+        ?string $comment = null,
+    ): self {
+        $method = $this->class->addMethod('__construct');
+
+        $method->setVisibility($visibility->value);
+        $method->setBody($code);
+        $method->setComment($comment);
+
+        foreach ($parameters as $parameter) {
+            $param = $method->addParameter($parameter->name);
+
+            $param->setType($parameter->type);
+            if ($parameter->defaultValue !== None::None) {
+                $param->setDefaultValue($parameter->defaultValue);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
      * @throws WriterException
      */
     public function writeFile(string $exportDirectory): void

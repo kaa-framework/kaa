@@ -5,8 +5,10 @@ namespace Kaa\Component\Database\Finder;
 use Kaa\Component\Database\Attribute\Column;
 use Kaa\Component\Database\Attribute\Entity;
 use Kaa\Component\Database\Attribute\Id;
+use Kaa\Component\Database\Attribute\ManyToOne;
 use Kaa\Component\Database\Dto\EntityMetadata;
 use Kaa\Component\Database\Dto\FieldMetadata;
+use Kaa\Component\Database\Dto\ManyToOneMetadata;
 use Kaa\Component\Database\EntityInterface;
 use Kaa\Component\Database\Exception\DatabaseGeneratorException;
 use Kaa\Component\Database\NamingStrategy\NamingStrategyInterface;
@@ -39,6 +41,8 @@ readonly class EntityFinder
     }
 
     /**
+     * @return EntityMetadata[]
+     *
      * @throws ReflectionException|FinderException
      */
     public function getMetadata(): array
@@ -82,6 +86,11 @@ readonly class EntityFinder
             static fn (ReflectionProperty $p) => $p->getAttributes(Column::class) !== [],
         );
 
+        $manyToOneFields = array_filter(
+            $class->getProperties(),
+            static fn (ReflectionProperty $p) => $p->getAttributes(ManyToOne::class) !== [],
+        );
+
         $idField = array_filter(
             $mappedFields,
             static fn (ReflectionProperty $p) => $p->getAttributes(Id::class) !== [],
@@ -98,9 +107,10 @@ readonly class EntityFinder
             entityClass: $class->getName(),
             className: $class->getShortName(),
             tableName: $entityAttribute->table ?? $this->namingStrategy->getTableName($class->getName()),
-            fields: array_map($this->getFieldMetadata(...), $mappedFields),
             idColumnName: $idColumnName,
             idFieldName: $idField->getName(),
+            fields: array_map($this->getFieldMetadata(...), $mappedFields),
+            manyToOne: array_map($this->getManyToOneMetadata(...), $manyToOneFields),
         );
     }
 
@@ -123,6 +133,27 @@ readonly class EntityFinder
             phpType: Reflection::namedType($property->getType())->getName(),
             isNullable: $columnAttribute->nullable,
             isId: $property->getAttributes(Id::class) !== [],
+        );
+    }
+
+    /**
+     * @throws DatabaseGeneratorException|ReflectionException
+     */
+    private function getManyToOneMetadata(ReflectionProperty $property): ManyToOneMetadata
+    {
+        if ($property->isPrivate()) {
+            throw new DatabaseGeneratorException("Annotated property {$property->getDeclaringClass()->getName()}::{$property->getName()} must not be private");
+        }
+
+        /** @var ManyToOne $attribute */
+        $attribute = $property->getAttributes(ManyToOne::class)[0]->newInstance();
+
+        return new ManyToOneMetadata(
+            fieldName: $property->getName(),
+            targetEntity: $attribute->targetEntity,
+            targetEntityClasName: (new ReflectionClass($attribute->targetEntity))->getShortName(),
+            columnName: $attribute->columnName ?? $this->namingStrategy->getColumnName($property->getName()) . '_id',
+            isNullable: $attribute->nullable,
         );
     }
 }

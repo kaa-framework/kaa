@@ -3,7 +3,15 @@ switch ($entityClass) {
     case \{{ entity.entityClass }}::class:
         $uniqueId = '{{ entity.entityClass }}' . '#' . $id;
         if (array_key_exists($uniqueId, $this->managedEntities)) {
-            return instance_cast($this->managedEntities[$uniqueId]->getEntity(), \{{ entity.entityClass }}::class);
+            $entity = instance_cast($this->managedEntities[$uniqueId]->getEntity(), \{{ entity.entityClass }}::class);
+            if (!$entity->_isInitialized()) {
+                $this->refresh($entity);
+                $entity->setInitialized();
+
+                $this->managedEntities[$uniqueId]->setValues($entity->_getValues());
+            }
+
+            return $entity;
         }
 
         $query = '
@@ -27,7 +35,13 @@ switch ($entityClass) {
         }
 
         $entity = new \Kaa\Generated\Database\Entity\{{ connection }}\{{ entity.className }}();
-        $entity->_hydrate($result);
+        $newManagedEntities = $entity->_hydrate($result, $this, $this->managedEntities);
+        foreach ($newManagedEntities as $newManagedEntity) {
+            $this->managedEntities[get_class($newManagedEntity) . '#' . $newManagedEntity->_getId()] = new \Kaa\Component\Database\Dto\EntityWithValueSet(
+                $newManagedEntity,
+                $newManagedEntity->_getValues()
+            );
+        }
 
         $this->managedEntities['{{ entity.entityClass }}' . '#' . $entity->_getId()] = new \Kaa\Component\Database\Dto\EntityWithValueSet(
             $entity,

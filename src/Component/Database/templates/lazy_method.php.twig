@@ -1,0 +1,6 @@
+if (!$this->initialized) {
+    $this->entityManager->refresh($this);
+    $this->initialized = true;
+}
+
+{% if not isVoid %}return {% endif %}parent::{{ name }}({% for parameter in parameters %}${{ parameter }}{{ not loop.last ? ',' }} {% endfor %});
