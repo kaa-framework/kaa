@@ -9,13 +9,11 @@ use Kaa\Component\Generator\PhpOnly;
     PhpOnly,
     Attribute(Attribute::TARGET_PROPERTY),
 ]
-final readonly class ManyToOne
+readonly class OneToMany
 {
     public function __construct(
         public string $targetEntity,
-        public ?string $columnName = null,
-        public ?string $inversedBy = null,
-        public bool $nullable = false
+        public string $mappedBy,
     ) {
     }
 }

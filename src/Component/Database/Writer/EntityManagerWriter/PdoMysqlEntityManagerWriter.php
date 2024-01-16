@@ -44,6 +44,8 @@ readonly class PdoMysqlEntityManagerWriter implements EntityManagerWriterInterfa
     public function write(): void
     {
         $this->addFindMethod();
+        $this->addFindOneByMethod();
+        $this->addFindByMethod();
         $this->addRefreshMethod();
         $this->addNewMethod();
 
@@ -63,18 +65,82 @@ readonly class PdoMysqlEntityManagerWriter implements EntityManagerWriterInterfa
         $this->classWriter->addMethod(
             visibility: Visibility::Public,
             name: 'find',
-            returnType: 'object|null',
+            returnType: EntityInterface::class . '|null',
             code: $code,
             parameters: [
                 new Parameter(type: 'string', name: 'entityClass'),
                 new Parameter(type: 'int', name: 'id'),
             ],
             comment: '
-                @template T
+                @template T of \Kaa\Component\Database\EntityInterface
                 @kphp-generic T
             
                 @param class-string<T> $entityClass
                 @return T|null
+            ',
+        );
+    }
+
+    /**
+     * @throws RuntimeError|SyntaxError|LoaderError
+     */
+    private function addFindOneByMethod(): void
+    {
+        $code = $this->twig->render('pdo_mysql/find_one_by.php.twig', [
+            'entities' => $this->entityMetadata,
+            'connection' => $this->connectionName,
+        ]);
+
+        $this->classWriter->addMethod(
+            visibility: Visibility::Public,
+            name: 'findOneBy',
+            returnType: EntityInterface::class . '|null',
+            code: $code,
+            parameters: [
+                new Parameter(type: 'string', name: 'entityClass'),
+                new Parameter(type: 'array', name: 'criteria'),
+            ],
+            comment: '
+                @template T of \Kaa\Component\Database\EntityInterface
+                @kphp-generic T
+                
+                @param array<string, string|int> $criteria
+                @param class-string<T> $entityClass
+                @return T|null
+            ',
+        );
+    }
+
+    /**
+     * @throws RuntimeError|SyntaxError|LoaderError
+     */
+    private function addFindByMethod(): void
+    {
+        $code = $this->twig->render('pdo_mysql/find_by.php.twig', [
+            'entities' => $this->entityMetadata,
+            'connection' => $this->connectionName,
+        ]);
+
+        $this->classWriter->addMethod(
+            visibility: Visibility::Public,
+            name: 'findBy',
+            returnType: 'array',
+            code: $code,
+            parameters: [
+                new Parameter(type: 'string', name: 'entityClass'),
+                new Parameter(type: 'array', name: 'criteria'),
+                new Parameter(type: 'array', name: 'order', defaultValue: []),
+                new Parameter(type: 'int', name: 'limit', nullable: true, defaultValue: null),
+                new Parameter(type: 'int', name: 'offset', nullable: true, defaultValue: null),
+            ],
+            comment: '
+                @template T of \Kaa\Component\Database\EntityInterface
+                @kphp-generic T
+                
+                @param array<string, string|int> $criteria
+                @param array<string, string> $order
+                @param class-string<T> $entityClass
+                @return T[]
             ',
         );
     }
