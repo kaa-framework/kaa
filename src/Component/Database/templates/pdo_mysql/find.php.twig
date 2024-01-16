@@ -1,58 +1,7 @@
 switch ($entityClass) {
 {% for entity in entities %}
     case \{{ entity.entityClass }}::class:
-        $uniqueId = '{{ entity.entityClass }}' . '#' . $id;
-        if (array_key_exists($uniqueId, $this->managedEntities)) {
-            $entity = instance_cast($this->managedEntities[$uniqueId]->getEntity(), \{{ entity.entityClass }}::class);
-            if (!$entity->_isInitialized()) {
-                $this->refresh($entity);
-                $entity->_setInitialized();
-
-                $this->managedEntities[$uniqueId]->setValues($entity->_getValues());
-            }
-
-            return $entity;
-        }
-
-        $query = '
-            SELECT
-            {% for field in entity.fields %}
-                {# @var field \Kaa\Component\Database\Dto\FieldMetadata #}
-                {{ field.columnName }}{{ not loop.last ? ',' }}
-            {% endfor %}
-            {{ not entity.manyToOne is empty ? ',' }}
-            {% for mto in entity.manyToOne %}
-                {{ mto.columnName }}{{ not loop.last ? ',' }}
-            {% endfor %}
-
-            FROM {{ entity.tableName }}
-            WHERE {{ entity.idColumnName }} = %s
-        ';
-
-        $query = sprintf($query, $id);
-
-        $statement = $this->pdo->query($query);
-
-        $result = $statement->fetch();
-        if ($result === false) {
-            return null;
-        }
-
-        $entity = new \Kaa\Generated\Database\Entity\{{ connection }}\{{ entity.className }}();
-        $newManagedEntities = $entity->_hydrate($result, $this, $this->managedEntities);
-        foreach ($newManagedEntities as $newManagedEntity) {
-            $this->managedEntities[get_class($newManagedEntity) . '#' . $newManagedEntity->_getId()] = new \Kaa\Component\Database\Dto\EntityWithValueSet(
-                $newManagedEntity,
-                $newManagedEntity->_isInitialized() ? $newManagedEntity->_getValues() : []
-            );
-        }
-
-        $this->managedEntities['{{ entity.entityClass }}' . '#' . $entity->_getId()] = new \Kaa\Component\Database\Dto\EntityWithValueSet(
-            $entity,
-            $entity->_getValues()
-        );
-
-        return $entity;
+        return $this->findOneBy($entityClass, ['{{ entity.idFieldName }}' => $id]);
 {% endfor %}
 }
 

@@ -41,6 +41,8 @@ switch ($entityClass) {
             }
         }
 
+        $query .= implode(' AND ', $where);
+
         if ($order !== []) {
             $query .= ' ORDER BY ';
             $orderBy = [];
@@ -78,8 +80,6 @@ switch ($entityClass) {
         if ($offset !== null) {
             $query .= ' OFFSET ' . $offset;
         }
-
-        $query .= implode(' AND ', $where);
 
         $statement = $this->pdo->query($query);
 
