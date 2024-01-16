@@ -34,6 +34,10 @@ abstract class AbstractEntityManager implements EntityManagerInterface
         $this->update();
 
         foreach ($this->managedEntities as $managedEntity) {
+            if (!$managedEntity->getEntity()->_isInitialized()) {
+                continue;
+            }
+
             $managedEntity->setValues($managedEntity->getEntity()->_getValues());
         }
 
