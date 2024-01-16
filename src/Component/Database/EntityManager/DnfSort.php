@@ -63,12 +63,13 @@ class DnfSort
 
     /**
      * @return EntityInterface[]
+     * @throws DatabaseException
      */
     public function sort(): array
     {
         foreach (array_keys($this->nodes) as $oid) {
             if ($this->states[$oid] === self::NOT_VISITED) {
-                $this->visit($oid);
+                $this->visit((string) $oid);
             }
         }
 

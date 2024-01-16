@@ -102,9 +102,14 @@ readonly class LazyEntityWriter
             ]);
 
             $returnType = Reflection::namedType($method->getReturnType())->getName();
+            if ($returnType === 'self' || $returnType === 'static') {
+                $returnType = $this->entityMetadata->entityClass;
+            }
+
             if (Reflection::namedType($method->getReturnType())->allowsNull()) {
                 $returnType .= '|null';
             }
+
             $this->classWriter->addMethod(
                 visibility: $this->getVisibility($method),
                 name: $method->getName(),
@@ -152,12 +157,14 @@ readonly class LazyEntityWriter
             type: 'bool',
             name: 'initialized',
             value: false,
+            comment: '@kphp-json skip'
         );
 
         $this->classWriter->addVariable(
             visibility: Visibility::Private,
             type: EntityManagerInterface::class,
             name: '_entityManager',
+            comment: '@kphp-json skip'
         );
     }
 }

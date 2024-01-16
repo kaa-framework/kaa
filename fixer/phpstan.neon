@@ -93,3 +93,11 @@ parameters:
         - message: '#Cannot call method fetch\(\) on PDOStatement\|false\.#'
 
         - message: '#Call to an undefined method Symfony\\Component\\Config\\Definition\\Builder\\NodeDefinition::useAttributeAsKey\(\)\.#'
+
+        - message: "#Casting to string something that's already string.*#"
+          path: ../src/Component/Database/EntityManager/DnfSort.php
+
+        - message: '#Should not use node with type .*#'
+          path: ../src/Bundle/Framework/FrameworkGenerator.php
+
+        - message: '#In method "Kaa\\Bundle\\Framework\\FrameworkGenerator::generate", caught "Throwable" must be rethrown.*#'

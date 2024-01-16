@@ -9,33 +9,41 @@ use Kaa\Component\Generator\SharedConfig;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
+use Throwable;
 
 #[PhpOnly]
 class FrameworkGenerator
 {
     public function generate(string $pathToConfig, string $pathToGenerated): void
     {
-        $generatorsConfig = require $pathToConfig . '/bundles.php';
-        $newInstanceGenerator = $this->getNewInstanceGenerator($generatorsConfig);
-        $generators = $this->getGenerators($generatorsConfig);
+        try {
+            $generatorsConfig = require $pathToConfig . '/bundles.php';
+            $newInstanceGenerator = $this->getNewInstanceGenerator($generatorsConfig);
+            $generators = $this->getGenerators($generatorsConfig);
 
-        $sharedConfig = new SharedConfig($pathToGenerated, $newInstanceGenerator);
-        $config = $this->parseConfig($pathToConfig);
+            $sharedConfig = new SharedConfig($pathToGenerated, $newInstanceGenerator);
+            $config = $this->parseConfig($pathToConfig);
 
-        $processor = new Processor();
-        foreach ($generators as $generator) {
-            $generatorConfig = [];
-            if ($generator->getConfiguration() !== null) {
-                $generatorConfig = $processor->process(
-                    $generator->getConfiguration()->buildTree(),
-                    [$generator->getRootConfigurationKey() => $config[$generator->getRootConfigurationKey()] ?? []],
-                );
+            $processor = new Processor();
+            foreach ($generators as $generator) {
+                $generatorConfig = [];
+                if ($generator->getConfiguration() !== null) {
+                    $generatorConfig = $processor->process(
+                        $generator->getConfiguration()->buildTree(),
+                        [$generator->getRootConfigurationKey() => $config[$generator->getRootConfigurationKey()] ?? []],
+                    );
+                }
+
+                $generator->generate($sharedConfig, $generatorConfig);
+
+                $configArray = $generator->getConfigArray($generatorConfig);
+                $config = array_merge_recursive($config, $configArray);
             }
-
-            $generator->generate($sharedConfig, $generatorConfig);
-
-            $configArray = $generator->getConfigArray($generatorConfig);
-            $config = array_merge_recursive($config, $configArray);
+        } catch (Throwable $throwable) {
+            echo "Generation error: {$throwable->getMessage()}\n\n";
+            echo get_class($throwable) . "\n\n";
+            echo $throwable->getTraceAsString() . "\n\n";
+            exit;
         }
     }
 

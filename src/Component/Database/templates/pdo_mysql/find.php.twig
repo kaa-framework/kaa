@@ -6,7 +6,7 @@ switch ($entityClass) {
             $entity = instance_cast($this->managedEntities[$uniqueId]->getEntity(), \{{ entity.entityClass }}::class);
             if (!$entity->_isInitialized()) {
                 $this->refresh($entity);
-                $entity->setInitialized();
+                $entity->_setInitialized();
 
                 $this->managedEntities[$uniqueId]->setValues($entity->_getValues());
             }
