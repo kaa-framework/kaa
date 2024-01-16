@@ -24,6 +24,15 @@ interface EntityInterface
 
     /**
      * @internal
+     *
+     * @param array<string, int[]> $ids
+     * @param array<string, EntityWithValueSet> $managedEntities
+     * @return EntityInterface[] Сущности, которые должны стать managed
+     */
+    public function _hydrateOneToMany(array $ids, EntityManagerInterface $entityManager, array $managedEntities): array;
+
+    /**
+     * @internal
      */
     public function _getValues(): mixed;
 

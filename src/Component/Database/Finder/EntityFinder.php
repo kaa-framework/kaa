@@ -6,9 +6,11 @@ use Kaa\Component\Database\Attribute\Column;
 use Kaa\Component\Database\Attribute\Entity;
 use Kaa\Component\Database\Attribute\Id;
 use Kaa\Component\Database\Attribute\ManyToOne;
+use Kaa\Component\Database\Attribute\OneToMany;
 use Kaa\Component\Database\Dto\EntityMetadata;
 use Kaa\Component\Database\Dto\FieldMetadata;
 use Kaa\Component\Database\Dto\ManyToOneMetadata;
+use Kaa\Component\Database\Dto\OneToManyMetadata;
 use Kaa\Component\Database\EntityInterface;
 use Kaa\Component\Database\Exception\DatabaseGeneratorException;
 use Kaa\Component\Database\NamingStrategy\NamingStrategyInterface;
@@ -43,7 +45,7 @@ readonly class EntityFinder
     /**
      * @return EntityMetadata[]
      *
-     * @throws ReflectionException|FinderException
+     * @throws BadTypeException|DatabaseGeneratorException|FinderException|ReflectionException
      */
     public function getMetadata(): array
     {
@@ -52,11 +54,16 @@ readonly class EntityFinder
             predicate: static fn (ReflectionClass $c) => $c->getAttributes(Entity::class) !== [],
         );
 
-        return array_map($this->getEntityMetadata(...), $entityClasses);
+        $entityMetadata = [];
+        foreach ($entityClasses as $entityClass) {
+            $entityMetadata[$entityClass->getName()] = $this->getEntityMetadata($entityClass);
+        }
+
+        return $this->finishOneToManyMappings($entityMetadata);
     }
 
     /**
-     * @throws DatabaseGeneratorException
+     * @throws DatabaseGeneratorException|BadTypeException
      */
     private function getEntityMetadata(ReflectionClass $class): EntityMetadata
     {
@@ -86,11 +93,6 @@ readonly class EntityFinder
             static fn (ReflectionProperty $p) => $p->getAttributes(Column::class) !== [],
         );
 
-        $manyToOneFields = array_filter(
-            $class->getProperties(),
-            static fn (ReflectionProperty $p) => $p->getAttributes(ManyToOne::class) !== [],
-        );
-
         $idField = array_filter(
             $mappedFields,
             static fn (ReflectionProperty $p) => $p->getAttributes(Id::class) !== [],
@@ -100,8 +102,22 @@ readonly class EntityFinder
             throw new DatabaseGeneratorException("Entity {$class->getName()} does not have an Id field");
         }
 
+        if (Reflection::namedType($idField->getType())->getName() !== 'int') {
+            throw new DatabaseGeneratorException("Id field must have type int in {$class->getName()}::{$idField->getName()}");
+        }
+
         $idColumnName = $idField->getAttributes(Column::class)[0]->newInstance()->name
             ?? $this->namingStrategy->getColumnName($idField->getName());
+
+        $manyToOneFields = array_filter(
+            $class->getProperties(),
+            static fn (ReflectionProperty $p) => $p->getAttributes(ManyToOne::class) !== [],
+        );
+
+        $oneToManyFields = array_filter(
+            $class->getProperties(),
+            static fn (ReflectionProperty $p) => $p->getAttributes(OneToMany::class) !== [],
+        );
 
         return new EntityMetadata(
             entityClass: $class->getName(),
@@ -111,6 +127,7 @@ readonly class EntityFinder
             idFieldName: $idField->getName(),
             fields: array_map($this->getFieldMetadata(...), $mappedFields),
             manyToOne: array_map($this->getManyToOneMetadata(...), $manyToOneFields),
+            oneToMany: array_map($this->getOneToManyMetadata(...), $oneToManyFields),
         );
     }
 
@@ -151,9 +168,61 @@ readonly class EntityFinder
         return new ManyToOneMetadata(
             fieldName: $property->getName(),
             targetEntity: $attribute->targetEntity,
-            targetEntityClasName: (new ReflectionClass($attribute->targetEntity))->getShortName(),
+            targetEntityClassName: (new ReflectionClass($attribute->targetEntity))->getShortName(),
             columnName: $attribute->columnName ?? $this->namingStrategy->getColumnName($property->getName()) . '_id',
             isNullable: $attribute->nullable,
         );
+    }
+
+    /**
+     * @throws DatabaseGeneratorException|ReflectionException
+     */
+    private function getOneToManyMetadata(ReflectionProperty $property): OneToManyMetadata
+    {
+        if ($property->isPrivate()) {
+            throw new DatabaseGeneratorException("Annotated property {$property->getDeclaringClass()->getName()}::{$property->getName()} must not be private");
+        }
+
+        if (!$property->hasDefaultValue() && $property->getDefaultValue() !== []) {
+            throw new DatabaseGeneratorException("OneToMany property must have default value '[]' in {$property->getDeclaringClass()->getName()}::{$property->getName()}");
+        }
+
+        /** @var OneToMany $attribute */
+        $attribute = $property->getAttributes(OneToMany::class)[0]->newInstance();
+
+        return new OneToManyMetadata(
+            fieldName: $property->getName(),
+            targetEntity: $attribute->targetEntity,
+            targetEntityClassName: (new ReflectionClass($attribute->targetEntity))->getShortName(),
+            referenceFieldName: $attribute->mappedBy,
+        );
+    }
+
+    /**
+     * @param array<string, EntityMetadata> $entityMetadata
+     * @return array<string, EntityMetadata>
+     */
+    private function finishOneToManyMappings(array $entityMetadata): array
+    {
+        foreach ($entityMetadata as $entity) {
+            foreach ($entity->oneToMany as $oneToMany) {
+                $oneToMany->targetEntityTable = $entityMetadata[$oneToMany->targetEntity]->tableName;
+                $oneToMany->targetEntityIdColumnName = $entityMetadata[$oneToMany->targetEntity]->idColumnName;
+
+                foreach ($entityMetadata[$oneToMany->targetEntity]->manyToOne as $manyToOne) {
+                    if (
+                        $manyToOne->targetEntity !== $entity->entityClass
+                        || $manyToOne->fieldName !== $oneToMany->referenceFieldName
+                    ) {
+                        continue;
+                    }
+
+                    $oneToMany->referenceColumnName = $manyToOne->columnName;
+                    break;
+                }
+            }
+        }
+
+        return $entityMetadata;
     }
 }

@@ -1,0 +1,16 @@
+$newManagedEntities = [];
+
+{% for otm in oneToMany %}
+    foreach ($ids['{{ otm.fieldName }}'] as $eId) {
+        $mtoId = '{{ otm.targetEntity }}' . '#' . $eId;
+        if (array_key_exists($mtoId, $managedEntities)) {
+            $this->{{ otm.fieldName }}[] = instance_cast($managedEntities[$mtoId]->getEntity(), \{{ otm.targetEntity }}::class);
+        } else {
+            $lazy{{ otm.fieldName }} = new \Kaa\Generated\Database\LazyEntity\{{ connection }}\{{ otm.targetEntityClassName }}($eId, $entityManager);
+            $newManagedEntities[] = $lazy{{ otm.fieldName }};
+            $this->{{ otm.fieldName }}[] = $lazy{{ otm.fieldName }};
+        }
+    }
+{% endfor %}
+
+return $newManagedEntities;

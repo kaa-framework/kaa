@@ -19,6 +19,9 @@ readonly class EntityMetadata
 
         /** @var ManyToOneMetadata[] */
         public array $manyToOne,
+
+        /** @var OneToManyMetadata[] */
+        public array $oneToMany,
     ) {
     }
 }

@@ -14,7 +14,6 @@ final readonly class ManyToOne
     public function __construct(
         public string $targetEntity,
         public ?string $columnName = null,
-        public ?string $inversedBy = null,
         public bool $nullable = false
     ) {
     }

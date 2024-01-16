@@ -10,7 +10,7 @@ readonly class ManyToOneMetadata
     public function __construct(
         public string $fieldName,
         public string $targetEntity,
-        public string $targetEntityClasName,
+        public string $targetEntityClassName,
         public string $columnName,
         public bool $isNullable,
     ) {

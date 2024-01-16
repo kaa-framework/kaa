@@ -43,6 +43,7 @@ switch ($entityClass) {
 
         $query .= implode(' AND ', $where);
 
+
         if ($order !== []) {
             $query .= ' ORDER BY ';
             $orderBy = [];
@@ -108,6 +109,34 @@ switch ($entityClass) {
 
             $entity = new \Kaa\Generated\Database\Entity\{{ connection }}\{{ entity.className }}();
             $newManagedEntities = $entity->_hydrate($result, $this, $this->managedEntities);
+            foreach ($newManagedEntities as $newManagedEntity) {
+                $this->managedEntities[get_class($newManagedEntity) . '#' . $newManagedEntity->_getId()] = new \Kaa\Component\Database\Dto\EntityWithValueSet(
+                    $newManagedEntity,
+                    $newManagedEntity->_isInitialized() ? $newManagedEntity->_getValues() : []
+                );
+            }
+
+            /** @var array<string, int[]> $oneToManyIds */
+            $oneToManyIds = [];
+            {% for oneToMany in entity.oneToMany %}
+                {# @var oneToMany \Kaa\Component\Database\Dto\OneToManyMetadata #}
+                $subQuery = '
+                    SELECT DISTINCT({{ oneToMany.targetEntityIdColumnName }}) AS id
+                    FROM {{ oneToMany.targetEntityTable }}
+                    WHERE {{ oneToMany.referenceColumnName }} = %s
+                ';
+
+                $subQuery = sprintf($subQuery, $entity->_getId());
+
+                $subStatement = $this->pdo->query($subQuery);
+                $subResults = $subStatement->fetchAll();
+                $oneToManyIds['{{ oneToMany.fieldName }}'] = [];
+                foreach($subResults as $subResult) {
+                    $oneToManyIds['{{ oneToMany.fieldName }}'][] = (int) $subResult['id'];
+                }
+            {% endfor %}
+
+            $newManagedEntities = $entity->_hydrateOneToMany($oneToManyIds, $this, $this->managedEntities);
             foreach ($newManagedEntities as $newManagedEntity) {
                 $this->managedEntities[get_class($newManagedEntity) . '#' . $newManagedEntity->_getId()] = new \Kaa\Component\Database\Dto\EntityWithValueSet(
                     $newManagedEntity,

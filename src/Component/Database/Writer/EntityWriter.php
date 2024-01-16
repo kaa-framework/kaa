@@ -44,6 +44,7 @@ readonly class EntityWriter
         $this->addConstructor();
         $this->addGetColumnNamesMethod();
         $this->addHydrateMethod();
+        $this->addHydrateOneToManyMethod();
         $this->addGetValuesMethod();
         $this->addGetId();
         $this->addSetId();
@@ -114,6 +115,36 @@ readonly class EntityWriter
                 new Parameter(type: 'array', name: 'managedEntities'),
             ],
             comment: '@param array<string, \Kaa\Component\Database\Dto\EntityWithValueSet> $managedEntities' . "\n" . '@return \Kaa\Component\Database\EntityInterface[]',
+        );
+    }
+
+    /**
+     * @throws SyntaxError|RuntimeError|LoaderError
+     */
+    private function addHydrateOneToManyMethod(): void
+    {
+        $code = $this->twig->render('hydrate_one_to_many.php.twig', [
+            'fields' => $this->entityMetadata->fields,
+            'oneToMany' => $this->entityMetadata->oneToMany,
+            'connection' => $this->connectionName,
+        ]);
+
+        $this->classWriter->addMethod(
+            visibility: Visibility::Public,
+            name: '_hydrateOneToMany',
+            returnType: 'array',
+            code: $code,
+            parameters: [
+                new Parameter(type: 'array', name: 'ids'),
+                new Parameter(type: EntityManagerInterface::class, name: 'entityManager'),
+                new Parameter(type: 'array', name: 'managedEntities'),
+            ],
+            comment: '
+                @internal
+                @param array<string, int[]> $ids
+                @param array<string, \Kaa\Component\Database\Dto\EntityWithValueSet> $managedEntities
+                @return \Kaa\Component\Database\EntityInterface[] Сущности, которые должны стать managed
+            ',
         );
     }
 

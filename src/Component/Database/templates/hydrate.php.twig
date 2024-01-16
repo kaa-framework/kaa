@@ -14,7 +14,7 @@ $newManagedEntities = [];
     if (array_key_exists($mtoId, $managedEntities)) {
         $this->{{ mto.fieldName }} = instance_cast($managedEntities[$mtoId]->getEntity(), \{{ mto.targetEntity }}::class);
     } else {
-        $lazy{{ mto.fieldName }} = new \Kaa\Generated\Database\LazyEntity\{{ connection }}\{{ mto.targetEntityClasName }}((int) $values['{{ mto.columnName }}'], $entityManager);
+        $lazy{{ mto.fieldName }} = new \Kaa\Generated\Database\LazyEntity\{{ connection }}\{{ mto.targetEntityClassName }}((int) $values['{{ mto.columnName }}'], $entityManager);
         $newManagedEntities[] = $lazy{{ mto.fieldName }};
         $this->{{ mto.fieldName }} = $lazy{{ mto.fieldName }};
     }
