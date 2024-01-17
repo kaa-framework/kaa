@@ -56,14 +56,14 @@ switch ($entityClass) {
                 {% for field in entity.fields %}
                     {# @var field \Kaa\Component\Database\Dto\FieldMetadata #}
                     case '{{ field.name }}':
-                        $where[] = "{{ field.columnName }} " . $value;
+                        $orderBy[] = "{{ field.columnName }} " . $value;
 
                     break;
                 {% endfor %}
                 {% for mto in entity.manyToOne %}
                     {# @var field \Kaa\Component\Database\Dto\FieldMetadata #}
                     case '{{ mto.fieldName }}':
-                        $where[] = "{{ mto.columnName }} = " . $value;
+                        $orderBy[] = "{{ mto.columnName }} = " . $value;
                     break;
                 {% endfor %}
                     default:
