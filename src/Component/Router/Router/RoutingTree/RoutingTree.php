@@ -104,9 +104,9 @@ class RoutingTree
             // Создаём полный путь с методом
             $existPath = implode('/', [$method, ...$nodes]);
             // Проверяем нет ли похожего путя в дереве
-            if (array_key_exists($existPath, $this->createdElements[$nodesCount])) {
+            if (array_key_exists($existPath, $this->createdElements[$nodesCount - 1])) {
                 /** @var TreeNode $realisedElement */
-                $realisedElement = $this->createdElements[$nodesCount][$existPath];
+                $realisedElement = $this->createdElements[$nodesCount - 1][$existPath];
                 // Если похожий путь есть, но он ни к чему не ведёт - меняем
                 if ($realisedElement->getHandler() === null) {
                     $realisedElement->setHandler($handler);
