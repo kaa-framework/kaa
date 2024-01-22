@@ -18,7 +18,7 @@ class ConfigValidator
     {
         $troubleRoutes = [];
         foreach ($config['routes'] as $route) {
-            $index = $route['method'] . $route['route'];
+            $index = $route['method'] . ($config['prefixes'][$route['service']] ?? '') . $route['route'];
             if (array_key_exists($index, $troubleRoutes)) {
                 $troubleRoutes[$index]++;
             } else {
