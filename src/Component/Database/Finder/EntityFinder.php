@@ -201,11 +201,23 @@ readonly class EntityFinder
     /**
      * @param array<string, EntityMetadata> $entityMetadata
      * @return array<string, EntityMetadata>
+     * @throws DatabaseGeneratorException
      */
     private function finishOneToManyMappings(array $entityMetadata): array
     {
         foreach ($entityMetadata as $entity) {
             foreach ($entity->oneToMany as $oneToMany) {
+                if (!array_key_exists($oneToMany->targetEntity, $entityMetadata)) {
+                    throw new DatabaseGeneratorException(
+                        sprintf(
+                            'Referenced OneToMany entity %s does not exist in %s::%s',
+                            $oneToMany->targetEntity,
+                            $entity->className,
+                            $oneToMany->fieldName,
+                        )
+                    );
+                }
+
                 $oneToMany->targetEntityTable = $entityMetadata[$oneToMany->targetEntity]->tableName;
                 $oneToMany->targetEntityIdColumnName = $entityMetadata[$oneToMany->targetEntity]->idColumnName;
 
@@ -219,6 +231,10 @@ readonly class EntityFinder
 
                     $oneToMany->referenceColumnName = $manyToOne->columnName;
                     break;
+                }
+
+                if ($oneToMany->referenceColumnName === null) {
+                    throw new DatabaseGeneratorException("Referenced OneToMany field {$oneToMany->targetEntity}::{$oneToMany->referenceFieldName} does not exist in {$entity->className}::{$oneToMany->fieldName}");
                 }
             }
         }
