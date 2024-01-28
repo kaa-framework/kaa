@@ -11,6 +11,7 @@ use Kaa\Component\Security\SecurityGenerator;
 use Kaa\Component\Security\SecurityInterface;
 use Kaa\Component\Security\Session\SessionAuthenticator;
 use Kaa\Component\Security\Session\SessionService;
+use Kaa\Component\Security\Voter\IsAuthenticatedFullyVoter;
 use Kaa\Component\Security\Voter\RoleVoter;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 
@@ -115,6 +116,10 @@ class SecurityBundle extends SecurityGenerator implements BundleGeneratorInterfa
 
             RoleVoter::class => [
                 'class' => RoleVoter::class,
+            ],
+
+            IsAuthenticatedFullyVoter::class => [
+                'class' => IsAuthenticatedFullyVoter::class,
             ],
         ];
 

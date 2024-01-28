@@ -6,6 +6,7 @@ use Exception;
 use Kaa\Component\Generator\PhpOnly;
 use Kaa\Component\Generator\Util\ClassFinder;
 use Kaa\Component\Security\Attribute\Voter;
+use Kaa\Component\Security\Voter\IsAuthenticatedFullyVoter;
 use Kaa\Component\Security\Voter\RoleVoter;
 use ReflectionClass;
 
@@ -34,6 +35,7 @@ readonly class VoterLocator
 
         $votersArray = $this->config['voters'];
         $votersArray['ROLE'] = ['service' => RoleVoter::class];
+        $votersArray['IS_AUTHENTICATED_FULLY'] = ['service' => IsAuthenticatedFullyVoter::class];
 
         foreach ($voters as $voterClass) {
             /** @var Voter $voter */
