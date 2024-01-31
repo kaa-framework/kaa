@@ -60,7 +60,7 @@ class AttributesToConfigParser
         }
 
         if ($routeAttributes !== []) {
-            if ($this->config['prefixes'][$handlerClass->getName()] === []) {
+            if (!array_key_exists($handlerClass->getName(), $this->config['prefixes'])) {
                 $this->config['prefixes'][$handlerClass->getName()] = $routeAttributes[0]->newInstance()->route;
             } else {
                 $this->config['prefixes'][$handlerClass->getName()] .= $routeAttributes[0]->newInstance()->route;
