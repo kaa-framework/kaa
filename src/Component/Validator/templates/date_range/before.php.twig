@@ -1,0 +1,6 @@
+{% include 'date_range/check_user_date.php.twig' %}
+$before = \DateTime::createFromFormat('{{ format }}', '{{ before }}');
+
+if ($before < $date) {
+    $violationsList[] = new \Kaa\Component\Validator\Violation('{{ class }}', '{{ property }}', '{{ message }}');
+}

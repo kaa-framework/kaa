@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Kaa\Component\Validator\Test\Models;
 
+use DateTime;
 use Kaa\Component\Validator\Assert;
 
 class TestModel
@@ -97,4 +98,48 @@ class TestModel
         max: 10,
     )]
     public int $RangeFalse = 13;
+
+    #[Assert\Choice([10, '123'])]
+    public int $ChoiceTrue = 10;
+
+    #[Assert\Choice([10, '123'])]
+    public string $ChoiceFalse = 'a';
+
+    #[Assert\DateRange(
+        format: 'Y-m-d',
+        before: new DateTime('2023-09-15'),
+        after: new DateTime('2020-12-10'),
+    )]
+    public string $DateRangeBetweenTrue = '2023-09-10';
+
+    #[Assert\DateRange(
+        format: 'Y-m-d',
+        after: new DateTime('2020-12-10'),
+    )]
+    public string $DateRangeAfterTrue = '2023-09-10';
+
+    #[Assert\DateRange(
+        format: 'Y-m-d',
+        before: new DateTime('2023-10-10'),
+    )]
+    public string $DateRangeBeforeTrue = '2023-09-10';
+
+    #[Assert\DateRange(
+        format: 'Y-m-d',
+        before: new DateTime('2023-09-15'),
+        after: new DateTime('2020-12-10'),
+    )]
+    public string $DateRangeBetweenFalse = '2020-12-09';
+
+    #[Assert\DateRange(
+        format: 'Y-m-d',
+        after: new DateTime('2020-12-10'),
+    )]
+    public string $DateRangeAfterFalse = '2019-02-19';
+
+    #[Assert\DateRange(
+        format: 'Y-m-d',
+        before: new DateTime('2023-10-10'),
+    )]
+    public string $DateRangeBeforeFalse = '2023-11-10';
 }

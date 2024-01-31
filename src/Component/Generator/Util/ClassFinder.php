@@ -46,7 +46,7 @@ class ClassFinder
             static fn (ReflectionClass $c) => self::notInIgnoredNamespace($c, $ignore),
         );
 
-        if ($predicate === null) {
+        if ($predicate !== null) {
             $reflectionClasses = array_filter($reflectionClasses, $predicate);
         }
 

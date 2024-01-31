@@ -7,6 +7,8 @@ namespace Kaa\Component\Validator\Test;
 use Exception;
 use Kaa\Component\Generator\SharedConfig;
 use Kaa\Component\Validator\Assert\Blank;
+use Kaa\Component\Validator\Assert\Choice;
+use Kaa\Component\Validator\Assert\DateRange;
 use Kaa\Component\Validator\Assert\Email;
 use Kaa\Component\Validator\Assert\GreaterThan;
 use Kaa\Component\Validator\Assert\GreaterThanOrEqual;
@@ -265,6 +267,70 @@ class AssertsTest extends TestCase
         assertCount(1, $violationsList);
         assertEquals(
             'The value must lie in the range from 3 to 10',
+            $violationsList[0]->getMessage(),
+        );
+    }
+
+    public function testChoiceTrue(): void
+    {
+        $violationsList = $this->getViolationsList(Choice::class, 'ChoiceTrue');
+        assertCount(0, $violationsList);
+    }
+
+    public function testChoiceFalse(): void
+    {
+        $violationsList = $this->getViolationsList(Choice::class, 'ChoiceFalse');
+        assertCount(1, $violationsList);
+        assertEquals(
+            'The value you selected is not a valid choice.',
+            $violationsList[0]->getMessage(),
+        );
+    }
+
+    public function testDateRangeBetweenTrue(): void
+    {
+        $violationsList = $this->getViolationsList(DateRange::class, 'DateRangeBetweenTrue');
+        assertCount(0, $violationsList);
+    }
+
+    public function testDateRangeAfterTrue(): void
+    {
+        $violationsList = $this->getViolationsList(DateRange::class, 'DateRangeAfterTrue');
+        assertCount(0, $violationsList);
+    }
+
+    public function testDateRangeBeforeTrue(): void
+    {
+        $violationsList = $this->getViolationsList(DateRange::class, 'DateRangeAfterTrue');
+        assertCount(0, $violationsList);
+    }
+
+    public function testDateRangeBetweenFalse(): void
+    {
+        $violationsList = $this->getViolationsList(DateRange::class, 'DateRangeBetweenFalse');
+        assertCount(1, $violationsList);
+        assertEquals(
+            'This value should be between 2020-12-10 and 2023-09-15.',
+            $violationsList[0]->getMessage(),
+        );
+    }
+
+    public function testDateRangeAfterFalse(): void
+    {
+        $violationsList = $this->getViolationsList(DateRange::class, 'DateRangeAfterFalse');
+        assertCount(1, $violationsList);
+        assertEquals(
+            'This value should be after 2020-12-10.',
+            $violationsList[0]->getMessage(),
+        );
+    }
+
+    public function testDateRangeBeforeFalse(): void
+    {
+        $violationsList = $this->getViolationsList(DateRange::class, 'DateRangeBeforeFalse');
+        assertCount(1, $violationsList);
+        assertEquals(
+            'This value should be before 2023-10-10.',
             $violationsList[0]->getMessage(),
         );
     }
