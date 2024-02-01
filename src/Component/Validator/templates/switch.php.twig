@@ -2,7 +2,7 @@ $violationsList = [];
 switch(get_class($model)) {
 {% for class, value in methodNames %}
     case \{{ class }}::class:
-        $violationsList = $this->{{ value }}($model);
+        $violationsList = $this->{{ value }}(instance_cast($model, \{{ class }}::class));
 
     break;
 {% endfor %}
