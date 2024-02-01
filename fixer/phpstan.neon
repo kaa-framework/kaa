@@ -101,3 +101,6 @@ parameters:
           path: ../src/Bundle/Framework/FrameworkGenerator.php
 
         - message: '#In method "Kaa\\Bundle\\Framework\\FrameworkGenerator::generate", caught "Throwable" must be rethrown.*#'
+
+        - message: '#Parameter \#1 \$callback of function array_map expects \(callable\(int\|string\): mixed\)\|null, .*#'
+          path: ../src/Component/Router/Router/RouteLocator/ConfigValidator.php
