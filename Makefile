@@ -28,5 +28,5 @@ lint:
 lintfix:
 	@sh etc/script/ecs.sh
 
-unit:
-	@docker run --rm -t -v $(shell pwd):/app kaa/php vendor/bin/phpunit -c fixer/phpunit.xml.dist
+pest:
+	@docker run --rm -t -v $(shell pwd):/app kaa/php php vendor/bin/pest -c fixer/phpunit.xml.dist --compact --display-errors --display-incomplete --display-skipped --display-notices --display-warnings || EXIT=1

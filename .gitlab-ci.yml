@@ -55,7 +55,7 @@ Easy Coding Standard:
         - vendor/bin/ecs check --config=fixer/ecs.php
 
 
-PHPUnit:
+Pest:
     stage: test
     extends:
         - .test-rules
@@ -63,7 +63,7 @@ PHPUnit:
     tags: [ docker ]
     image: registry.miem.hse.ru/kaa-framework/kaa/php:latest
     script:
-        - XDEBUG_MODE=coverage vendor/bin/phpunit -c fixer/phpunit.xml.dist --do-not-cache-result --log-junit phpunit-report.xml --coverage-cobertura phpunit-coverage.xml --coverage-text --colors=never
+        - XDEBUG_MODE=coverage php vendor/bin/pest -c fixer/phpunit.xml.dist --parallel --compact --log-junit phpunit-report.xml --coverage-cobertura phpunit-coverage.xml --coverage-text --colors=never
 
     artifacts:
         when: always
