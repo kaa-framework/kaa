@@ -4,24 +4,44 @@ declare(strict_types=1);
 
 namespace Kaa\Component\Validator\Test;
 
-use Kaa\Component\Validator\Test\GeneratedTest\Validator\Validator;
+use Exception;
+use Kaa\Component\Generator\SharedConfig;
 use Kaa\Component\Validator\Test\Models\SomeModel;
-use PHPUnit\Framework\TestCase;
-use function PHPUnit\Framework\assertCount;
-use function PHPUnit\Framework\assertEquals;
+use Kaa\Component\Validator\Test\Models\TestModel;
+use Kaa\Component\Validator\ValidatorGenerator;
+use Kaa\Generated\Validator\Validator;
 
-class SwitchCaseTest extends TestCase
+trait SwitchCaseTest
 {
-    protected function setUp(): void
+    /**
+     * @throws Exception
+     */
+    private function generateValidator(): void
     {
-        $this->validator = new Validator();
-        $this->model = new SomeModel();
-    }
-
-    public function testSwitchCase(): void
-    {
-        $violationsList = $this->validator->validate($this->model);
-        assertCount(1, $violationsList);
-        assertEquals('This value should be blank.', $violationsList[0]->getMessage());
+        $this->testModel = new TestModel();
+        $this->sharedConfig = new SharedConfig('../generated');
+        $this->config = [
+            'scan' => [
+                'Kaa\Component\Validator\Test\Models\SomeModel',
+            ],
+        ];
+        $validatorGenerator = new ValidatorGenerator();
+        $validatorGenerator->generate($this->sharedConfig, $this->config);
     }
 }
+
+uses(SwitchCaseTest::class);
+
+beforeEach(function () {
+    $this->generateValidator();
+    $this->validator = new Validator();
+    $this->model = new SomeModel();
+    $this->violationsList = $this->validator->validate($this->model);
+});
+
+test('switch case', function () {
+    expect($this->violationsList)
+        ->toHaveCount(1)
+        ->and($this->violationsList[0]->getMessage())
+        ->toBe('This value should be blank.');
+});

@@ -142,4 +142,40 @@ class TestModel
         before: new DateTime('2023-10-10'),
     )]
     public string $DateRangeBeforeFalse = '2023-11-10';
+
+    #[Assert\Length(
+        max: 10,
+    )]
+    public string $LengthMaxTrue = '123';
+
+    #[Assert\Length(
+        max: 2,
+    )]
+    public string $LengthMaxFalse = '123';
+
+    #[Assert\Length(
+        min: 2,
+    )]
+    public string $LengthMinTrue = '123';
+
+    #[Assert\Length(
+        min: 5,
+    )]
+    public string $LengthMinFalse = '123';
+
+    #[Assert\Length(
+        exactly: 3,
+    )]
+    public string $LengthExactlyTrue = '123';
+
+    #[Assert\Length(
+        exactly: 2,
+    )]
+    public string $LengthExactlyFalse = '123';
+
+    #[Assert\Url]
+    public string $UrlTrue = 'https://google.com';
+
+    #[Assert\Url]
+    public string $UrlFalse = 'https://google,com';
 }
