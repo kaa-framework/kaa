@@ -226,7 +226,7 @@ class Request
         $server['QUERY_STRING'] = $queryString;
 
         /** @phpstan-ignore-next-line */
-        return new static($query, $request, [], $server, $content);
+        return new static($query, $request, [], [], $server, $content);
     }
 
     /**

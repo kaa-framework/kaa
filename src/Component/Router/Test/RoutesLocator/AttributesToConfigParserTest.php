@@ -4,45 +4,34 @@ declare(strict_types=1);
 
 namespace Kaa\Component\Router\Test\RoutesLocator;
 
-use Exception;
-use Kaa\Component\Generator\PhpOnly;
+use Kaa\Component\Generator\DefaultNewInstanceGenerator;
+use Kaa\Component\Generator\SharedConfig;
+use Kaa\Component\Router\Decorator\DecoratorWriter;
 use Kaa\Component\Router\Exception\RouterGeneratorException;
 use Kaa\Component\Router\Router\Dto\RoutesCollection;
 use Kaa\Component\Router\Router\RouteLocator\AttributesToConfigParser;
-use PHPUnit\Framework\TestCase;
-use ReflectionException;
-use function PHPUnit\Framework\assertFalse;
-use function PHPUnit\Framework\assertTrue;
 
-#[PhpOnly]
-class AttributesToConfigParserTest extends TestCase
-{
-    private const CONFIG = [
+beforeEach(function () {
+    $this->parserConfig = [
         'scan' => [
             '\\Kaa\\Component\\Router\\Test\\Handlers\\Scan\\',
         ],
     ];
+    $newInstanceGenerator = new DefaultNewInstanceGenerator();
+    $sharedConfig = new SharedConfig(dirname(__DIR__) . '/generated', $newInstanceGenerator);
+    $this->decoratorWriter = new DecoratorWriter($sharedConfig);
+});
 
-    /**
-     * @throws ReflectionException|RouterGeneratorException|Exception
-     */
-    public function testIgnoring(): void
-    {
-        $config = (new AttributesToConfigParser(self::CONFIG))->getConfig();
-        $routeCollection = new RoutesCollection($config);
-        assertTrue($routeCollection->has('/test/healthcheck'));
-        assertFalse($routeCollection->has('/test/ignore'));
-        assertTrue($routeCollection->has('/test/posthealthcheck', 'POST'));
-    }
+it('ignores namespace', function () {
+    $config = (new AttributesToConfigParser($this->parserConfig))->getConfig();
+    $routeCollection = new RoutesCollection($config, $this->decoratorWriter);
+    expect($routeCollection)
+        ->has('/test/healthcheck', 'GET')->toBe(true)
+        ->has('/test/posthealthcheck', 'POST')->toBe(true)
+        ->has('/ignore')->toBe(false);
+});
 
-    /**
-     * @throws ReflectionException
-     */
-    public function testRouteException(): void
-    {
-        $config = self::CONFIG;
-        $config['scan'][] = '\\Kaa\\Component\\Router\\Test\\Handlers\\Ignore\\';
-        $this->expectException(RouterGeneratorException::class);
-        (new AttributesToConfigParser($config))->getConfig();
-    }
-}
+it('throws exception', function () {
+    $this->parserConfig['scan'][] = '\\Kaa\\Component\\Router\\Test\\Handlers\\Ignore\\';
+    (new AttributesToConfigParser($this->parserConfig))->getConfig();
+})->expectException(RouterGeneratorException::class);

@@ -4,17 +4,11 @@ declare(strict_types=1);
 
 namespace Kaa\Component\Router\Test\RoutesLocator;
 
-use Kaa\Component\Generator\PhpOnly;
 use Kaa\Component\Router\Exception\ValidationException;
 use Kaa\Component\Router\Router\RouteLocator\ConfigValidator;
-use PHPUnit\Framework\TestCase;
-use function PHPUnit\Framework\assertEquals;
-use function PHPUnit\Framework\assertTrue;
 
-#[PhpOnly]
-class ConfigValidatorTest extends TestCase
-{
-    private const CONFIG = [
+beforeEach(function () {
+    $this->config = [
         'scan' => [
             '\\Kaa\\Component\\Router\\Test\\Handlers\\Scan\\',
         ],
@@ -34,53 +28,40 @@ class ConfigValidatorTest extends TestCase
             ],
         ],
     ];
+});
 
-    /**
-     * @throws ValidationException
-     */
-    public function testNoChanges()
-    {
-        $old = self::CONFIG;
-        ConfigValidator::validate(self::CONFIG);
-        assertEquals($old, $old);
-    }
+it('no changed', function () {
+    $old = $this->config;
+    ConfigValidator::validate($this->config);
+    $this->assertSame($old, $this->config);
+});
 
-    /**
-     * @throws ValidationException
-     */
-    public function testEmpty()
-    {
-        $config = [];
-        ConfigValidator::validate($config);
-        assertEquals([], $config);
-    }
+it('empty ', function () {
+    $config = [];
+    ConfigValidator::validate($config);
+    $this->assertSame([], $config);
+});
 
-    public function testThrow()
-    {
-        $config = self::CONFIG;
-        $config['routes'][] = [
-            'route' => '/external-api',
-            'method' => 'GET',
-            'service' => 'TestHandler',
-            'classMethod' => 'callExternalApi',
-        ];
-        $this->expectException(ValidationException::class);
-        ConfigValidator::validate($config);
-    }
+it('throws exception', function () {
+    $this->config['routes'][] = [
+        'route' => '/external-api',
+        'method' => 'GET',
+        'service' => 'TestHandler',
+        'classMethod' => 'callExternalApi',
+    ];
+    ConfigValidator::validate($this->config);
+})->throws(ValidationException::class);
 
-    /**
-     * @throws ValidationException
-     */
-    public function testNormal()
-    {
-        $config = self::CONFIG;
-        $config['routes'][] = [
-            'route' => '/external-api',
-            'method' => 'POST',
-            'service' => 'TestHandler',
-            'classMethod' => 'callExternalApi',
-        ];
-        ConfigValidator::validate($config);
-        assertTrue(true);
-    }
-}
+it('throws exception but differ method', function () {
+    $this->config['routes'][] = [
+        'route' => '/external-api',
+        'method' => 'GET',
+        'service' => 'ThrowHandler',
+        'classMethod' => 'error',
+    ];
+    ConfigValidator::validate($this->config);
+})->throws(ValidationException::class);
+
+it('normal works', function () {
+    ConfigValidator::validate($this->config);
+})->throwsNoExceptions();

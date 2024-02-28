@@ -19,7 +19,7 @@ trait SwitchCaseTest
     private function generateValidator(): void
     {
         $this->testModel = new TestModel();
-        $this->sharedConfig = new SharedConfig('../generated');
+        $this->sharedConfig = new SharedConfig(dirname(__DIR__, 4) . '/generated');
         $this->config = [
             'scan' => [
                 'Kaa\Component\Validator\Test\Models\SomeModel',

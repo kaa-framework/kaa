@@ -17,11 +17,16 @@ class ConfigValidator
     public static function validate(array $config): void
     {
         $troubleRoutes = [];
+        if (!array_key_exists('routes', $config)) {
+            return;
+        }
         foreach ($config['routes'] as $route) {
             $possiblePrefixes = [];
-            foreach (array_keys($config['prefixes']) as $key) {
-                if (str_starts_with($route['service'], (string) $key)) {
-                    $possiblePrefixes[$key] = $config['prefixes'][$key];
+            if (array_key_exists('prefixes', $config)) {
+                foreach (array_keys($config['prefixes']) as $key) {
+                    if (str_starts_with($route['service'], (string) $key)) {
+                        $possiblePrefixes[$key] = $config['prefixes'][$key];
+                    }
                 }
             }
             $keys = array_map('strlen', array_keys($possiblePrefixes));

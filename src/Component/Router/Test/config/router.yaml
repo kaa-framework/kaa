@@ -1,0 +1,3 @@
+router:
+  scan:
+    - Kaa\Component\Router\Test\Handlers\Scan

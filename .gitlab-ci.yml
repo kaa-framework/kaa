@@ -15,7 +15,7 @@ composer install:
     stage: install test dependencies
 
     tags: [ docker ]
-    image: registry.miem.hse.ru/kaa-framework/kaa/php:latest
+    image: registry.miem.hse.ru/kaa-framework/kaa/php:1.0.0
 
     script:
         - composer install --no-interaction
@@ -33,7 +33,7 @@ PHPStan:
         - .test-rules
 
     tags: [ docker ]
-    image: registry.miem.hse.ru/kaa-framework/kaa/php:latest
+    image: registry.miem.hse.ru/kaa-framework/kaa/php:1.0.0
 
     script:
         - vendor/bin/phpstan --configuration=fixer/phpstan.neon --no-progress --error-format=gitlab > phpstan.json
@@ -49,7 +49,7 @@ Easy Coding Standard:
         - .test-rules
 
     tags: [ docker ]
-    image: registry.miem.hse.ru/kaa-framework/kaa/php:latest
+    image: registry.miem.hse.ru/kaa-framework/kaa/php:1.0.0
 
     script:
         - vendor/bin/ecs check --config=fixer/ecs.php
@@ -61,15 +61,11 @@ Pest:
         - .test-rules
 
     tags: [ docker ]
-    image: registry.miem.hse.ru/kaa-framework/kaa/php:latest
+    image: registry.miem.hse.ru/kaa-framework/kaa/php:1.0.0
     script:
-        - XDEBUG_MODE=coverage php vendor/bin/pest -c fixer/phpunit.xml.dist --parallel --compact --log-junit phpunit-report.xml --coverage-cobertura phpunit-coverage.xml --coverage-text --colors=never
+        - php vendor/bin/pest -c fixer/phpunit.xml.dist --parallel --compact --log-junit phpunit-report.xml --colors=never
 
     artifacts:
         when: always
         reports:
             junit: phpunit-report.xml
-            coverage_report:
-                coverage_format: cobertura
-                path: phpunit-coverage.xml
-    coverage: '/^\s*Lines:\s*\d+.\d+\%/'

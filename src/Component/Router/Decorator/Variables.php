@@ -19,7 +19,6 @@ class Variables
         $type = in_array($type, ['string', 'float', 'int'], true)
             ? $type
             : '\\' . ltrim($type, '\\');
-
         $this->variables[$name] = $type;
     }
 

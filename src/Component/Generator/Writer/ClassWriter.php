@@ -71,6 +71,9 @@ readonly class ClassWriter
         bool $isStatic = false,
         ?string $comment = null,
     ): self {
+        if (array_key_exists($name, $this->class->getMethods())) {
+            return $this;
+        }
         $method = $this->class->addMethod($name);
 
         $method->setVisibility($visibility->value);

@@ -1,5 +1,4 @@
 [![pipeline status](https://git.miem.hse.ru/kaa-framework/kaa/badges/main/pipeline.svg)](https://git.miem.hse.ru/kaa-framework/kaa/-/commits/main)
-[![Coverage](https://git.miem.hse.ru/kaa-framework/kaa/badges/main/coverage.svg?job=PHPUnit&key_text=Coverage&key_width=70&min_good=90&min_acceptable=80&min_medium=70)](https://git.miem.hse.ru/kaa-framework/kaa/badges/main/coverage.svg?job=PHPUnit&key_text=Coverage&key_width=70&min_good=90&min_acceptable=80&min_medium=70)
 
 # Kaa &mdash; web-фреймворк для KPHP
 

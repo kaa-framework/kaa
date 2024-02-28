@@ -93,6 +93,7 @@ final class RouterWriter
                         $code[] = $this->twig->render(
                             'while_body_second.php.twig',
                             [
+                                'current' => $current,
                                 'indexes' => $indexes,
                                 'depth' => $depth,
                                 'route' => $parents[$depth][$indexes[$depth]]->getData(),

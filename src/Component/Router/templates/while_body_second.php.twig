@@ -1,4 +1,4 @@
-{% if not t.isVariable %}
+{% if not current.isVariable() %}
     {% if indexes[depth] is same as(0) %}
         if (($nodes[{{ depth }}] === '{{ route }}') && ($count_nodes >= {{ depth + 1 }})){
     {% else %}
