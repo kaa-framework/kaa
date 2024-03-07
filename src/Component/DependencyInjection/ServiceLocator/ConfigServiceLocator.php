@@ -76,6 +76,12 @@ readonly class ConfigServiceLocator
         $reflectionClass = new ReflectionClass($class);
         if (array_key_exists('factory', $serviceData) && $serviceData['factory'] !== []) {
             $arguments = null;
+            if ($serviceName === $serviceData['factory']['service']
+                || $serviceName === $this->aliasCollection->getServiceName($serviceData['factory']['service'])) {
+                throw new InvalidServiceDefinitionException(
+                    "You cannot set factory as itself for service {$serviceName}"
+                );
+            }
 
             $factoryData = $serviceData['factory'];
             $factory = new Factory(

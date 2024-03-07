@@ -4,112 +4,94 @@ declare(strict_types=1);
 
 namespace Kaa\Component\DependencyInjection\Test\ServiceLocator;
 
-use Exception;
 use Kaa\Component\DependencyInjection\Dto\AliasCollection;
 use Kaa\Component\DependencyInjection\Dto\ParameterCollection;
 use Kaa\Component\DependencyInjection\Dto\Service\ArgumentType;
 use Kaa\Component\DependencyInjection\Dto\Service\ConstructionType;
 use Kaa\Component\DependencyInjection\Dto\Service\ServiceCollection;
 use Kaa\Component\DependencyInjection\Exception\InvalidServiceDefinitionException;
-use Kaa\Component\DependencyInjection\Exception\ServiceAlreadyExistsException;
-use Kaa\Component\DependencyInjection\Exception\ServiceDoesNotExistException;
 use Kaa\Component\DependencyInjection\ServiceLocator\AttributesToConfigParser;
 use Kaa\Component\DependencyInjection\ServiceLocator\ConfigServiceLocator;
 use Kaa\Component\DependencyInjection\Test\ClassFixture\Ignored\IgnoredService;
 use Kaa\Component\DependencyInjection\Test\ClassFixture\JustService;
 use Kaa\Component\DependencyInjection\Test\ClassFixture\Scanned\ScannedService;
-use PHPUnit\Framework\TestCase;
-use function PHPUnit\Framework\assertEquals;
-use function PHPUnit\Framework\assertFalse;
-use function PHPUnit\Framework\assertTrue;
+use Kaa\Component\DependencyInjection\Test\ClassFixture\TestFactoryService;
 
-class AttributesToConfigParserTest extends TestCase
-{
-    private AliasCollection $aliasCollection;
+beforeEach(function () {
+    $this->serviceCollection = new ServiceCollection();
+});
 
-    private ServiceCollection $serviceCollection;
+test('Ignores ignored', function () {
+    $config = (new AttributesToConfigParser([
+        'scan' => [
+            '\\Kaa\\Component\\DependencyInjection\\Test\\ClassFixture',
+        ],
+        'ignore' => [
+            JustService::class,
+            'Kaa\\Component\\DependencyInjection\\Test\\ClassFixture\\Ignored',
+        ],
+    ]))->getConfig();
 
-    private ParameterCollection $parameterCollection;
+    $serviceLocator = new ConfigServiceLocator(
+        $config,
+        $this->serviceCollection,
+        new ParameterCollection(),
+        new AliasCollection()
+    );
+    $serviceLocator->locate();
+    expect($this->serviceCollection->has(ScannedService::class))->toBe(true)
+        ->and($this->serviceCollection->has(JustService::class))->toBe(false)
+        ->and($this->serviceCollection->has(IgnoredService::class))->toBe(false);
+});
 
-    protected function setUp(): void
-    {
-        $this->aliasCollection = new AliasCollection();
-        $this->serviceCollection = new ServiceCollection();
-        $this->parameterCollection = new ParameterCollection();
-    }
+test('attribute parsing', function () {
+    $config = (new AttributesToConfigParser([
+        'scan' => [
+            '\\Kaa\\Component\\DependencyInjection\\Test\\ClassFixture',
+        ],
+        'ignore' => [
+            'Kaa\\Component\\DependencyInjection\\Test\\ClassFixture\\Ignored',
+        ],
+    ]))->getConfig();
 
-    /**
-     * @throws InvalidServiceDefinitionException|ServiceAlreadyExistsException
-     */
-    public function testIgnoresIgnored(): void
-    {
-        $this->locate([
-            'scan' => [
-                '\\Kaa\\Component\\DependencyInjection\\Test\\ClassFixture',
-            ],
-            'ignore' => [
-                JustService::class,
-                'Kaa\\Component\\DependencyInjection\\Test\\ClassFixture\\Ignored',
-            ],
-        ]);
+    $serviceLocator = new ConfigServiceLocator(
+        $config,
+        $this->serviceCollection,
+        new ParameterCollection(),
+        new AliasCollection()
+    );
+    $serviceLocator->locate();
 
-        assertTrue($this->serviceCollection->has(ScannedService::class));
-        assertFalse($this->serviceCollection->has(JustService::class));
-        assertFalse($this->serviceCollection->has(IgnoredService::class));
-    }
+    expect($this->serviceCollection->has(ScannedService::class))->toBe(true);
+    $scannedService = $this->serviceCollection->get(ScannedService::class);
 
-    /**
-     * @throws InvalidServiceDefinitionException|ServiceAlreadyExistsException|ServiceDoesNotExistException
-     */
-    public function testParsesAttributes(): void
-    {
-        $this->locate([
-            'scan' => [
-                '\\Kaa\\Component\\DependencyInjection\\Test\\ClassFixture',
-            ],
-            'ignore' => [
-                'Kaa\\Component\\DependencyInjection\\Test\\ClassFixture\\Ignored',
-            ],
-        ]);
+    expect($scannedService->constructionType)->toBe(ConstructionType::Constructor)
+        ->and($scannedService->arguments[0]->type)->toBe(ArgumentType::Service)
+        ->and($scannedService->arguments[0]->name)->toBe('app.service')
+        ->and($scannedService->arguments[1]->type)->toBe(ArgumentType::Parameter)
+        ->and($scannedService->arguments[1]->name)->toBe('app.parameter')
+        ->and($this->serviceCollection->has(JustService::class))->toBe(true);
 
-        assertTrue($this->serviceCollection->has(ScannedService::class));
-        $scannedService = $this->serviceCollection->get(ScannedService::class);
+    $justService = $this->serviceCollection->get(JustService::class);
 
-        assertEquals(ConstructionType::Constructor, $scannedService->constructionType);
+    expect($justService->constructionType)->toBe(ConstructionType::Factory)
+        ->and($justService->factory->serviceName)->toBe(TestFactoryService::class)
+        ->and($justService->factory->isStatic)->toBe(false)
+        ->and($justService->factory->method)->toBe('invoke');
+});
 
-        assertEquals(ArgumentType::Service, $scannedService->arguments[0]->type);
-        assertEquals('app.service', $scannedService->arguments[0]->name);
+it('will throw if redefine alias', function () {
+    $config = (new AttributesToConfigParser([
+        'scan' => [
+            'Kaa\\Component\\DependencyInjection\\Test\\ClassFixture\\Ignored',
+        ],
+    ]))->getConfig();
+})->expectException(InvalidServiceDefinitionException::class);
 
-        assertEquals(ArgumentType::Parameter, $scannedService->arguments[1]->type);
-        assertEquals('app.parameter', $scannedService->arguments[1]->name);
-
-        assertTrue($this->serviceCollection->has(JustService::class));
-        $justService = $this->serviceCollection->get(JustService::class);
-
-        assertEquals(ConstructionType::Factory, $justService->constructionType);
-
-        assertEquals(JustService::class, $justService->factory->serviceName);
-        assertFalse($justService->factory->isStatic);
-        assertEquals('invoke', $justService->factory->method);
-    }
-
-    /**
-     * @param mixed[] $config
-     * @throws InvalidServiceDefinitionException|ServiceAlreadyExistsException|Exception
-     */
-    private function locate(array $config): void
-    {
-        $config = (new AttributesToConfigParser(
-            $config,
-        ))
-            ->getConfig();
-
-        (new ConfigServiceLocator(
-            $config,
-            $this->serviceCollection,
-            $this->parameterCollection,
-            $this->aliasCollection,
-        ))
-            ->locate();
-    }
-}
+it('will throw if use param and service in autowire together', function () {
+    $config = (new AttributesToConfigParser([
+        'scan' => [
+            'Kaa\Component\DependencyInjection\Test\ClassFixture\Ignored',
+        ],
+    ]))->getConfig();
+})->expectException(InvalidServiceDefinitionException::class);

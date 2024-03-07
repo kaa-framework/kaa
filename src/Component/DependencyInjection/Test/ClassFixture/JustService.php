@@ -6,7 +6,7 @@ namespace Kaa\Component\DependencyInjection\Test\ClassFixture;
 
 use Kaa\Component\DependencyInjection\Attribute\Factory;
 
-#[Factory(self::class)]
+#[Factory(TestFactoryService::class)]
 class JustService
 {
     public function __construct(

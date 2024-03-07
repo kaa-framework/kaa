@@ -32,7 +32,7 @@ class AttributesToConfigParser
     {
         $serviceClasses = ClassFinder::find(
             scan: $this->config['scan'],
-            ignore: $this->config['ignore'],
+            ignore: $this->config['ignore'] ?? [],
             predicate: static fn (ReflectionClass $c) => $c->isInstantiable()
                 || $c->getAttributes(FactoryAttribute::class) !== [],
         );
@@ -57,9 +57,8 @@ class AttributesToConfigParser
         $serviceAttribute = $serviceAttributes !== []
             ? $serviceAttributes[0]->newInstance()
             : new ServiceAttribute();
-
         foreach ((array) $serviceAttribute->aliases as $alias) {
-            if (array_key_exists($alias, $this->config['aliases'])) {
+            if (array_key_exists('aliases', $this->config) && array_key_exists($alias, $this->config['aliases'])) {
                 throw new InvalidServiceDefinitionException(
                     "Class {$class->getName()} redefines alias '{$alias}' already set to '{$this->config['aliases'][$alias]}'",
                 );
