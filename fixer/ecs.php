@@ -218,6 +218,7 @@ return static function (ECSConfig $ecsConfig): void {
             __DIR__ . '/../src/Bundle/HttpKernel/HttpKernelBundle.php',
             __DIR__ . '/../src/Bundle/Router/RouterBundle.php',
             __DIR__ . '/../src/Bundle/Validator/ValidatorBundle.php',
+            __DIR__ . '/../src/Bundle/KTemplate/KTemplateBundle.php',
         ],
     ]);
 };

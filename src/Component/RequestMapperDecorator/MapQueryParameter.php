@@ -65,7 +65,7 @@ readonly class MapQueryParameter implements DecoratorInterface
         $variables->addVariable(Reflection::namedType($parameter->getType())->getName(), $parameter->getName());
 
         return sprintf(
-            '$%s = (%s) %s->query->get(%s)',
+            '$%s = (%s) $%s->query->get("%s");',
             $parameter->getName(),
             Reflection::namedType($parameter->getType())->getName(),
             $requestVarName,

@@ -115,7 +115,8 @@ class Response
     public function sendHeaders(): self
     {
         foreach ($this->headers as $header) {
-            header($header, false, $this->statusCode);
+            $replace = strpos($header, 'Content-type: ') !== false;
+            header($header, $replace, $this->statusCode);
         }
 
         foreach ($this->cookies as $cookie) {

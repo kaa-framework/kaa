@@ -7,15 +7,14 @@ use Kaa\Component\Generator\PhpOnly;
 use Kaa\Component\Generator\SharedConfig;
 use KTemplate\Context;
 use KTemplate\Engine;
-use KTemplate\FilesystemLoader;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 
 #[PhpOnly]
 class KTemplateBundle implements BundleGeneratorInterface
 {
-    public function getRootConfigurationKey(): null
+    public function getRootConfigurationKey(): string
     {
-        return null;
+        return 'ktemplate';
     }
 
     public function getConfiguration(): ?TreeBuilder
@@ -24,10 +23,17 @@ class KTemplateBundle implements BundleGeneratorInterface
         $treeBuilder = new TreeBuilder('ktemplate');
         $treeBuilder
             ->getRootNode()
-            ->children()
-            ->scalarNode('path')
-            ->isRequired()
-            ->end()
+                ->children()
+                    ->scalarNode('path')
+                        ->isRequired()
+                    ->end()
+                    ->scalarNode('url')
+                        ->isRequired()
+                    ->end()
+                    ->scalarNode('template_path')
+                        ->isRequired()
+                    ->end()
+                ->end()
             ->end();
         // @formatter:on
 
@@ -44,6 +50,7 @@ class KTemplateBundle implements BundleGeneratorInterface
         $parameters = [
             'kaa.ktemplate.path' => $config['path'],
             'kaa.ktemplate.url' => $config['url'],
+            'kaa.ktemplate.template_path' => $config['template_path'],
         ];
 
         return [
@@ -52,20 +59,18 @@ class KTemplateBundle implements BundleGeneratorInterface
                     KTemplateFactory::class => [
                         'arguments' => [
                             'context' => '@' . Context::class,
-                            'filesystemLoader' => '@' . FilesystemLoader::class,
                             'url' => '%kaa.ktemplate.url',
-                        ],
-                    ],
-
-                    FilesystemLoader::class => [
-                        'arguments' => [
-                            'paths' => '%kaa.ktemplate.path',
+                            'templatePath' => '%kaa.ktemplate.template_path'
                         ],
                     ],
 
                     Context::class => [],
 
-                    KTemplateController::class => [],
+                    KTemplateController::class => [
+                        'arguments' => [
+                            'path' => '%kaa.ktemplate.path',
+                        ]
+                    ],
 
                     Engine::class => [
                         'factory' => [
@@ -80,10 +85,10 @@ class KTemplateBundle implements BundleGeneratorInterface
             'router' => [
                 'routes' => [
                     [
-                        'route' => '/css/{fileName}',
+                        'route' => '/kaa_get_file/{fileName}/{fileType}',
                         'method' => 'GET',
                         'service' => KTemplateController::class,
-                        'classMethod' => 'getCss'
+                        'classMethod' => 'getFile'
                     ],
                 ],
             ]

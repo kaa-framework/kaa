@@ -149,7 +149,7 @@ abstract readonly class AbstractBagDecorator implements DecoratorInterface
     private function generateGetFromBagCode(?ReflectionType $type, string $paramName, string $requestVarName): string
     {
         return sprintf(
-            '(%s) %s->%s->get(%s)',
+            '(%s) $%s->%s->get("%s");',
             Reflection::namedType($type)->getName(),
             $requestVarName,
             $this->getInputBagName(),

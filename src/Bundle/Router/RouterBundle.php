@@ -47,6 +47,7 @@ readonly class RouterBundle extends RouterGenerator implements BundleGeneratorIn
                                 ->scalarNode('route')->end()
                                 ->scalarNode('method')->end()
                                 ->scalarNode('service')->end()
+                                ->scalarNode('classMethod')->end()
                             ->end()
                         ->end()
                     ->end()
