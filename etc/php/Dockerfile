@@ -9,4 +9,6 @@ RUN chmod +x /usr/local/bin/install-php-extensions && \
     pdo_mysql \
     xdebug-3.2.2
 
+COPY php.ini /usr/local/etc/php/php.ini
+
 WORKDIR /app
