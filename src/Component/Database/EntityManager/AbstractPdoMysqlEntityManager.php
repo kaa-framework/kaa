@@ -75,4 +75,9 @@ abstract class AbstractPdoMysqlEntityManager extends AbstractEntityManager
             $entityWithValueSet->setValues($entity->_getValues());
         }
     }
+
+    public function _getPdo(): PDO
+    {
+        return $this->pdo;
+    }
 }

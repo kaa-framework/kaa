@@ -1,0 +1,285 @@
+if ($this->queryParts->getSelect() !== null) {
+throw new QueryBuilderException(
+'Using getOneOrNullResult() or getResult() with specified select is not allowed. Use getCustomResult() instead'
+);
+}
+
+switch ($entityClass) {
+{% for entity in entities %}
+    case \{{ entity.entityClass }}::class:
+    $query = $this->getSql();
+
+    $statement = $this->entityManager->_getPdo()->query($query);
+
+
+    $entities = [];
+    $results = $statement->fetchAll();
+    $fetchCount = 0;
+    foreach($this->queryParts->getJoin() as $join) {
+        if (($join->getType() === 'FETCH') || ($join->getType() === 'LEFT_FETCH')) {
+            $fetchCount++;
+        }
+    }
+
+    if ($fetchCount > 0) {
+        $entityIdentifiers = [];
+        foreach ($results as $result) {
+            $entityIdentifiers[] = $result[0];
+        }
+
+        if (count($entityIdentifiers) === 0) {
+            return [];
+        }
+
+        $subQuery = '
+        %s
+        WHERE %s IN (%s)
+        %s
+        ';
+
+        $subQuery = sprintf(
+            $subQuery,
+            $this->getSelectPart(),
+            $this->queryParts->getFrom()->getAlias() . '.' . $this->getEntityInfo($entityClass)->entityIdColumnName,
+            implode(', ', $entityIdentifiers),
+            $this->queryParts->getOrderBy()->getQueryPart()
+        );
+
+        $statement = $this->entityManager->_getPdo()->query($subQuery);
+        $results = $statement->fetchAll();
+    }
+
+    if ((count($this->queryParts->getJoin()) > 0) && ($fetchCount === 0)) {
+    foreach ($results as $prefixedResult) {
+        $keys = array_keys($prefixedResult);
+        $keys = array_map(fn ($var) => str_replace($this->queryParts->getFrom()->getAlias() . '.', '', (string)$var), $keys);
+        $result = array_combine($keys, $prefixedResult);
+        $uniqueId = '{{ entity.entityClass }}' . '#' . $result['{{ entity.idColumnName }}'];
+        if (array_key_exists($uniqueId, $this->entityManager->_getManagedEntities())) {
+            $entity = instance_cast($this->entityManager->_getManagedEntities()[$uniqueId]->getEntity(), \{{ entity.entityClass }}::class);
+            if (!$entity->_isInitialized()) {
+                $newManagedEntities = $entity->_hydrate($result, $this->entityManager, $this->entityManager->_getManagedEntities());
+                foreach ($newManagedEntities as $newManagedEntity) {
+                    $this->entityManager->_addManagedEntity($newManagedEntity->_getEntityClassName() . '#' . $newManagedEntity->_getId(), (new \Kaa\Component\Database\Dto\EntityWithValueSet(
+                    $newManagedEntity,
+                    $newManagedEntity->_isInitialized() ? $newManagedEntity->_getValues() : []
+                    )));
+                }
+
+                /** @var array<string, int[]> $oneToManyIds */
+                $oneToManyIds = [];
+                {% for oneToMany in entity.oneToMany %}
+                    {# @var oneToMany \Kaa\Component\Database\Dto\OneToManyMetadata #}
+                    $subQuery = '
+                    SELECT DISTINCT({{ oneToMany.targetEntityIdColumnName }}) AS id
+                    FROM {{ oneToMany.targetEntityTable }}
+                    WHERE {{ oneToMany.referenceColumnName }} = %s
+                    ';
+
+                    $subQuery = sprintf($subQuery, $entity->_getId());
+
+                    $subStatement = $this->entityManager->_getPdo()->query($subQuery);
+                    $subResults = $subStatement->fetchAll();
+                    $oneToManyIds['{{ oneToMany.fieldName }}'] = [];
+                    foreach($subResults as $subResult) {
+                        $oneToManyIds['{{ oneToMany.fieldName }}'][] = (int) $subResult['id'];
+                    }
+                {% endfor %}
+
+                $newManagedEntities = $entity->_hydrateOneToMany($oneToManyIds, $this->entityManager, $this->entityManager->_getManagedEntities());
+                foreach ($newManagedEntities as $newManagedEntity) {
+                    $this->entityManager->_addManagedEntity($newManagedEntity->_getEntityClassName() . '#' . $newManagedEntity->_getId(), (new \Kaa\Component\Database\Dto\EntityWithValueSet(
+                    $newManagedEntity,
+                    $newManagedEntity->_isInitialized() ? $newManagedEntity->_getValues() : []
+                    )));
+                }
+
+                $entity->_setInitialized();
+
+                $this->entityManager->_getManagedEntities()[$uniqueId]->setValues($entity->_getValues());
+            }
+
+            $entities[] = $entity;
+            continue;
+        }
+
+        $entity = new \Kaa\Generated\Database\Entity\{{ connection }}\{{ entity.className }}();
+        $newManagedEntities = $entity->_hydrate($result, $this->entityManager, $this->entityManager->_getManagedEntities());
+        foreach ($newManagedEntities as $newManagedEntity) {
+            $this->entityManager->_addManagedEntity($newManagedEntity->_getEntityClassName() . '#' . $newManagedEntity->_getId(), (new \Kaa\Component\Database\Dto\EntityWithValueSet(
+            $newManagedEntity,
+            $newManagedEntity->_isInitialized() ? $newManagedEntity->_getValues() : []
+            )));
+        }
+
+        /** @var array<string, int[]> $oneToManyIds */
+        $oneToManyIds = [];
+        {% for oneToMany in entity.oneToMany %}
+            {# @var oneToMany \Kaa\Component\Database\Dto\OneToManyMetadata #}
+            $subQuery = '
+            SELECT DISTINCT({{ oneToMany.targetEntityIdColumnName }}) AS id
+            FROM {{ oneToMany.targetEntityTable }}
+            WHERE {{ oneToMany.referenceColumnName }} = %s
+            ';
+
+            $subQuery = sprintf($subQuery, $entity->_getId());
+
+            $subStatement = $this->entityManager->_getPdo()->query($subQuery);
+            $subResults = $subStatement->fetchAll();
+            $oneToManyIds['{{ oneToMany.fieldName }}'] = [];
+            foreach($subResults as $subResult) {
+                $oneToManyIds['{{ oneToMany.fieldName }}'][] = (int) $subResult['id'];
+            }
+        {% endfor %}
+
+        $newManagedEntities = $entity->_hydrateOneToMany($oneToManyIds, $this->entityManager, $this->entityManager->_getManagedEntities());
+        foreach ($newManagedEntities as $newManagedEntity) {
+            $this->entityManager->_addManagedEntity($newManagedEntity->_getEntityClassName() . '#' . $newManagedEntity->_getId(),  (new \Kaa\Component\Database\Dto\EntityWithValueSet(
+            $newManagedEntity,
+            $newManagedEntity->_isInitialized() ? $newManagedEntity->_getValues() : []
+            )));
+        }
+
+        $this->entityManager->_addManagedEntity('{{ entity.entityClass }}' . '#' . $entity->_getId(), (new \Kaa\Component\Database\Dto\EntityWithValueSet(
+            $entity,
+            $entity->_getValues()
+        )));
+
+        $entities[] = $entity;
+        $result = $statement->fetch();
+    }
+
+    return $entities;
+    }
+
+    foreach ($results as  $prefixedResult) {
+        $startKey = count($prefixedResult);
+        $endKey = $startKey;
+        $joins = array_reverse($this->queryParts->getJoin());
+        foreach($joins as $join) {
+            if (($join->getType() === 'LEFT_FETCH') || ($join->getType() === 'FETCH')) {
+                $startKey -= 2 * $join->getReferenceClassInfo()->columnsCount;
+                $keys = array_keys(array_slice($prefixedResult, $startKey, $endKey));
+                $keys = array_map(fn ($var) => str_replace($join->getReferenceClassAlias() . '.', '', (string)$var), $keys);
+                $result = array_combine($keys, array_slice($prefixedResult, $startKey, $endKey));
+                if (array_key_exists($join->getReferenceClassInfo()->entityIdColumnName, $result)) {
+                    $refId = $result[$join->getReferenceClassInfo()->entityIdColumnName];
+                    if ($refId !== null) {
+                        $this->getHydrateEntity($join->getReferenceClassInfo()->entityName, $result);
+                    }
+                }
+
+                $endKey = $startKey;
+            }
+        }
+
+        $keys = array_keys(array_slice($prefixedResult, 0, 2 * $this->entityInfo->columnsCount));
+        $keys = array_map(fn ($var) => str_replace($this->queryParts->getFrom()->getAlias() . '.', '', (string)$var), $keys);
+        $result = array_combine($keys, array_slice($prefixedResult, 0, 2 * $this->entityInfo->columnsCount));
+
+        $uniqueId = '{{ entity.entityClass }}' . '#' . $result['{{ entity.idColumnName }}'];
+        if (array_key_exists($uniqueId, $this->entityManager->_getManagedEntities())) {
+            $entity = instance_cast($this->entityManager->_getManagedEntities()[$uniqueId]->getEntity(), \{{ entity.entityClass }}::class);
+            if (!$entity->_isInitialized()) {
+                $newManagedEntities = $entity->_hydrate($result, $this->entityManager, $this->entityManager->_getManagedEntities());
+                foreach ($newManagedEntities as $newManagedEntity) {
+                    $this->entityManager->_addManagedEntity($newManagedEntity->_getEntityClassName() . '#' . $newManagedEntity->_getId(),  (new \Kaa\Component\Database\Dto\EntityWithValueSet(
+                    $newManagedEntity,
+                    $newManagedEntity->_isInitialized() ? $newManagedEntity->_getValues() : []
+                    )));
+                }
+
+                /** @var array<string, int[]> $oneToManyIds */
+                $oneToManyIds = [];
+                {% for oneToMany in entity.oneToMany %}
+                    {# @var oneToMany \Kaa\Component\Database\Dto\OneToManyMetadata #}
+                    $subQuery = '
+                    SELECT DISTINCT({{ oneToMany.targetEntityIdColumnName }}) AS id
+                    FROM {{ oneToMany.targetEntityTable }}
+                    WHERE {{ oneToMany.referenceColumnName }} = %s
+                    ';
+
+                    $subQuery = sprintf($subQuery, $entity->_getId());
+
+                    $subStatement = $this->entityManager->_getPdo()->query($subQuery);
+                    $subResults = $subStatement->fetchAll();
+                    $oneToManyIds['{{ oneToMany.fieldName }}'] = [];
+                    foreach($subResults as $subResult) {
+                        $oneToManyIds['{{ oneToMany.fieldName }}'][] = (int) $subResult['id'];
+                    }
+                {% endfor %}
+
+                $newManagedEntities = $entity->_hydrateOneToMany($oneToManyIds, $this->entityManager, $this->entityManager->_getManagedEntities());
+                foreach ($newManagedEntities as $newManagedEntity) {
+                    $this->entityManager->_addManagedEntity($newManagedEntity->_getEntityClassName() . '#' . $newManagedEntity->_getId(), (new \Kaa\Component\Database\Dto\EntityWithValueSet(
+                    $newManagedEntity,
+                    $newManagedEntity->_isInitialized() ? $newManagedEntity->_getValues() : []
+                    )));
+                }
+
+                $entity->_setInitialized();
+
+                $this->entityManager->_getManagedEntities()[$uniqueId]->setValues($entity->_getValues());
+            }
+
+            $entities[] = $entity;
+        } else {
+            $entity = new \Kaa\Generated\Database\Entity\{{ connection }}\{{ entity.className }}();
+            $newManagedEntities = $entity->_hydrate($result, $this->entityManager, $this->entityManager->_getManagedEntities());
+            foreach ($newManagedEntities as $newManagedEntity) {
+                $this->entityManager->_addManagedEntity($newManagedEntity->_getEntityClassName() . '#' . $newManagedEntity->_getId(), (new \Kaa\Component\Database\Dto\EntityWithValueSet(
+                $newManagedEntity,
+                $newManagedEntity->_isInitialized() ? $newManagedEntity->_getValues() : []
+                )));
+            }
+
+            /** @var array<string, int[]> $oneToManyIds */
+            $oneToManyIds = [];
+            {% for oneToMany in entity.oneToMany %}
+                {# @var oneToMany \Kaa\Component\Database\Dto\OneToManyMetadata #}
+                $subQuery = '
+                    SELECT DISTINCT({{ oneToMany.targetEntityIdColumnName }}) AS id
+                    FROM {{ oneToMany.targetEntityTable }}
+                    WHERE {{ oneToMany.referenceColumnName }} = %s
+                ';
+
+                $subQuery = sprintf($subQuery, $entity->_getId());
+
+                $subStatement = $this->entityManager->_getPdo()->query($subQuery);
+                $subResults = $subStatement->fetchAll();
+                $oneToManyIds['{{ oneToMany.fieldName }}'] = [];
+                foreach($subResults as $subResult) {
+                    $oneToManyIds['{{ oneToMany.fieldName }}'][] = (int) $subResult['id'];
+                }
+            {% endfor %}
+
+            $newManagedEntities = $entity->_hydrateOneToMany($oneToManyIds, $this->entityManager, $this->entityManager->_getManagedEntities());
+            foreach ($newManagedEntities as $newManagedEntity) {
+                $this->entityManager->_addManagedEntity($newManagedEntity->_getEntityClassName() . '#' . $newManagedEntity->_getId(), (new \Kaa\Component\Database\Dto\EntityWithValueSet(
+                $newManagedEntity,
+                $newManagedEntity->_isInitialized() ? $newManagedEntity->_getValues() : []
+                )));
+            }
+
+            $this->entityManager->_addManagedEntity('{{ entity.entityClass }}' . '#' . $entity->_getId(), (new \Kaa\Component\Database\Dto\EntityWithValueSet(
+            $entity,
+            $entity->_getValues()
+            )));
+
+            $entities[] = $entity;
+            $result = $statement->fetch();
+        }
+    }
+
+    $fullyHydrateEntities = [$entities[count($entities) - 1]];
+    for($i = count($entities) - 2; $i >= 0; $i--){
+        if ($entities[$i + 1]->_getId() !== $entities[$i]->_getId()) {
+            $fullyHydrateEntities[] = $entities[$i];
+        }
+    }
+
+    return array_reverse($fullyHydrateEntities);
+{% endfor %}
+}
+
+throw new \Kaa\Component\Database\Exception\DatabaseException("Entity {$entityClass} does not exist in connection {{ connection }}");

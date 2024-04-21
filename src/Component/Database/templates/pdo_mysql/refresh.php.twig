@@ -30,7 +30,7 @@ switch (get_class($entity)) {
 
         $newManagedEntities = $entity->_hydrate($result, $this, $this->managedEntities);
         foreach ($newManagedEntities as $newManagedEntity) {
-            $this->managedEntities[get_class($newManagedEntity) . '#' . $newManagedEntity->_getId()] = new \Kaa\Component\Database\Dto\EntityWithValueSet(
+            $this->managedEntities[$newManagedEntity->_getEntityClassName() . '#' . $newManagedEntity->_getId()] = new \Kaa\Component\Database\Dto\EntityWithValueSet(
                 $newManagedEntity,
                 $newManagedEntity->_isInitialized() ? $newManagedEntity->_getValues() : []
             );

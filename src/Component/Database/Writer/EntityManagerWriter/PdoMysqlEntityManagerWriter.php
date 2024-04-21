@@ -5,6 +5,7 @@ namespace Kaa\Component\Database\Writer\EntityManagerWriter;
 use Kaa\Component\Database\Dto\EntityMetadata;
 use Kaa\Component\Database\EntityInterface;
 use Kaa\Component\Database\EntityManager\AbstractPdoMysqlEntityManager;
+use Kaa\Component\Database\QueryBuilder\AbstractQueryBuilder;
 use Kaa\Component\Generator\Exception\WriterException;
 use Kaa\Component\Generator\PhpOnly;
 use Kaa\Component\Generator\SharedConfig;
@@ -48,6 +49,7 @@ readonly class PdoMysqlEntityManagerWriter implements EntityManagerWriterInterfa
         $this->addFindByMethod();
         $this->addRefreshMethod();
         $this->addNewMethod();
+        $this->addCreateQueryBuilderMethod();
 
         $this->classWriter->writeFile($this->config->exportDirectory);
     }
@@ -190,6 +192,34 @@ readonly class PdoMysqlEntityManagerWriter implements EntityManagerWriterInterfa
             
                 @param class-string<T> $entityClass
                 @return T
+            ',
+        );
+    }
+
+    private function addCreateQueryBuilderMethod(): void
+    {
+        $code = $this->twig->render(
+            'pdo_mysql/create_query_builder.php.twig',
+            [
+                'connection' => $this->connectionName,
+                'namespace' => 'Database'
+            ]
+        );
+
+        $this->classWriter->addMethod(
+            visibility: Visibility::Public,
+            name: 'createQueryBuilder',
+            returnType: AbstractQueryBuilder::class,
+            code: $code,
+            parameters: [
+                new Parameter(type: 'string', name: 'entityClass'),
+                new Parameter(type: 'string', name: 'alias'),
+            ],
+            comment: '
+                @template T of \Kaa\Component\Database\EntityInterface
+                @kphp-generic T
+            
+                @param class-string<T> $entityClass
             ',
         );
     }

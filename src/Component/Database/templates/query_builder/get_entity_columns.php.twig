@@ -1,0 +1,9 @@
+switch ($entityClass) {
+{% for entity in entities %}
+    case \{{ entity.entityClass }}::class:
+    $entity = new {{ namespace }}\{{ connection }}\{{ entity.className }}();
+    return array_merge([$entity->_getIdColumnName()], $entity->_getColumnNames());
+{% endfor %}
+}
+
+throw new \Kaa\Component\Database\Exception\DatabaseException("Entity {$entityClass} does not exist in connection {{ connection }}");

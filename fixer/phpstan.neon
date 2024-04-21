@@ -101,3 +101,5 @@ parameters:
           path: ../src/Bundle/Framework/FrameworkGenerator.php
 
         - message: '#In method "Kaa\\Bundle\\Framework\\FrameworkGenerator::generate", caught "Throwable" must be rethrown.*#'
+
+        - message: '#Cannot call method fetchAll\(\) on PDOStatement\|false\.#'

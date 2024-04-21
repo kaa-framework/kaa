@@ -65,6 +65,24 @@ abstract class AbstractEntityManager implements EntityManagerInterface
     }
 
     /**
+     * @return array<string, \Kaa\Component\Database\Dto\EntityWithValueSet>
+     */
+    public function _getManagedEntities(): array
+    {
+        return $this->managedEntities;
+    }
+
+    /**
+     * @internal
+     */
+    public function _addManagedEntity(string $key, EntityWithValueSet $object): self
+    {
+        $this->managedEntities[$key] = $object;
+
+        return $this;
+    }
+
+    /**
      * @param EntityInterface[] $newEntities
      */
     abstract protected function insert(array $newEntities): void;

@@ -1,0 +1,55 @@
+switch ($entityClass) {
+{% for entity in entities %}
+    case \{{ entity.entityClass }}::class:
+    {% set firstEl = 1 %}
+    $oneToManyArray = [
+    {% for oneToMany in entity.oneToMany %}
+        {% if firstEl == 1 %}
+        '{{ oneToMany.targetEntity }}' => '{{ oneToMany.referenceColumnName }}'
+            {% set firstEl = 0 %}
+        {% else %}
+            ,'{{ oneToMany.targetEntity }}' => '{{ oneToMany.referenceColumnName }}'
+        {% endif %}
+    {% endfor %}
+
+    ];
+    {% set firstEl = 1 %}
+    $manyToOneArray = [
+    {% for manyToOne in entity.manyToOne %}
+        {% if firstEl == 1 %}
+            '{{ manyToOne.targetEntity }}' => '{{ manyToOne.columnName }}'
+            {% set firstEl = 0 %}
+        {% else %}
+            ,'{{ manyToOne.targetEntity }}' => '{{ manyToOne.columnName }}'
+        {% endif %}
+    {% endfor %}
+
+    ];
+    {% set firstEl = 1 %}
+    $referenceColumns = [
+    {% for oneToMany in entity.oneToMany %}
+        {% if firstEl == 1 %}
+        '{{ oneToMany.fieldName }}' => '{{ oneToMany.targetEntity }}'
+        {% set firstEl = 0 %}
+        {% else %}
+            ,'{{ oneToMany.fieldName }}' => '{{ oneToMany.targetEntity }}'
+            {% endif %}
+        {% endfor %}
+
+    {% for manyToOne in entity.manyToOne %}
+        {% if firstEl == 1 %}
+            '{{ manyToOne.fieldName }}' => '{{ manyToOne.targetEntity }}'
+            {% set firstEl = 0 %}
+        {% else %}
+            ,'{{ manyToOne.fieldName }}' => '{{ manyToOne.targetEntity }}'
+        {% endif %}
+    {% endfor %}
+
+    ];
+
+    $info = new \{{ infoClassName }}('{{ entity.entityClass }}','{{ entity.tableName }}', '{{ entity.idColumnName }}', $oneToManyArray, $manyToOneArray, $referenceColumns, count($this->getEntityColumns($entityClass)));
+    return $info;
+{% endfor %}
+}
+
+throw new \Kaa\Component\Database\Exception\DatabaseException("Entity {$entityClass} does not exist in connection {{ connection }}");

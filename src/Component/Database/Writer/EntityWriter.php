@@ -55,6 +55,7 @@ readonly class EntityWriter
         $this->addGetOidMethod();
         $this->addOidVariable();
         $this->addGetNotInsertedOidsMethod();
+        $this->addGetEntityClassName();
 
         $this->classWriter->writeFile($this->config->exportDirectory);
     }
@@ -290,6 +291,18 @@ readonly class EntityWriter
             returnType: 'array',
             code: $code,
             comment: '@return string[]',
+        );
+    }
+
+    private function addGetEntityClassName(): void
+    {
+        $code = "return '{$this->entityMetadata->entityClass}';";
+
+        $this->classWriter->addMethod(
+            visibility: Visibility::Public,
+            name: '_getEntityClassName',
+            returnType: 'string',
+            code: $code
         );
     }
 }

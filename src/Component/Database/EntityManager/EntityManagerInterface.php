@@ -3,6 +3,7 @@
 namespace Kaa\Component\Database\EntityManager;
 
 use Kaa\Component\Database\EntityInterface;
+use PDO;
 
 interface EntityManagerInterface
 {
@@ -61,4 +62,6 @@ interface EntityManagerInterface
     public function new(string $entityClass): object;
 
     public function flush(): void;
+
+    public function _getPdo(): PDO;
 }

@@ -4,6 +4,7 @@ namespace Kaa\Component\Database;
 
 use Exception;
 use Kaa\Component\Database\Finder\EntityFinder;
+use Kaa\Component\Database\QueryBuilder\QueryBuilderWriter;
 use Kaa\Component\Database\Writer\DriverResolver;
 use Kaa\Component\Database\Writer\EntityWriter;
 use Kaa\Component\Database\Writer\LazyEntityWriter;
@@ -30,6 +31,8 @@ class DatabaseGenerator implements GeneratorInterface
                 (new EntityWriter($name, $metadata, $sharedConfig))->write();
                 (new LazyEntityWriter($name, $metadata, $sharedConfig))->write();
             }
+
+            (new QueryBuilderWriter($name, $entityMetadata, $sharedConfig))->write();
 
             $entityManagerWriter = DriverResolver::getEntityManagerWriter(
                 driver: $connectionConfig['driver']['type'],
