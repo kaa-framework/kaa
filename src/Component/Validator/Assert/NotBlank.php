@@ -22,7 +22,7 @@ readonly class NotBlank implements AssertInterface
 
     public function getAllowedTypes(): array
     {
-        return ['string'];
+        return ['string', 'array', 'bool'];
     }
 
     /**

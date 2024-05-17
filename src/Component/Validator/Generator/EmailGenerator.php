@@ -37,6 +37,7 @@ class EmailGenerator extends AbstractGenerator
         ReflectionProperty $reflectionProperty,
         string $className,
         Twig\Environment $twig,
+        bool $useArrayAccess = false,
     ): string {
         if (!array_key_exists($assert->mode, self::EMAIL_PATTERNS)) {
             throw new InvalidArgumentException(
@@ -49,13 +50,12 @@ class EmailGenerator extends AbstractGenerator
 
         return $twig->render(
             'email.php.twig', [
-                'getMethod' => $this->getAccessMethod(
-                    $reflectionProperty,
-                ),
+                'getProperty' => $this->getPropertyCode($reflectionProperty, $useArrayAccess),
                 'email_pattern' => self::EMAIL_PATTERNS[$assert->mode],
                 'class' => $className,
                 'property' => $reflectionProperty->name,
                 'message' => $assert->message,
+                'useArrayAccess' => $useArrayAccess,
             ]
         );
     }

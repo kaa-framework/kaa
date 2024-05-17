@@ -1,3 +1,3 @@
-if (!preg_match("{{ pattern }}", $model->{{ getMethod }})){
+if (!preg_match("{{ pattern }}", {{ getProperty }})){
     $violationsList[] = new \Kaa\Component\Validator\Violation('{{ class }}', '{{ property }}', '{{ message }}');
 }

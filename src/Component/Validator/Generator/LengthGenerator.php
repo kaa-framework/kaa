@@ -22,6 +22,7 @@ class LengthGenerator extends AbstractGenerator
         ReflectionProperty $reflectionProperty,
         string $className,
         Twig\Environment $twig,
+        bool $useArrayAccess = false,
     ): string {
         $code = '';
 
@@ -30,11 +31,12 @@ class LengthGenerator extends AbstractGenerator
             $message = preg_replace('/{{ limit }}/', (string) $assert->exactly, $assert->exactlyMessage);
 
             $code .= $twig->render('length/exactly.php.twig', [
-                'getMethod' => $this->getAccessMethod($reflectionProperty),
+                'getProperty' => $this->getPropertyCode($reflectionProperty, $useArrayAccess),
                 'limit' => $assert->exactly,
                 'class' => $className,
                 'property' => $reflectionProperty->name,
                 'message' => $message,
+                'useArrayAccess' => $useArrayAccess,
             ]);
 
             $code .= "\n\n";
@@ -45,11 +47,12 @@ class LengthGenerator extends AbstractGenerator
             $message = preg_replace('/{{ limit }}/', (string) $assert->max, $assert->maxMessage);
 
             $code .= $twig->render('length/max.php.twig', [
-                'getMethod' => $this->getAccessMethod($reflectionProperty),
+                'getProperty' => $this->getPropertyCode($reflectionProperty, $useArrayAccess),
                 'limit' => $assert->max,
                 'class' => $className,
                 'property' => $reflectionProperty->name,
                 'message' => $message,
+                'useArrayAccess' => $useArrayAccess,
             ]);
 
             $code .= "\n\n";
@@ -60,11 +63,12 @@ class LengthGenerator extends AbstractGenerator
             $message = preg_replace('/{{ limit }}/', (string) $assert->min, $assert->minMessage);
 
             $code .= $twig->render('length/min.php.twig', [
-                'getMethod' => $this->getAccessMethod($reflectionProperty),
+                'getProperty' => $this->getPropertyCode($reflectionProperty, $useArrayAccess),
                 'limit' => $assert->min,
                 'class' => $className,
                 'property' => $reflectionProperty->name,
                 'message' => $message,
+                'useArrayAccess' => $useArrayAccess,
             ]);
 
             $code .= "\n\n";

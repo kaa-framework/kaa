@@ -26,18 +26,18 @@ class GreaterThanGenerator extends AbstractGenerator
         ReflectionProperty $reflectionProperty,
         string $className,
         Twig\Environment $twig,
+        bool $useArrayAccess = false,
     ): string {
         $message = preg_replace('/{{ compared_value }}/', (string) $assert->value, $assert->message);
 
         return $twig->render(
             'greater_than.php.twig', [
-                'getMethod' => $this->getAccessMethod(
-                    $reflectionProperty,
-                ),
+                'getProperty' => $this->getPropertyCode($reflectionProperty, $useArrayAccess),
                 'compared_value' => $assert->value,
                 'class' => $className,
                 'property' => $reflectionProperty->name,
                 'message' => $message,
+                'useArrayAccess' => $useArrayAccess,
             ]
         );
     }

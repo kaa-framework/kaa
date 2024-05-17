@@ -28,6 +28,7 @@ class DateRangeGenerator extends AbstractGenerator
         ReflectionProperty $reflectionProperty,
         string $className,
         Twig\Environment $twig,
+        bool $useArrayAccess = false,
     ): string {
         if ($assert->after === null && $assert->before === null) {
             throw new InvalidArgumentException(
@@ -45,14 +46,13 @@ class DateRangeGenerator extends AbstractGenerator
 
             $code .= $twig->render(
                 'date_range/after.php.twig', [
-                    'getMethod' => $this->getAccessMethod(
-                        $reflectionProperty,
-                    ),
+                    'getProperty' => $this->getPropertyCode($reflectionProperty, $useArrayAccess),
                     'after' => DateTime::createFromInterface($assert->after)->format($assert->format),
                     'format' => $assert->format,
                     'class' => $className,
                     'property' => $reflectionProperty->name,
                     'message' => $message,
+                    'useArrayAccess' => $useArrayAccess,
                 ]
             );
 
@@ -68,14 +68,13 @@ class DateRangeGenerator extends AbstractGenerator
 
             $code .= $twig->render(
                 'date_range/before.php.twig', [
-                    'getMethod' => $this->getAccessMethod(
-                        $reflectionProperty,
-                    ),
+                    'getProperty' => $this->getPropertyCode($reflectionProperty, $useArrayAccess),
                     'before' => DateTime::createFromInterface($assert->before)->format($assert->format),
                     'format' => $assert->format,
                     'class' => $className,
                     'property' => $reflectionProperty->name,
                     'message' => $message,
+                    'useArrayAccess' => $useArrayAccess,
                 ]
             );
 
@@ -97,15 +96,14 @@ class DateRangeGenerator extends AbstractGenerator
 
             $code .= $twig->render(
                 'date_range/between.php.twig', [
-                    'getMethod' => $this->getAccessMethod(
-                        $reflectionProperty,
-                    ),
+                    'getProperty' => $this->getPropertyCode($reflectionProperty, $useArrayAccess),
                     'before' => DateTime::createFromInterface($assert->before)->format($assert->format),
                     'after' => DateTime::createFromInterface($assert->after)->format($assert->format),
                     'format' => $assert->format,
                     'class' => $className,
                     'property' => $reflectionProperty->name,
                     'message' => $message,
+                    'useArrayAccess' => $useArrayAccess,
                 ]
             );
 

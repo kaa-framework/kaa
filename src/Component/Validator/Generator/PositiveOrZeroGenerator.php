@@ -27,6 +27,7 @@ class PositiveOrZeroGenerator extends AbstractGenerator
         ReflectionProperty $reflectionProperty,
         string $className,
         Twig\Environment $twig,
+        bool $useArrayAccess = false,
     ): string {
         return (new GreaterThanOrEqualGenerator())->generateAssert(
             new GreaterThanOrEqual(
@@ -36,6 +37,7 @@ class PositiveOrZeroGenerator extends AbstractGenerator
             $reflectionProperty,
             $className,
             $twig,
+            $useArrayAccess,
         );
     }
 }

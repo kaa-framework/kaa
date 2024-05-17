@@ -16,7 +16,10 @@ abstract class AbstractGenerator implements AssertGeneratorInterface
         ReflectionProperty $reflectionProperty,
         string $className,
         Twig\Environment $twig,
+        bool $useArrayAccess = false,
     ): string;
+
+    protected const ARRAY_VARIABLE_NAME = '$element';
 
     /**
      * @throws ValidatorGeneratorException
@@ -45,5 +48,18 @@ abstract class AbstractGenerator implements AssertGeneratorInterface
                 $reflectionProperty->name
             )
         );
+    }
+
+    /**
+     * @throws ValidatorGeneratorException
+     */
+    protected function getPropertyCode(ReflectionProperty $reflectionProperty, bool $useArrayAccess): string
+    {
+        $getPropertyCode = '$model->' . $this->getAccessMethod($reflectionProperty);
+        if ($useArrayAccess) {
+            $getPropertyCode = self::ARRAY_VARIABLE_NAME;
+        }
+
+        return $getPropertyCode;
     }
 }

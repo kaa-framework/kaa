@@ -50,17 +50,19 @@ class UrlGenerator extends AbstractGenerator
         ReflectionProperty $reflectionProperty,
         string $className,
         Twig\Environment $twig,
+        bool $useArrayAccess = false,
     ): string {
         $pattern = $assert->relativeProtocol ? str_replace('(%s):', '(?:(%s):)?', static::PATTERN) : static::PATTERN;
         $pattern = sprintf($pattern, implode('|', $assert->protocols));
 
         return $twig->render(
             'url.php.twig', [
-                'getMethod' => $this->getAccessMethod($reflectionProperty),
+                'getProperty' => $this->getPropertyCode($reflectionProperty, $useArrayAccess),
                 'pattern' => $pattern,
                 'class' => $className,
                 'property' => $reflectionProperty->name,
                 'message' => $assert->message,
+                'useArrayAccess' => $useArrayAccess,
             ]
         );
     }

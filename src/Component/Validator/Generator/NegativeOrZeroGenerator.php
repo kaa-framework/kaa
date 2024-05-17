@@ -27,6 +27,7 @@ class NegativeOrZeroGenerator extends AbstractGenerator
         ReflectionProperty $reflectionProperty,
         string $className,
         Twig\Environment $twig,
+        bool $useArrayAccess = false,
     ): string {
         return (new LessThanOrEqualGenerator())->generateAssert(
             new LessThanOrEqual(
@@ -36,6 +37,7 @@ class NegativeOrZeroGenerator extends AbstractGenerator
             $reflectionProperty,
             $className,
             $twig,
+            $useArrayAccess,
         );
     }
 }

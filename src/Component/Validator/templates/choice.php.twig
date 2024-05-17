@@ -1,3 +1,3 @@
-if (!in_array($model->{{ getMethod }}, {{ choices }}, {{ strict }})) {
+if (!in_array({{ getProperty }}, {{ choices }}, {{ strict }})) {
     $violationsList[] = new \Kaa\Component\Validator\Violation('{{ class }}', '{{ property }}', '{{ message }}');
 }

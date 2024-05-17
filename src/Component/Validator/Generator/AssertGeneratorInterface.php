@@ -17,5 +17,6 @@ interface AssertGeneratorInterface
         ReflectionProperty $reflectionProperty,
         string $className,
         Twig\Environment $twig,
+        bool $useArrayAccess = false,
     ): string;
 }

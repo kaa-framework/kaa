@@ -67,10 +67,37 @@ class TestModel
     public int $NegativeOrZeroTrue = 0;
 
     #[Assert\NotBlank]
-    public string $NotBlankTrue = 'str';
+    public string $NotBlankStringTrue = 'str';
 
     #[Assert\NotBlank]
-    public string $NotBlankFalse = '';
+    public string $NotBlankStringFalse = '';
+
+    #[Assert\NotBlank(
+        allowNull: true
+    )]
+    public ?string $NotBlankStringAllowNullTrue = null;
+
+    #[Assert\NotBlank]
+    public array $NotBlankArrayTrue = ['str'];
+
+    #[Assert\NotBlank]
+    public array $NotBlankArrayFalse = [];
+
+    #[Assert\NotBlank(
+        allowNull: true
+    )]
+    public ?string $NotBlankArrayAllowNullTrue = null;
+
+    #[Assert\NotBlank]
+    public bool $NotBlankBoolTrue = true;
+
+    #[Assert\NotBlank]
+    public bool $NotBlankBoolFalse = false;
+
+    #[Assert\NotBlank(
+        allowNull: true
+    )]
+    public ?bool $NotBlankBoolAllowNullTrue = null;
 
     #[Assert\NotNull]
     public ?int $NotNullTrue = 5;
@@ -178,4 +205,115 @@ class TestModel
 
     #[Assert\Url]
     public string $UrlFalse = 'https://google,com';
+
+    #[Assert\All([
+        new Assert\GreaterThan(18)
+    ])]
+    public array $AllGreaterThanTrue = [19];
+
+    #[Assert\All([
+        new Assert\IsFalse()
+    ])]
+    public array $AllIsFalse = [true];
+
+    #[Assert\All([
+        new Assert\IsTrue()
+    ])]
+    public array $AllIsTrue = [false];
+
+    #[Assert\All([
+        new Assert\LessThan(18)
+    ])]
+    public array $AllLessThanTrue = [15];
+
+    #[Assert\All([
+        new Assert\Email()
+    ])]
+    public array $AllEmailTrue = ['example@google.com'];
+
+    #[Assert\All([
+        new Assert\Negative()
+    ])]
+    public array $AllNegativeTrue = [-5];
+
+    #[Assert\All([
+        new Assert\NotBlank()
+    ])]
+    public array $AllNotBlankTrue = ['str'];
+
+    #[Assert\All([
+        new Assert\NotNull()
+    ])]
+    public ?array $AllNotNullTrue = [5];
+
+    #[Assert\All([
+        new Assert\Positive()
+    ])]
+    public array $AllPositiveTrue = [5];
+
+    #[Assert\All([
+        new Assert\Range(
+            min: 3,
+            max: 10,
+        )
+    ])]
+    public array $AllRangeTrue = [5];
+
+    #[Assert\All([
+        new Assert\Choice([10, '123'])
+    ])]
+    public array $AllChoiceTrue = [10];
+
+    #[Assert\All([
+        new Assert\DateRange(
+            format: 'Y-m-d',
+            before: new DateTime('2023-09-15'),
+            after: new DateTime('2020-12-10'),
+        )
+    ])]
+    public array $AllDateRangeBetweenTrue = ['2023-09-10'];
+
+    #[Assert\All([
+        new Assert\DateRange(
+            format: 'Y-m-d',
+            after: new DateTime('2020-12-10'),
+        )
+    ])]
+    public array $AllDateRangeAfterTrue = ['2023-09-10'];
+
+    #[Assert\All([
+        new Assert\DateRange(
+            format: 'Y-m-d',
+            before: new DateTime('2023-10-10'),
+        )
+    ])]
+    public array $AllDateRangeBeforeTrue = ['2023-09-10'];
+
+    #[Assert\All([
+        new Assert\Length(
+            max: 10,
+        )
+    ])]
+    public array $AllLengthMaxTrue = ['123'];
+
+    #[Assert\All([
+        new Assert\Url(),
+    ])]
+    public array $AllUrlTrue = ['https://google.com'];
+
+    #[Assert\All([
+        new Assert\Url(),
+    ])]
+    public array $AllUrlFalse = ['https://google,com'];
+
+    #[Assert\All([
+        new Assert\Blank()
+    ])]
+    public array $AllBlankTrue = ['', null];
+
+    #[Assert\All([
+        new Assert\NotBlank(),
+        new Assert\Positive()
+    ])]
+    public array $AllBlankFalse = [1, -5];
 }

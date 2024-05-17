@@ -26,15 +26,15 @@ class IsTrueGenerator extends AbstractGenerator
         ReflectionProperty $reflectionProperty,
         string $className,
         Twig\Environment $twig,
+        bool $useArrayAccess = false,
     ): string {
         return $twig->render(
             'is_true.php.twig', [
-                'getMethod' => $this->getAccessMethod(
-                    $reflectionProperty,
-                ),
+                'getProperty' => $this->getPropertyCode($reflectionProperty, $useArrayAccess),
                 'class' => $className,
                 'property' => $reflectionProperty->name,
                 'message' => $assert->message,
+                'useArrayAccess' => $useArrayAccess,
             ]
         );
     }

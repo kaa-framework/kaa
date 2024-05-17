@@ -27,6 +27,7 @@ class NegativeGenerator extends AbstractGenerator
         ReflectionProperty $reflectionProperty,
         string $className,
         Twig\Environment $twig,
+        bool $useArrayAccess = false,
     ): string {
         return (new LessThanGenerator())->generateAssert(
             new LessThan(
@@ -36,6 +37,7 @@ class NegativeGenerator extends AbstractGenerator
             $reflectionProperty,
             $className,
             $twig,
+            $useArrayAccess,
         );
     }
 }

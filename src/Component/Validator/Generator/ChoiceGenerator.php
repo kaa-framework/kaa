@@ -26,17 +26,17 @@ class ChoiceGenerator extends AbstractGenerator
         ReflectionProperty $reflectionProperty,
         string $className,
         Twig\Environment $twig,
+        bool $useArrayAccess = false,
     ): string {
         return $twig->render(
             'choice.php.twig', [
-                'getMethod' => $this->getAccessMethod(
-                    $reflectionProperty
-                ),
+                'getProperty' => $this->getPropertyCode($reflectionProperty, $useArrayAccess),
                 'choices' => var_export($assert->choices, true),
                 'strict' => $assert->strict === true ? 'true' : 'false',
                 'class' => $className,
                 'property' => $reflectionProperty->name,
                 'message' => $assert->message,
+                'useArrayAccess' => $useArrayAccess,
             ]
         );
     }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Kaa\Component\Validator\Test;
 
+use Kaa\Component\Validator\Assert\All;
 use Kaa\Component\Validator\Assert\Blank;
 use Kaa\Component\Validator\Assert\Choice;
 use Kaa\Component\Validator\Assert\DateRange;
@@ -48,6 +49,7 @@ trait AssertsTest
                 );
             }
         }
+
         eval($code);
 
         return $violationsList;
@@ -213,15 +215,54 @@ describe('NegativeOrZero', function () {
 });
 
 describe('NotBlank', function () {
-    it('returns true if the value is blank', function () {
-        $violationsList = $this->getViolationsList(NotBlank::class, 'NotBlankFalse');
+    it('returns true if the string is blank', function () {
+        $violationsList = $this->getViolationsList(NotBlank::class, 'NotBlankStringFalse');
         expect($violationsList[0])
             ->getMessage()->toBe('This value should not be blank.')
             ->and($violationsList)->toHaveCount(1);
     });
 
-    it('returns true if the value is not blank', function () {
-        $violationsList = $this->getViolationsList(NotBlank::class, 'NotBlankTrue');
+    it('returns true if the string value is not blank', function () {
+        $violationsList = $this->getViolationsList(NotBlank::class, 'NotBlankStringTrue');
+        expect($violationsList)->toHaveCount(0);
+    });
+
+    it('returns true if the string value is null', function () {
+        $violationsList = $this->getViolationsList(NotBlank::class, 'NotBlankStringAllowNullTrue');
+        expect($violationsList)->toHaveCount(0);
+    });
+
+    it('returns true if the array value is blank', function () {
+        $violationsList = $this->getViolationsList(NotBlank::class, 'NotBlankArrayFalse');
+        expect($violationsList[0])
+            ->getMessage()->toBe('This value should not be blank.')
+            ->and($violationsList)->toHaveCount(1);
+    });
+
+    it('returns true if the array value is not blank', function () {
+        $violationsList = $this->getViolationsList(NotBlank::class, 'NotBlankArrayTrue');
+        expect($violationsList)->toHaveCount(0);
+    });
+
+    it('returns true if the array value is null', function () {
+        $violationsList = $this->getViolationsList(NotBlank::class, 'NotBlankArrayAllowNullTrue');
+        expect($violationsList)->toHaveCount(0);
+    });
+
+    it('returns true if the bool value is blank', function () {
+        $violationsList = $this->getViolationsList(NotBlank::class, 'NotBlankBoolFalse');
+        expect($violationsList[0])
+            ->getMessage()->toBe('This value should not be blank.')
+            ->and($violationsList)->toHaveCount(1);
+    });
+
+    it('returns true if the bool value is not blank', function () {
+        $violationsList = $this->getViolationsList(NotBlank::class, 'NotBlankBoolTrue');
+        expect($violationsList)->toHaveCount(0);
+    });
+
+    it('returns true if the bool value is null', function () {
+        $violationsList = $this->getViolationsList(NotBlank::class, 'NotBlankBoolAllowNullTrue');
         expect($violationsList)->toHaveCount(0);
     });
 });
@@ -376,5 +417,110 @@ describe('Url', function () {
         expect($violationsList[0])
             ->getMessage()->toBe('This value is not a valid URL.')
             ->and($violationsList)->toHaveCount(1);
+    });
+});
+
+describe('All', function () {
+    it('return true if the array of values is all blank', function () {
+        $violationsList = $this->getViolationsList(All::class, 'AllBlankTrue');
+        expect($violationsList)->toHaveCount(0);
+    });
+
+    it('return false if the array of values is any not blank', function () {
+        $violationsList = $this->getViolationsList(All::class, 'AllBlankFalse');
+        expect($violationsList[0])
+            ->getMessage()->toBe('This value should be positive.')
+            ->and($violationsList)->toHaveCount(1);
+    });
+
+    it('return true if the value is a valid url', function () {
+        $violationsList = $this->getViolationsList(All::class, 'AllUrlTrue');
+        expect($violationsList)->toHaveCount(0);
+    });
+
+    it('return true if the value is not a valid url', function () {
+        $violationsList = $this->getViolationsList(All::class, 'AllUrlFalse');
+        expect($violationsList[0])
+            ->getMessage()->toBe('This value is not a valid URL.')
+            ->and($violationsList)->toHaveCount(1);
+    });
+
+    it('returns true if the value has the correct length max', function () {
+        $violationsList = $this->getViolationsList(All::class, 'AllLengthMaxTrue');
+        expect($violationsList)->toHaveCount(0);
+    });
+
+    it('returns true if the value is in the range between two dates', function () {
+        $violationsList = $this->getViolationsList(All::class, 'AllDateRangeBetweenTrue');
+        expect($violationsList)->toHaveCount(0);
+    });
+
+    it('returns true if the value is in the range after date', function () {
+        $violationsList = $this->getViolationsList(All::class, 'AllDateRangeAfterTrue');
+        expect($violationsList)->toHaveCount(0);
+    });
+
+    it('returns true if the value is in the range before date', function () {
+        $violationsList = $this->getViolationsList(All::class, 'AllDateRangeBeforeTrue');
+        expect($violationsList)->toHaveCount(0);
+    });
+
+    it('returns true if the value is selected', function () {
+        $violationsList = $this->getViolationsList(All::class, 'AllChoiceTrue');
+        expect($violationsList)->toHaveCount(0);
+    });
+
+    it('returns true if the value is in the range', function () {
+        $violationsList = $this->getViolationsList(All::class, 'AllRangeTrue');
+        expect($violationsList)->toHaveCount(0);
+    });
+
+    it('returns true if the value is positive', function () {
+        $violationsList = $this->getViolationsList(All::class, 'AllPositiveTrue');
+        expect($violationsList)->toHaveCount(0);
+    });
+
+    it('returns true if the value is not equal to null', function () {
+        $violationsList = $this->getViolationsList(All::class, 'AllNotNullTrue');
+        expect($violationsList)->toHaveCount(0);
+    });
+
+    it('returns true if the value is not blank', function () {
+        $violationsList = $this->getViolationsList(All::class, 'AllNotBlankTrue');
+        expect($violationsList)->toHaveCount(0);
+    });
+
+    it('returns true if the value is negative', function () {
+        $violationsList = $this->getViolationsList(All::class, 'AllNegativeTrue');
+        expect($violationsList)->toHaveCount(0);
+    });
+
+    it('returns true if the value is a valid email', function () {
+        $violationsList = $this->getViolationsList(All::class, 'AllEmailTrue');
+        expect($violationsList)->toHaveCount(0);
+    });
+
+    it('returns true if the value is less', function () {
+        $violationsList = $this->getViolationsList(All::class, 'AllLessThanTrue');
+        expect($violationsList)->toHaveCount(0);
+    });
+
+    it('returns true if the value is false', function () {
+        $violationsList = $this->getViolationsList(All::class, 'AllIsFalse');
+        expect($violationsList[0])
+            ->getMessage()->toBe('This value should be false.')
+            ->and($violationsList)->toHaveCount(1);
+    });
+
+    it('returns true if the value is true', function () {
+        $violationsList = $this->getViolationsList(All::class, 'AllIsTrue');
+        expect($violationsList[0])
+            ->getMessage()->toBe('This value should be true.')
+            ->and($violationsList)->toHaveCount(1);
+    });
+
+    it('returns true if the value is greater', function () {
+        $violationsList = $this->getViolationsList(GreaterThan::class, 'GreaterThanTrue');
+        expect($violationsList)->toHaveCount(0);
     });
 });

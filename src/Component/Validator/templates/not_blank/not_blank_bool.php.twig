@@ -1,7 +1,7 @@
 {% if allowNull == true %}
-    if ('' !== {{ getProperty }} && null !== {{ getProperty }}) {
+    if (null !== {{ getProperty }} && false === {{ getProperty }}) {
 {% else %}
-    if ('' !== {{ getProperty }} && null !== {{ getProperty }}) {
+    if (false === {{ getProperty }}) {
 {% endif %}
         $violationsList[] = new \Kaa\Component\Validator\Violation('{{ class }}', '{{ property }}', '{{ message }}');
     }

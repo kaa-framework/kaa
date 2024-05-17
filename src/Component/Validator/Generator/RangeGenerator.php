@@ -26,6 +26,7 @@ class RangeGenerator extends AbstractGenerator
         ReflectionProperty $reflectionProperty,
         string $className,
         Twig\Environment $twig,
+        bool $useArrayAccess = false,
     ): string {
         /** @var string $message */
         $message = preg_replace('/{{ min }}/', (string) $assert->min, $assert->message);
@@ -33,12 +34,13 @@ class RangeGenerator extends AbstractGenerator
 
         return $twig->render(
             'range.php.twig', [
-                'getMethod' => $this->getAccessMethod($reflectionProperty),
+                'getProperty' => $this->getPropertyCode($reflectionProperty, $useArrayAccess),
                 'min' => $assert->min,
                 'max' => $assert->max,
                 'class' => $className,
                 'property' => $reflectionProperty->name,
                 'message' => $message,
+                'useArrayAccess' => $useArrayAccess,
             ]
         );
     }

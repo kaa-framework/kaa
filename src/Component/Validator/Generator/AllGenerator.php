@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Kaa\Component\Validator\Generator;
 
 use Kaa\Component\Generator\PhpOnly;
+use Kaa\Component\Validator\Assert\All;
 use Kaa\Component\Validator\Assert\AssertInterface;
-use Kaa\Component\Validator\Assert\IsFalse;
 use Kaa\Component\Validator\Exception\ValidatorGeneratorException;
 use ReflectionProperty;
 use Twig;
@@ -15,10 +15,10 @@ use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
 #[PhpOnly]
-class IsFalseGenerator extends AbstractGenerator
+class AllGenerator extends AbstractGenerator
 {
     /**
-     * @param IsFalse $assert
+     * @param All $assert
      * @throws LoaderError|RuntimeError|SyntaxError|ValidatorGeneratorException
      */
     public function generateAssert(
@@ -28,14 +28,25 @@ class IsFalseGenerator extends AbstractGenerator
         Twig\Environment $twig,
         bool $useArrayAccess = false,
     ): string {
-        return $twig->render(
-            'is_false.php.twig', [
+        $code = $twig->render(
+            'all/all_foreach_open.php.twig', [
                 'getProperty' => $this->getPropertyCode($reflectionProperty, $useArrayAccess),
-                'class' => $className,
-                'property' => $reflectionProperty->name,
-                'message' => $assert->message,
-                'useArrayAccess' => $useArrayAccess,
+                'elemName' => self::ARRAY_VARIABLE_NAME,
             ]
         );
+
+        foreach ($assert->asserts as $a) {
+            $code .= "\n" . $a->getGenerator()->generateAssert(
+                $a,
+                $reflectionProperty,
+                $className,
+                $twig,
+                true,
+            );
+        }
+
+        $code .= "\n" . $twig->render('all/all_foreach_close.php.twig');
+
+        return $code;
     }
 }
