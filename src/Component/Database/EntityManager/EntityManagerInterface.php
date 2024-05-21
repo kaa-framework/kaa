@@ -2,6 +2,7 @@
 
 namespace Kaa\Component\Database\EntityManager;
 
+use Kaa\Component\Database\Dto\EntityWithValueSet;
 use Kaa\Component\Database\EntityInterface;
 use PDO;
 
@@ -63,5 +64,22 @@ interface EntityManagerInterface
 
     public function flush(): void;
 
+    public function remove(EntityInterface $entity): void;
+
     public function _getPdo(): PDO;
+
+    /**
+     * @template T of \Kaa\Component\Database\EntityInterface
+     * @kphp-generic T
+     *
+     * @param class-string<T> $entityClass
+     */
+    public function createQueryBuilder(string $entityClass, string $alias): \Kaa\Component\Database\QueryBuilder\AbstractQueryBuilder;
+
+    /**
+     * @return array<string, \Kaa\Component\Database\Dto\EntityWithValueSet>
+     */
+    public function _getManagedEntities(): array;
+
+    public function _addManagedEntity(string $key, EntityWithValueSet $object): self;
 }

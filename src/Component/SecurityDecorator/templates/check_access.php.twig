@@ -1,13 +1,13 @@
 $kaaSecurityCheckAccess = ({{ service }})->{{ method }}(
 {% for arg in arguments %}
     {% if arg starts with '$' %}
-        {{ value }}{{ not loop.last ? ',' }}'
+        {{ arg }}{{ not loop.last ? ',' }}
     {% else %}
-        '{{ value }}'{{ not loop.last ? ',' }}'
+        '{{ arg }}{{ not loop.last ? ',' }}'
     {% endif %}
 {% endfor %}
 );
 
 if (!$kaaSecurityCheckAccess) {
-    throw new \Kaa\Component\SecurityDecorator\Exception\AccessDeniedException('Access denied by {{ serviceName }}::{{ method }}');
+throw new \Kaa\Component\SecurityDecorator\Exception\AccessDeniedException('Access denied by {{ serviceName }}::{{ method }}');
 }

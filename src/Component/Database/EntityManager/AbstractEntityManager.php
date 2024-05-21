@@ -14,11 +14,18 @@ abstract class AbstractEntityManager implements EntityManagerInterface
     /** @var array<string, EntityWithValueSet> */
     protected array $managedEntities = [];
 
+    public function remove(EntityInterface $entity): void
+    {
+        $this->managedEntities[$entity->_getEntityClassName() . '#' . $entity->_getId()]->getEntity()->_setIsQueuedToRemove();
+    }
+
     /**
      * @throws Throwable
      */
     public function flush(): void
     {
+        $this->delete();
+
         $sort = new DnfSort();
         foreach ($this->newEntities as $entity) {
             $sort->addNode($entity);
@@ -88,4 +95,6 @@ abstract class AbstractEntityManager implements EntityManagerInterface
     abstract protected function insert(array $newEntities): void;
 
     abstract protected function update(): void;
+
+    abstract protected function delete(): void;
 }

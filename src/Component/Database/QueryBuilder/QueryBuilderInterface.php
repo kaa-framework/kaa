@@ -39,10 +39,19 @@ interface QueryBuilderInterface
     public function getSql(): string;
 
     /**
-     * @return EntityInterface[]
+     * @template T of \Kaa\Component\Database\EntityInterface
+     * @kphp-generic T
+     * @param class-string<T> $entityClass
+     * @return T[]
      */
     public function getResult(string $entityClass): array;
 
+    /**
+     * @template T of \Kaa\Component\Database\EntityInterface
+     * @kphp-generic T
+     * @param class-string<T> $entityClass
+     * @return T|null
+     */
     public function getOneOrNullResult(string $entityClass): EntityInterface|null;
 
     /**

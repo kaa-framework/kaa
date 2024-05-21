@@ -68,9 +68,9 @@ abstract class AbstractQueryBuilder implements QueryBuilderInterface
             throw new QueryBuilderException("Incorrect fetch join using. No {$join} in {$this->entityInfo->entityName}");
         }
 
-        $join = $tablesInfo[$currentAlias]->referenceColumns[$join];
-        $referenceClassInfo = $this->getEntityInfo($join);
-        $this->queryParts->join($currentAlias, $alias, $tablesInfo[$currentAlias], $referenceClassInfo, $type);
+        $joinColumn = $tablesInfo[$currentAlias]->referenceColumns[$join];
+        $referenceClassInfo = $this->getEntityInfo/* <EntityInterface> */ ($joinColumn);
+        $this->queryParts->join($join, $currentAlias, $alias, $tablesInfo[$currentAlias], $referenceClassInfo, $type);
     }
 
     public function leftJoin(string $join, string $alias): self
@@ -257,11 +257,18 @@ abstract class AbstractQueryBuilder implements QueryBuilderInterface
     abstract protected function getEntityColumns(string $entityClass): array;
 
     /**
-     * @return EntityInterface[]
+     * @template T of \Kaa\Component\Database\EntityInterface
+     * @kphp-generic T
+     * @param class-string<T> $entityClass
+     * @return T[]
      */
     abstract public function getResult(string $entityClass): array;
 
     /**
+     * @template T of \Kaa\Component\Database\EntityInterface
+     * @kphp-generic T
+     * @param class-string<T> $entityClass
+     * @return T|null
      * @throws QueryBuilderException
      */
     public function getOneOrNullResult(string $entityClass): EntityInterface|null
@@ -295,5 +302,14 @@ abstract class AbstractQueryBuilder implements QueryBuilderInterface
         $results = $statement->fetchAll();
 
         return $hydrate($results);
+    }
+
+    public function getSingleScalarResult(): mixed
+    {
+        $query = $this->getSql();
+        $statement = $this->entityManager->_getPdo()->query($query);
+        $results = $statement->fetchAll();
+
+        return $results[0];
     }
 }

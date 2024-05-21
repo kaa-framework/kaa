@@ -61,19 +61,13 @@ readonly class QueryBuilderWriter
             'infoClassName' => EntityInfo::class
         ]);
         $this->classWriter->addMethod(
-            visibility: Visibility::Public,
+            visibility: Visibility::Protected,
             name: 'getEntityInfo',
             returnType: EntityInfo::class,
             code: $code,
             parameters: [
                 new Parameter(type: 'string', name: 'entityClass'),
             ],
-            comment: '
-                @template T of \Kaa\Component\Database\EntityInterface
-                @kphp-generic T
-            
-                @param class-string<T> $entityClass
-            ',
         );
     }
 
@@ -85,7 +79,7 @@ readonly class QueryBuilderWriter
             'namespace' => '\\Kaa\\Generated\\Database\\Entity'
         ]);
         $this->classWriter->addMethod(
-            visibility: Visibility::Public,
+            visibility: Visibility::Protected,
             name: 'getEntityColumns',
             returnType: 'array',
             code: $code,
@@ -93,10 +87,6 @@ readonly class QueryBuilderWriter
                 new Parameter(type: 'string', name: 'entityClass'),
             ],
             comment: '
-                @template T of \Kaa\Component\Database\EntityInterface
-                @kphp-generic T
-            
-                @param class-string<T> $entityClass
                 @return string[]
             ',
         );

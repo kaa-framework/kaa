@@ -29,7 +29,7 @@ abstract class AbstractPdoMysqlEntityManager extends AbstractEntityManager
                     'INSERT INTO %s (%s) VALUES (%s)',
                     $entity->_getTableName(),
                     implode(', ', $entity->_getColumnNames()),
-                    implode(', ', $entity->_getValues()),
+                    implode(', ', array_map(static fn ($v) => is_string($v) ? $v : var_export($v, true), $entity->_getValues())),
                 );
 
                 $this->pdo->exec($sql);
@@ -41,7 +41,7 @@ abstract class AbstractPdoMysqlEntityManager extends AbstractEntityManager
                     $entity->_getIdColumnName(),
                     $entity->_getColumnNames() !== [] ? ',' . implode(', ', $entity->_getColumnNames()) : '',
                     $entity->_getId(),
-                    $entity->_getColumnNames() !== [] ? ',' . implode(', ', $entity->_getValues()) : '',
+                    $entity->_getColumnNames() !== [] ? ',' . implode(', ', array_map(static fn ($v) => is_string($v) ? $v : var_export($v, true), $entity->_getValues())) : '',
                 );
 
                 $this->pdo->exec($sql);
@@ -73,6 +73,25 @@ abstract class AbstractPdoMysqlEntityManager extends AbstractEntityManager
 
             $this->pdo->exec($sql);
             $entityWithValueSet->setValues($entity->_getValues());
+        }
+    }
+
+    protected function delete(): void
+    {
+        foreach ($this->managedEntities as $key => $entityWithValueSet) {
+            $entity = $entityWithValueSet->getEntity();
+            if (!$entity->_isQueuedToRemove()) {
+                continue;
+            }
+
+            $sql = sprintf(
+                'DELETE FROM %s WHERE %s = %s',
+                $entity->_getTableName(),
+                $entity->_getIdColumnName(),
+                $entity->_getId()
+            );
+            $this->pdo->exec($sql);
+            array_unset($this->managedEntities, $key);
         }
     }
 

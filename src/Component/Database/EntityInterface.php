@@ -77,4 +77,19 @@ interface EntityInterface
      * @return string[]
      */
     public function _getNotInsertedOids(): array;
+
+    /**
+     * @internal
+     */
+    public function _getEntityClassName(): string;
+
+    /**
+     * @internal
+     */
+    public function _isQueuedToRemove(): bool;
+
+    /**
+     * @internal
+     */
+    public function _setIsQueuedToRemove(bool $isQueuedToRemove = true): void;
 }

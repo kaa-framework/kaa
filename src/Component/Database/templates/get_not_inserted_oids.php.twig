@@ -1,7 +1,12 @@
 $oids = [];
 
 {% for mto in manyToOne %}
+{% if mto.isNullable == true %}
+if (($this->{{ mto.fieldName }} !== null) && ($this->{{ mto.fieldName }}->_getId() === null)) {
+{% else %}
 if ($this->{{ mto.fieldName }}->_getId() === null) {
+{% endif %}
+
     $oids[] = $this->{{ mto.fieldName }}->_getOid();
 }
 {% endfor %}

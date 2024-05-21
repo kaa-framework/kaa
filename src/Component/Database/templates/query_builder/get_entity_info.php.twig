@@ -5,10 +5,10 @@ switch ($entityClass) {
     $oneToManyArray = [
     {% for oneToMany in entity.oneToMany %}
         {% if firstEl == 1 %}
-        '{{ oneToMany.targetEntity }}' => '{{ oneToMany.referenceColumnName }}'
+            '{{ oneToMany.fieldName }}' => '{{ oneToMany.referenceColumnName }}'
             {% set firstEl = 0 %}
         {% else %}
-            ,'{{ oneToMany.targetEntity }}' => '{{ oneToMany.referenceColumnName }}'
+            , '{{ oneToMany.fieldName }}' => '{{ oneToMany.referenceColumnName }}'
         {% endif %}
     {% endfor %}
 
@@ -17,10 +17,10 @@ switch ($entityClass) {
     $manyToOneArray = [
     {% for manyToOne in entity.manyToOne %}
         {% if firstEl == 1 %}
-            '{{ manyToOne.targetEntity }}' => '{{ manyToOne.columnName }}'
+            '{{ manyToOne.fieldName }}' => '{{ manyToOne.columnName }}'
             {% set firstEl = 0 %}
         {% else %}
-            ,'{{ manyToOne.targetEntity }}' => '{{ manyToOne.columnName }}'
+            , '{{ manyToOne.fieldName }}' => '{{ manyToOne.columnName }}'
         {% endif %}
     {% endfor %}
 

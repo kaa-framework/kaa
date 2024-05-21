@@ -1,20 +1,7 @@
 switch ($entityClass) {
 {% for entity in entities %}
     case \{{ entity.entityClass }}::class:
-        $query = '
-            SELECT
-            {% for field in entity.fields %}
-                {# @var field \Kaa\Component\Database\Dto\FieldMetadata #}
-                {{ field.columnName }}{{ not loop.last ? ',' }}
-            {% endfor %}
-            {{ not entity.manyToOne is empty ? ',' }}
-            {% for mto in entity.manyToOne %}
-                {{ mto.columnName }}{{ not loop.last ? ',' }}
-            {% endfor %}
-
-            FROM {{ entity.tableName }}
-            WHERE
-        ';
+        $qb = $this->createQueryBuilder(\{{ entity.entityClass }}::class, 'e');
 
         $where = [];
         foreach ($criteria as $field => $value) {
@@ -23,9 +10,9 @@ switch ($entityClass) {
                     {# @var field \Kaa\Component\Database\Dto\FieldMetadata #}
                     case '{{ field.name }}':
                         if (is_string($value)) {
-                            $where[] = "{{ field.columnName }} = '" . $value . "'";
+                            $where[] = \Kaa\Component\Database\QueryBuilder\Query\Expr::e("{{ field.columnName }} = '" . $value . "'");
                         } else {
-                            $where[] = "{{ field.columnName }} = " . $value;
+                            $where[] = \Kaa\Component\Database\QueryBuilder\Query\Expr::e("{{ field.columnName }} = " . $value);
                         }
 
                         break;
@@ -33,7 +20,7 @@ switch ($entityClass) {
                 {% for mto in entity.manyToOne %}
                     {# @var field \Kaa\Component\Database\Dto\FieldMetadata #}
                     case '{{ mto.fieldName }}':
-                        $where[] = "{{ mto.columnName }} = " . $value;
+                        $where[] = \Kaa\Component\Database\QueryBuilder\Query\Expr::e("{{ mto.columnName }} = " . $value);
                         break;
                 {% endfor %}
                     default:
@@ -41,12 +28,10 @@ switch ($entityClass) {
             }
         }
 
-        $query .= implode(' AND ', $where);
+        $qb->where(\Kaa\Component\Database\QueryBuilder\Query\Expr::and($where));
 
 
         if ($order !== []) {
-            $query .= ' ORDER BY ';
-            $orderBy = [];
             foreach ($criteria as $field => $value) {
                 if ($value !== 'ASC' && $value !== 'DESC') {
                     throw new \Kaa\Component\Database\Exception\DatabaseException('Only "ASC" and "DESC" can be used as values in $order');
@@ -56,14 +41,14 @@ switch ($entityClass) {
                 {% for field in entity.fields %}
                     {# @var field \Kaa\Component\Database\Dto\FieldMetadata #}
                     case '{{ field.name }}':
-                        $orderBy[] = "{{ field.columnName }} " . $value;
+                        $qb->addOrderBy("{{ field.columnName }}", $value);
 
                     break;
                 {% endfor %}
                 {% for mto in entity.manyToOne %}
                     {# @var field \Kaa\Component\Database\Dto\FieldMetadata #}
                     case '{{ mto.fieldName }}':
-                        $orderBy[] = "{{ mto.columnName }} = " . $value;
+                        $qb->addOrderBy("{{ mto.columnName }}", $value);
                     break;
                 {% endfor %}
                     default:
@@ -71,116 +56,17 @@ switch ($entityClass) {
                 }
             }
 
-            $query .= implode(', ', $orderBy);
         }
 
         if ($limit !== null) {
-            $query .= ' LIMIT ' . $limit;
+            $qb->setMaxResult($limit);
         }
 
         if ($offset !== null) {
-            $query .= ' OFFSET ' . $offset;
+            $qb->setFirstResult($offset);
         }
 
-        $statement = $this->pdo->query($query);
-
-        $entities = [];
-        $results = $statement->fetchAll();
-        foreach ($results as $result) {
-            $uniqueId = '{{ entity.entityClass }}' . '#' . $result['{{ entity.idColumnName }}'];
-            if (array_key_exists($uniqueId, $this->managedEntities)) {
-                $entity = instance_cast($this->managedEntities[$uniqueId]->getEntity(), \{{ entity.entityClass }}::class);
-                if (!$entity->_isInitialized()) {
-                    $newManagedEntities = $entity->_hydrate($result, $this, $this->managedEntities);
-                    foreach ($newManagedEntities as $newManagedEntity) {
-                        $this->managedEntities[$newManagedEntity->_getEntityClassName() . '#' . $newManagedEntity->_getId()] = new \Kaa\Component\Database\Dto\EntityWithValueSet(
-                        $newManagedEntity,
-                        $newManagedEntity->_isInitialized() ? $newManagedEntity->_getValues() : []
-                        );
-                    }
-                    /** @var array<string, int[]> $oneToManyIds */
-                    $oneToManyIds = [];
-                    {% for oneToMany in entity.oneToMany %}
-                        {# @var oneToMany \Kaa\Component\Database\Dto\OneToManyMetadata #}
-                        $subQuery = '
-                        SELECT DISTINCT({{ oneToMany.targetEntityIdColumnName }}) AS id
-                        FROM {{ oneToMany.targetEntityTable }}
-                        WHERE {{ oneToMany.referenceColumnName }} = %s
-                        ';
-
-                        $subQuery = sprintf($subQuery, $entity->_getId());
-
-                        $subStatement = $this->entityManager->_getPdo()->query($subQuery);
-                        $subResults = $subStatement->fetchAll();
-                        $oneToManyIds['{{ oneToMany.fieldName }}'] = [];
-                        foreach($subResults as $subResult) {
-                            $oneToManyIds['{{ oneToMany.fieldName }}'][] = (int) $subResult['id'];
-                        }
-                    {% endfor %}
-
-                    $newManagedEntities = $entity->_hydrateOneToMany($oneToManyIds, $this->entityManager, $this->entityManager->_getManagedEntities());
-                    foreach ($newManagedEntities as $newManagedEntity) {
-                        $this->entityManager->_addManagedEntity($newManagedEntity->_getEntityClassName() . '#' . $newManagedEntity->_getId(), (new \Kaa\Component\Database\Dto\EntityWithValueSet(
-                        $newManagedEntity,
-                        $newManagedEntity->_isInitialized() ? $newManagedEntity->_getValues() : []
-                        )));
-                    }
-                    $entity->_setInitialized();
-
-                    $this->managedEntities[$uniqueId]->setValues($entity->_getValues());
-                }
-
-                $entities[] = $entity;
-                continue;
-            }
-
-            $entity = new \Kaa\Generated\Database\Entity\{{ connection }}\{{ entity.className }}();
-            $newManagedEntities = $entity->_hydrate($result, $this, $this->managedEntities);
-            foreach ($newManagedEntities as $newManagedEntity) {
-                $this->managedEntities[$newManagedEntity->_getEntityClassName() . '#' . $newManagedEntity->_getId()] = new \Kaa\Component\Database\Dto\EntityWithValueSet(
-                    $newManagedEntity,
-                    $newManagedEntity->_isInitialized() ? $newManagedEntity->_getValues() : []
-                );
-            }
-
-            /** @var array<string, int[]> $oneToManyIds */
-            $oneToManyIds = [];
-            {% for oneToMany in entity.oneToMany %}
-                {# @var oneToMany \Kaa\Component\Database\Dto\OneToManyMetadata #}
-                $subQuery = '
-                    SELECT DISTINCT({{ oneToMany.targetEntityIdColumnName }}) AS id
-                    FROM {{ oneToMany.targetEntityTable }}
-                    WHERE {{ oneToMany.referenceColumnName }} = %s
-                ';
-
-                $subQuery = sprintf($subQuery, $entity->_getId());
-
-                $subStatement = $this->pdo->query($subQuery);
-                $subResults = $subStatement->fetchAll();
-                $oneToManyIds['{{ oneToMany.fieldName }}'] = [];
-                foreach($subResults as $subResult) {
-                    $oneToManyIds['{{ oneToMany.fieldName }}'][] = (int) $subResult['id'];
-                }
-            {% endfor %}
-
-            $newManagedEntities = $entity->_hydrateOneToMany($oneToManyIds, $this, $this->managedEntities);
-            foreach ($newManagedEntities as $newManagedEntity) {
-                $this->managedEntities[$newManagedEntity->_getEntityClassName() . '#' . $newManagedEntity->_getId()] = new \Kaa\Component\Database\Dto\EntityWithValueSet(
-                    $newManagedEntity,
-                    $newManagedEntity->_isInitialized() ? $newManagedEntity->_getValues() : []
-                );
-            }
-
-            $this->managedEntities['{{ entity.entityClass }}' . '#' . $entity->_getId()] = new \Kaa\Component\Database\Dto\EntityWithValueSet(
-                $entity,
-                $entity->_getValues()
-            );
-
-            $entities[] = $entity;
-            $result = $statement->fetch();
-        }
-
-        return $entities;
+        return $qb->getResult(\{{ entity.entityClass }}::class);
 {% endfor %}
 }
 

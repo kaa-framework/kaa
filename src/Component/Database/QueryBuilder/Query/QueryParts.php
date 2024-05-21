@@ -43,13 +43,14 @@ class QueryParts
     }
 
     public function join(
+        string $join,
         string $currentClassAlias,
         string $referenceAlias,
         EntityInfo $currentClassInfo,
         EntityInfo $referenceClassInfo,
         string $type
     ): void {
-        $this->join[] = new Join($currentClassAlias, $referenceAlias, $currentClassInfo, $referenceClassInfo, $type);
+        $this->join[] = new Join($join, $currentClassAlias, $referenceAlias, $currentClassInfo, $referenceClassInfo, $type);
     }
 
     public function setExpression(ExprInterface $expr): void

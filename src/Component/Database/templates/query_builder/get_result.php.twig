@@ -1,5 +1,5 @@
 if ($this->queryParts->getSelect() !== null) {
-throw new QueryBuilderException(
+throw new \Kaa\Component\Database\QueryBuilder\Exception\QueryBuilderException(
 'Using getOneOrNullResult() or getResult() with specified select is not allowed. Use getCustomResult() instead'
 );
 }
@@ -11,7 +11,7 @@ switch ($entityClass) {
 
     $statement = $this->entityManager->_getPdo()->query($query);
 
-
+    /** @var \{{ entity.entityClass }}[] $entities */
     $entities = [];
     $results = $statement->fetchAll();
     $fetchCount = 0;
@@ -165,7 +165,7 @@ switch ($entityClass) {
                 if (array_key_exists($join->getReferenceClassInfo()->entityIdColumnName, $result)) {
                     $refId = $result[$join->getReferenceClassInfo()->entityIdColumnName];
                     if ($refId !== null) {
-                        $this->getHydrateEntity($join->getReferenceClassInfo()->entityName, $result);
+                        $this->getHydrateEntity/*<\Kaa\Component\Database\EntityInterface>*/($join->getReferenceClassInfo()->entityName, $result);
                     }
                 }
 
@@ -270,12 +270,15 @@ switch ($entityClass) {
             $result = $statement->fetch();
         }
     }
-
+    if (count($entities) > 0) {
     $fullyHydrateEntities = [$entities[count($entities) - 1]];
     for($i = count($entities) - 2; $i >= 0; $i--){
         if ($entities[$i + 1]->_getId() !== $entities[$i]->_getId()) {
             $fullyHydrateEntities[] = $entities[$i];
         }
+    }
+    } else {
+        return [];
     }
 
     return array_reverse($fullyHydrateEntities);

@@ -1,8 +1,8 @@
 switch ($entityClass) {
 {% for entity in entities %}
     case \{{ entity.entityClass }}::class:
-    $entity = new {{ namespace }}\{{ connection }}\{{ entity.className }}();
-    return array_merge([$entity->_getIdColumnName()], $entity->_getColumnNames());
+    // $entity = new {{ namespace }}\{{ connection }}\{{ entity.className }}();
+    return array_merge([(new {{ namespace }}\{{ connection }}\{{ entity.className }}())->_getIdColumnName()], (new {{ namespace }}\{{ connection }}\{{ entity.className }}())->_getColumnNames());
 {% endfor %}
 }
 

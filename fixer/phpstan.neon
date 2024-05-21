@@ -103,3 +103,7 @@ parameters:
         - message: '#In method "Kaa\\Bundle\\Framework\\FrameworkGenerator::generate", caught "Throwable" must be rethrown.*#'
 
         - message: '#Cannot call method fetchAll\(\) on PDOStatement\|false\.#'
+
+        - message: '#Call to an undefined method ReflectionType::isBuiltin\(\).#'
+
+        - message: '#Call to an undefined method ReflectionType::getName\(\).#'

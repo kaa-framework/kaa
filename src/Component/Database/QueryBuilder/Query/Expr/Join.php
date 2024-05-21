@@ -17,6 +17,8 @@ class Join implements ExprInterface
 
     public const LEFT_FETCH_JOIN = 'LEFT_FETCH';
 
+    private string $join;
+
     private string $currentClassAlias;
 
     private string $referenceClassAlias;
@@ -28,12 +30,14 @@ class Join implements ExprInterface
     private string $type;
 
     public function __construct(
+        string $join,
         string $currentClassAlias,
         string $referenceClassAlias,
         EntityInfo $currentClassInfo,
         EntityInfo $referenceClassInfo,
         string $type
     ) {
+        $this->join = $join;
         $this->currentClassAlias = $currentClassAlias;
         $this->referenceClassAlias = $referenceClassAlias;
         $this->currentClassInfo = $currentClassInfo;
@@ -59,11 +63,11 @@ class Join implements ExprInterface
     public function getQueryPart(): string
     {
         $sqlPart = '';
-        if (array_key_exists($this->currentClassInfo->entityName, $this->referenceClassInfo->manyToOne)) {
+        if (array_key_exists($this->join, $this->currentClassInfo->oneToMany)) {
             $sqlPart .= $this->currentClassAlias . ".{$this->currentClassInfo->entityIdColumnName} = ";
-            $sqlPart .= $this->referenceClassAlias . ".{$this->referenceClassInfo->manyToOne[$this->currentClassInfo->entityName]} ";
+            $sqlPart .= $this->referenceClassAlias . ".{$this->currentClassInfo->oneToMany[$this->join]} ";
         } else {
-            $sqlPart .= $this->currentClassAlias . ".{$this->currentClassInfo->manyToOne[$this->referenceClassInfo->entityName]} = ";
+            $sqlPart .= $this->currentClassAlias . ".{$this->currentClassInfo->manyToOne[$this->join]} = ";
             $sqlPart .= $this->referenceClassAlias . ".{$this->referenceClassInfo->entityIdColumnName} ";
         }
 

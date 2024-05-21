@@ -41,6 +41,7 @@ readonly class EntityWriter
      */
     public function write(): void
     {
+        $this->classWriter->addVariable(Visibility::Private, 'bool', 'isQueuedToRemove');
         $this->addConstructor();
         $this->addGetColumnNamesMethod();
         $this->addHydrateMethod();
@@ -56,6 +57,8 @@ readonly class EntityWriter
         $this->addOidVariable();
         $this->addGetNotInsertedOidsMethod();
         $this->addGetEntityClassName();
+        $this->addSetDeletable();
+        $this->addGetDeletable();
 
         $this->classWriter->writeFile($this->config->exportDirectory);
     }
@@ -64,7 +67,7 @@ readonly class EntityWriter
     {
         $this->classWriter->addConstructor(
             visibility: Visibility::Public,
-            code: '$this->_oid = microtime() . "#" . mt_rand();',
+            code: '$this->_oid = microtime() . "#" . mt_rand(); $this->isQueuedToRemove = false;',
         );
     }
 
@@ -172,7 +175,11 @@ readonly class EntityWriter
         }
 
         foreach ($this->entityMetadata->manyToOne as $manyToOneMetadata) {
-            $valueCode = '$this->' . $manyToOneMetadata->fieldName . '->_getId()';
+            if ($manyToOneMetadata->isNullable === false) {
+                $valueCode = '$this->' . $manyToOneMetadata->fieldName . '->_getId()';
+            } else {
+                $valueCode = 'isset($this->' . $manyToOneMetadata->fieldName . ') ? $this->' . $manyToOneMetadata->fieldName . '->_getId() : null';
+            }
 
             $code[] = sprintf(
                 '$values["%s"] = %s;',
@@ -302,6 +309,31 @@ readonly class EntityWriter
             visibility: Visibility::Public,
             name: '_getEntityClassName',
             returnType: 'string',
+            code: $code
+        );
+    }
+
+    private function addSetDeletable(): void
+    {
+        $code = '$this->isQueuedToRemove = $isQueuedToRemove;';
+
+        $this->classWriter->addMethod(
+            visibility: Visibility::Public,
+            name: '_setIsQueuedToRemove',
+            returnType: 'void',
+            code: $code,
+            parameters: [new Parameter('bool', 'isQueuedToRemove', false, true)]
+        );
+    }
+
+    public function addGetDeletable(): void
+    {
+        $code = 'return $this->isQueuedToRemove;';
+
+        $this->classWriter->addMethod(
+            visibility: Visibility::Public,
+            name: '_isQueuedToRemove',
+            returnType: 'bool',
             code: $code
         );
     }
