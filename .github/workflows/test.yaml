@@ -1,0 +1,60 @@
+name: Test
+run-name: Testing
+on:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+    branches:
+      - 'main'
+
+jobs:
+  composer install:
+    needs: [composer install]
+    runs-on: ubuntu-latest
+    container: registry.miem.hse.ru/kaa-framework/kaa/php:1.0.0
+    steps:
+      - run: composer install --no-interaction
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: vendor
+          path: |
+            vendor
+            var
+
+
+  PHPStan:
+    needs: [composer install]
+    runs-on: ubuntu-latest
+    container: registry.miem.hse.ru/kaa-framework/kaa/php:1.0.0
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: vendor
+      - run: vendor/bin/phpstan --configuration=fixer/phpstan.neon --no-progress --error-format=gitlab > phpstan.json
+
+
+  Easy Coding Standard:
+    needs: [composer install]
+    runs-on: ubuntu-latest
+    container: registry.miem.hse.ru/kaa-framework/kaa/php:1.0.0
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: vendor
+      - run: vendor/bin/ecs check --config=fixer/ecs.php
+
+
+  Pest:
+    needs: [composer install]
+    runs-on: ubuntu-latest
+    container: registry.miem.hse.ru/kaa-framework/kaa/php:1.0.0
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: vendor
+      - run: php vendor/bin/pest -c fixer/phpunit.xml.dist --parallel --compact --log-junit phpunit-report.xml --colors=never
