@@ -35,7 +35,7 @@ jobs:
       - run: vendor/bin/phpstan --configuration=fixer/phpstan.neon --no-progress --error-format=gitlab > phpstan.json
 
 
-  Easy Coding Standard:
+  EasyCodingStandard:
     needs: [composerInstall]
     runs-on: ubuntu-latest
     container: registry.miem.hse.ru/kaa-framework/kaa/php:1.0.0
