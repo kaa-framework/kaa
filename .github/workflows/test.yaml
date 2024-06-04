@@ -9,8 +9,7 @@ on:
       - 'main'
 
 jobs:
-  composer install:
-    needs: [composer install]
+  composerInstall:
     runs-on: ubuntu-latest
     container: registry.miem.hse.ru/kaa-framework/kaa/php:1.0.0
     steps:
@@ -25,7 +24,7 @@ jobs:
 
 
   PHPStan:
-    needs: [composer install]
+    needs: [composerInstall]
     runs-on: ubuntu-latest
     container: registry.miem.hse.ru/kaa-framework/kaa/php:1.0.0
     steps:
@@ -37,7 +36,7 @@ jobs:
 
 
   Easy Coding Standard:
-    needs: [composer install]
+    needs: [composerInstall]
     runs-on: ubuntu-latest
     container: registry.miem.hse.ru/kaa-framework/kaa/php:1.0.0
     steps:
@@ -49,7 +48,7 @@ jobs:
 
 
   Pest:
-    needs: [composer install]
+    needs: [composerInstall]
     runs-on: ubuntu-latest
     container: registry.miem.hse.ru/kaa-framework/kaa/php:1.0.0
     steps:
